@@ -21,12 +21,18 @@ package org.wso2.carbon.security.connector.jdbc.constant;
  */
 public class DatabaseColumnNames {
 
+    /**
+     * Names of the Group table columns.
+     */
     public static final class Group {
         public static final String ID = "ID";
         public static final String GROUP_UNIQUE_ID = "GROUP_UNIQUE_ID";
         public static final String GROUP_NAME = "GROUP_NAME";
     }
 
+    /**
+     * Names of the User table columns.
+     */
     public static final class User {
         public static final String ID = "ID";
         public static final String USERNAME = "USERNAME";
@@ -34,21 +40,33 @@ public class DatabaseColumnNames {
         public static final String USER_UNIQUE_ID = "USER_UNIQUE_ID";
     }
 
+    /**
+     * Names of the Group table columns.
+     */
     public static final class Role {
         public static final String ROLE_NAME = "ROLE_NAME";
     }
 
+    /**
+     * Names of the UserAttributes table columns.
+     */
     public static final class UserAttributes {
         public static final String ATTR_NAME = "ATTR_NAME";
         public static final String ATTR_VALUE = "ATTR_VALUE";
         public static final String USER_ID = "USER_ID";
     }
 
+    /**
+     * Names of the UserGroup table columns.
+     */
     public static final class UserGroup {
         public static final String USER_ID = "USER_ID";
         public static final String GROUP_ID = "GROUP_ID";
     }
 
+    /**
+     * Names of the PasswordInfo table columns.
+     */
     public static final class PasswordInfo {
         public static final String HASH_ALGO = "HASH_ALGO";
         public static final String PASSWORD_SALT = "PASSWORD_SALT";

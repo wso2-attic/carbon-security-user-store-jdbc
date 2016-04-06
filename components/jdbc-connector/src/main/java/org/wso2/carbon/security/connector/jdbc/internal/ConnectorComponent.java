@@ -25,13 +25,13 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
+import org.wso2.carbon.security.connector.jdbc.JDBCAuthorizationConnector;
+import org.wso2.carbon.security.connector.jdbc.JDBCCredentialStoreConnector;
+import org.wso2.carbon.security.connector.jdbc.JDBCIdentityStoreConnector;
 import org.wso2.carbon.security.connector.jdbc.util.DatabaseUtil;
 import org.wso2.carbon.security.usercore.connector.AuthorizationStoreConnector;
 import org.wso2.carbon.security.usercore.connector.CredentialStoreConnector;
 import org.wso2.carbon.security.usercore.connector.IdentityStoreConnector;
-import org.wso2.carbon.security.connector.jdbc.JDBCAuthorizationConnector;
-import org.wso2.carbon.security.connector.jdbc.JDBCCredentialStoreConnector;
-import org.wso2.carbon.security.connector.jdbc.JDBCIdentityStoreConnector;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
