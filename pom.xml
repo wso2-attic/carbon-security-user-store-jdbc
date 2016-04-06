@@ -8,7 +8,8 @@
         <version>2</version>
     </parent>
 
-    <artifactId>carbon.security.connector.jdbc.parent</artifactId>
+    <artifactId>org.wso2.carbon.security.connector.jdbc.parent</artifactId>
+    <groupId>org.wso2.carbon.security.connector</groupId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Security Connector JDBC - Parent</name>
     <version>1.0.0-SNAPSHOT</version>
@@ -51,8 +52,8 @@
     </dependencyManagement>
 
     <properties>
-        <carbon.jndi.version>1.0.0-SNAPSHOT</carbon.jndi.version>
-        <carbon.datasources.version>1.0.0-SNAPSHOT</carbon.datasources.version>
+        <carbon.jndi.version>1.0.0-m1</carbon.jndi.version>
+        <carbon.datasources.version>1.0.0-m1</carbon.datasources.version>
     </properties>
 
 </project>
