@@ -46,7 +46,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     private DataSource dataSource;
     private IdentityStoreConfig identityStoreConfig;
-    private Map<String, String> sqlStatements;
     private String userStoreId;
     private String userStoreName;
 
@@ -83,7 +82,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_USERNAME));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_USERNAME));
             namedPreparedStatement.setString("username", username);
             ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -106,7 +105,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ID));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ID));
             namedPreparedStatement.setString("user_id", userID);
             ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -132,7 +131,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS));
             listUsersNamedPreparedStatement.setString("username", filterPattern);
             listUsersNamedPreparedStatement.setInt("length", length);
             listUsersNamedPreparedStatement.setInt("offset", offset);
@@ -157,7 +156,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES));
             namedPreparedStatement.setString("user_id", userId);
             ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -182,7 +181,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_URI));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_URI));
             namedPreparedStatement.setString("user_id", userID);
             namedPreparedStatement.setString("claim_uris", claimURIs);
             ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
@@ -208,7 +207,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_NAME));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_NAME));
             namedPreparedStatement.setString("groupname", groupName);
             ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -230,7 +229,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ID));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ID));
             namedPreparedStatement.setString("group_id", groupId);
             ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -259,7 +258,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER));
             namedPreparedStatement.setString("user_id", userId);
             ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -284,7 +283,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_GROUP));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_GROUP));
             namedPreparedStatement.setString("group_id", groupId);
             ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -309,7 +308,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_GROUP));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_GROUP));
             namedPreparedStatement.setString("user_id", userId);
             namedPreparedStatement.setString("group_id", groupId);
 
@@ -341,7 +340,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             if (groupList != null && !groupList.isEmpty()) {
                 NamedPreparedStatement getGroupsPreparedStatement = new NamedPreparedStatement(
                         unitOfWork.getConnection(),
-                        sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS),
                         groupList.size());
                 getGroupsPreparedStatement.setString("groupnames", groupList);
                 ResultSet resultSet = getGroupsPreparedStatement.getPreparedStatement().executeQuery();
@@ -358,7 +357,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             String hashAlgo = identityStoreConfig.getStoreProperties().getProperty(ConnectorConstants.HASH_ALGORITHM);
 
             NamedPreparedStatement addUserPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER));
             addUserPreparedStatement.setString("username", username);
             addUserPreparedStatement.setString("password",
                     UserCoreUtil.hashPassword((char[]) credential, salt, hashAlgo));
@@ -377,7 +376,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             // Add the password information.
             NamedPreparedStatement addPasswordInformationPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO));
             addPasswordInformationPreparedStatement.setLong("user_id", userId);
             addPasswordInformationPreparedStatement.setString("hash_algo", hashAlgo);
             addPasswordInformationPreparedStatement.setString("password_salt", salt);
@@ -388,7 +387,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
                 NamedPreparedStatement addUserClaimsPreparedStatement = new NamedPreparedStatement(
                         unitOfWork.getConnection(),
-                        sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS));
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS));
 
                 for (Map.Entry<String, String> claim : claims.entrySet()) {
                     addUserClaimsPreparedStatement.setLong("user_id", userId);
@@ -404,7 +403,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
                 NamedPreparedStatement addUserGroupsPreparedStatement = new NamedPreparedStatement(
                         unitOfWork.getConnection(),
-                        sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
 
                 for (long groupId : groupIds) {
                     addUserGroupsPreparedStatement.setLong("user_id", userId);
@@ -435,7 +434,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             if (users != null && !users.isEmpty()) {
                 NamedPreparedStatement getUserIdsPreparedStatement = new NamedPreparedStatement(
                         unitOfWork.getConnection(),
-                        sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
                 getUserIdsPreparedStatement.setString("usernames", users);
                 ResultSet resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -448,7 +447,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement addGroupPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP));
             addGroupPreparedStatement.setString("group_name", groupName);
             addGroupPreparedStatement.setString("unique_id", generatedGroupId);
             addGroupPreparedStatement.getPreparedStatement().executeUpdate();
@@ -490,7 +489,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement getGroupUniqueIdPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ID_FROM_UNIQUE_ID));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ID_FROM_UNIQUE_ID));
             getGroupUniqueIdPreparedStatement.setString("user_id", userId);
 
             ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery();
@@ -506,7 +505,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement getGroupIdsPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS));
             getGroupIdsPreparedStatement.setString("groupnames", groups);
             resultSet = getGroupIdsPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -516,7 +515,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement assignUsersPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
 
             for (long groupId : groupIds) {
                 assignUsersPreparedStatement.setLong("user_id", id);
@@ -541,7 +540,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement getGroupUniqueIdPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ID_FROM_UNIQUE_ID));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ID_FROM_UNIQUE_ID));
             getGroupUniqueIdPreparedStatement.setString("group_id", groupId);
 
             ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery();
@@ -557,7 +556,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement getUserIdsPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
             getUserIdsPreparedStatement.setString("usernames", users);
             resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -567,7 +566,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement assignUsersPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
 
             for (long userId : userIds) {
                 assignUsersPreparedStatement.setLong("group_id", id);
@@ -592,7 +591,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement getGroupUniqueIdPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ID_FROM_UNIQUE_ID));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ID_FROM_UNIQUE_ID));
             getGroupUniqueIdPreparedStatement.setString("user_id", userId);
 
             ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery();
@@ -608,7 +607,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement getGroupIdsPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS));
             getGroupIdsPreparedStatement.setString("groupnames", groups);
             resultSet = getGroupIdsPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -618,7 +617,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement removeGroupsPreparedStatement = new NamedPreparedStatement(
                     dataSource.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER));
 
             for (long groupId : groupIds) {
                 removeGroupsPreparedStatement.setLong("group_id", groupId);
@@ -643,7 +642,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement getGroupUniqueIdPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ID_FROM_UNIQUE_ID));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ID_FROM_UNIQUE_ID));
             getGroupUniqueIdPreparedStatement.setString("group_id", groupId);
 
             ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery();
@@ -659,7 +658,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement getUserIdsPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
             getUserIdsPreparedStatement.setString("usernames", users);
             resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery();
 
@@ -669,7 +668,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement removeGroupsPreparedStatement = new NamedPreparedStatement(
                     dataSource.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER));
 
             for (long userId : userIds) {
                 removeGroupsPreparedStatement.setLong("group_id", id);
@@ -689,7 +688,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_SET_USER_ATTRIBUTE));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_SET_USER_ATTRIBUTE));
             namedPreparedStatement.setString("user_id", userID);
 
             for(Map.Entry<String, String> entry : attributes.entrySet()) {
@@ -709,7 +708,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER_ATTRIBUTE));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER_ATTRIBUTE));
             namedPreparedStatement.setString("user_id", userID);
 
             for(String attr : attributes) {
@@ -728,7 +727,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER));
             namedPreparedStatement.setString("user_id", userId);
 
             int rows = namedPreparedStatement.getPreparedStatement().executeUpdate();
@@ -746,7 +745,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP));
             namedPreparedStatement.setString("group_id", groupId);
 
             int rows = namedPreparedStatement.getPreparedStatement().executeUpdate();
@@ -763,7 +762,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlStatements.get(ConnectorConstants.QueryTypes.SQL_QUERY_RENAME_USER));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_RENAME_USER));
             namedPreparedStatement.setString("user_id", userId);
             namedPreparedStatement.setString("new_name", newName);
 

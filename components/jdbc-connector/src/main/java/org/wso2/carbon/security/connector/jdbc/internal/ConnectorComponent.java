@@ -40,7 +40,7 @@ import java.util.Hashtable;
  * OSGi component for carbon security connectors.
  */
 @Component(
-        name = "ConnectorComponent",
+        name = "org.wso2.carbon.security.connector.jdbc.ConnectorComponent",
         immediate = true
 )
 public class ConnectorComponent {

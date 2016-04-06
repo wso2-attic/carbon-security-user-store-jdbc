@@ -8,7 +8,7 @@
         <version>2</version>
     </parent>
 
-    <artifactId>connector.jdbc.parent</artifactId>
+    <artifactId>carbon.security.connector.jdbc.parent</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Security Connector JDBC - Parent</name>
     <version>1.0.0-SNAPSHOT</version>
