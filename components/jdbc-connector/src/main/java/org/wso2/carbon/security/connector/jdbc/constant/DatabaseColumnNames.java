@@ -44,6 +44,8 @@ public class DatabaseColumnNames {
      * Names of the Group table columns.
      */
     public static final class Role {
+
+        public static final String ROLE_UNIQUE_ID = "ROLE_UNIQUE_ID";
         public static final String ROLE_NAME = "ROLE_NAME";
     }
 
@@ -70,5 +72,13 @@ public class DatabaseColumnNames {
     public static final class PasswordInfo {
         public static final String HASH_ALGO = "HASH_ALGO";
         public static final String PASSWORD_SALT = "PASSWORD_SALT";
+    }
+
+    /**
+     * Names of the Permission table columns.
+     */
+    public static final class Permission {
+        public static final String RESOURCE_ID = "RESOURCE_ID";
+        public static final String ACTION = "ACTION";
     }
 }

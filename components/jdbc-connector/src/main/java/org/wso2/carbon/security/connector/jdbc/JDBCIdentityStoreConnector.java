@@ -17,6 +17,8 @@
 package org.wso2.carbon.security.connector.jdbc;
 
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
+import org.wso2.carbon.security.connector.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.security.connector.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.connector.jdbc.util.DatabaseUtil;
 import org.wso2.carbon.security.connector.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.security.connector.jdbc.util.UnitOfWork;
@@ -24,11 +26,10 @@ import org.wso2.carbon.security.usercore.bean.Group;
 import org.wso2.carbon.security.usercore.bean.User;
 import org.wso2.carbon.security.usercore.config.IdentityStoreConfig;
 import org.wso2.carbon.security.usercore.connector.IdentityStoreConnector;
-import org.wso2.carbon.security.usercore.constant.ConnectorConstants;
-import org.wso2.carbon.security.usercore.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.usercore.exception.IdentityStoreException;
 import org.wso2.carbon.security.usercore.util.UserCoreUtil;
 
+import javax.sql.DataSource;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.sql.DataSource;
 
 /**
  * Identity store connector for JDBC based stores.

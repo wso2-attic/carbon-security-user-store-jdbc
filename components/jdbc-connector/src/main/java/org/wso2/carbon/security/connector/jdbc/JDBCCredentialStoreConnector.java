@@ -24,6 +24,7 @@ import org.wso2.carbon.security.connector.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.connector.jdbc.util.DatabaseUtil;
 import org.wso2.carbon.security.connector.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.security.connector.jdbc.util.UnitOfWork;
+import org.wso2.carbon.security.usercore.bean.User;
 import org.wso2.carbon.security.usercore.config.CredentialStoreConfig;
 import org.wso2.carbon.security.usercore.connector.CredentialStoreConnector;
 import org.wso2.carbon.security.usercore.constant.UserStoreConstants;
@@ -72,7 +73,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public String authenticate(Callback[] callbacks) throws CredentialStoreException, AuthenticationFailure {
+    public User authenticate(Callback[] callbacks) throws CredentialStoreException, AuthenticationFailure {
 
         String username = null;
         char [] password = null;
@@ -117,7 +118,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                 throw new AuthenticationFailure("Invalid username or password");
             }
 
-            return resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+            return new User(resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID), credentialStoreId, username);
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);
         }

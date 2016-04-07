@@ -61,5 +61,9 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_IS_USER_IN_GROUP = "sql_query_is_user_in_group";
         public static final String SQL_QUERY_REMOVE_GROUP_FROM_USER = "sql_query_remove_group_from_user";
         public static final String SQL_QUERY_RENAME_USER = "sql_query_rename_user";
+        public static final String SQL_QUERY_GET_ROLE = "sql_query_get_role";
+        public static final String SQL_QUERY_GET_ROLES_FOR_USER = "sql_query_get_roles_for_user";
+        public static final String SQL_QUERY_GET_PERMISSIONS_FOR_ROLE = "sql_query_get_permissions_for_role";
+        public static final String SQL_QUERY_GET_ROLES_FOR_GROUP = "sql_query_get_roles_for_group";
     }
 }

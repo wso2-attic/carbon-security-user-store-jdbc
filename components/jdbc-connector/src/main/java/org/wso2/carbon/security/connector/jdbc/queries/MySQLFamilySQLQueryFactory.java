@@ -16,7 +16,7 @@
 
 package org.wso2.carbon.security.connector.jdbc.queries;
 
-import org.wso2.carbon.security.usercore.constant.ConnectorConstants;
+import org.wso2.carbon.security.connector.jdbc.constant.ConnectorConstants;
 
 /**
  * SQL queries for MySQL family based databases.
@@ -101,7 +101,9 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "FROM UM_GROUP " +
             "WHERE ID = (SELECT GROUP_ID " +
                         "FROM UM_USER_GROUP " +
-                        "WHERE USER_ID = :user_id;)";
+                        "WHERE USER_ID = (SELECT ID " +
+                                         "FROM UM_USER " +
+                                         "WHERE USER_UNIQUE_ID = :user_id;))";
 
     private static final String GET_USERS_OF_GROUP =
             "SELECT USERNAME, USER_UNIQUE_ID " +
@@ -138,7 +140,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "WHERE USER_ID = (SELECT ID " +
                              "FROM UM_USER " +
                              "WHERE USER_UNIQUE_ID = :user_id;) " +
-            "AND ATTR_NAME IN (:claim_uris;)";
+                             "AND ATTR_NAME IN (:claim_uris;)";
 
     private static final String UPDATE_CREDENTIALS =
             "UPDATE UM_USER " +
@@ -159,6 +161,33 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "FROM UM_USER_GROUP " +
             "WHERE USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_id;) " +
             "AND GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_id;)";
+
+    private static final String GET_ROLE =
+            "SELECT ROLE_UNIQUE_ID " +
+            "FROM UM_ROLE WHERE ROLE_NAME = :role_name;";
+
+    private static final String GET_ROLES_FOR_USER =
+            "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
+            "FROM UM_ROLE " +
+            "WHERE ID = (SELECT ROLE_ID " +
+                        "FROM UM_USER_ROLE " +
+                        "WHERE USER_UNIQUE_ID = :user_id;)";
+
+    public static final String GET_PERMISSIONS_FOR_ROLE =
+            "SELECT RESOURCE_ID, ACTION " +
+            "FROM UM_PERMISSION " +
+            "WHERE ID = (SELECT PERMISSION_ID " +
+                        "FROM UM_ROLE_PERMISSION " +
+                        "WHERE ROLE_ID = (SELECT ID " +
+                                         "FROM UM_ROLE " +
+                                         "WHERE ROLE_UNIQUE_ID = :role_id;))";
+
+    public static final String GET_ROLES_FOR_GROUP =
+            "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
+            "FROM UM_ROLE " +
+            "WHERE ID = (SELECT ROLE_ID " +
+                        "FROM UM_GROUP_ROLE " +
+                        "WHERE GROUP_UNIQUE_ID = :group_id;)";
 
     public MySQLFamilySQLQueryFactory() {
 
@@ -189,5 +218,9 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER, REMOVE_GROUP_FROM_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_RENAME_USER, RENAME_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_GROUP, IS_USER_IN_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLE, GET_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_USER, GET_ROLES_FOR_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FOR_ROLE, GET_PERMISSIONS_FOR_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_GROUP, GET_ROLES_FOR_GROUP);
     }
 }
