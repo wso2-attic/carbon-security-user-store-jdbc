@@ -29,7 +29,6 @@ import org.wso2.carbon.security.usercore.connector.IdentityStoreConnector;
 import org.wso2.carbon.security.usercore.exception.IdentityStoreException;
 import org.wso2.carbon.security.usercore.util.UserCoreUtil;
 
-import javax.sql.DataSource;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.sql.DataSource;
 
 /**
  * Identity store connector for JDBC based stores.

@@ -16,6 +16,7 @@
 
     <modules>
         <module>components/jdbc-connector</module>
+        <module>feature</module>
     </modules>
 
     <build>
@@ -54,6 +55,9 @@
     <properties>
         <carbon.jndi.version>1.0.0-m1</carbon.jndi.version>
         <carbon.datasources.version>1.0.0-m1</carbon.datasources.version>
+        <carbon.security.connector.jdbc.version>1.0.0-SNAPSHOT</carbon.security.connector.jdbc.version>
+
+        <carbon.feature.plugin.version>2.1.0-SNAPSHOT</carbon.feature.plugin.version>
     </properties>
 
 </project>

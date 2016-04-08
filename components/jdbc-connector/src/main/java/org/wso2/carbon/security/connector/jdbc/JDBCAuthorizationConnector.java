@@ -18,6 +18,7 @@ package org.wso2.carbon.security.connector.jdbc;
 
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.connector.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.security.connector.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.connector.jdbc.util.DatabaseUtil;
 import org.wso2.carbon.security.connector.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.security.connector.jdbc.util.UnitOfWork;
@@ -25,15 +26,14 @@ import org.wso2.carbon.security.usercore.bean.Permission;
 import org.wso2.carbon.security.usercore.bean.Role;
 import org.wso2.carbon.security.usercore.config.AuthorizationStoreConfig;
 import org.wso2.carbon.security.usercore.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.security.connector.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.usercore.exception.AuthorizationStoreException;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import javax.sql.DataSource;
 
 /**
  * JDBC connector for authorization store.
