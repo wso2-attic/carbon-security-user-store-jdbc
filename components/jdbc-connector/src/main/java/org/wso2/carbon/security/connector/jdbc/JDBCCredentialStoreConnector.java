@@ -118,7 +118,10 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                 throw new AuthenticationFailure("Invalid username or password");
             }
 
-            return new User(resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID), credentialStoreId, username);
+            String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+            long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
+
+            return new User(username, userUniqueId, credentialStoreId, tenantId);
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);
         }

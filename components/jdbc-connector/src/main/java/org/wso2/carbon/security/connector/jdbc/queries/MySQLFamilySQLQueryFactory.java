@@ -24,17 +24,17 @@ import org.wso2.carbon.security.connector.jdbc.constant.ConnectorConstants;
 public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String COMPARE_PASSWORD_HASH =
-            "SELECT USER_UNIQUE_ID " +
+            "SELECT USER_UNIQUE_ID, TENANT_ID " +
             "FROM UM_USER " +
             "WHERE USERNAME = :username; AND PASSWORD = :hashed_password;";
 
     private static final String GET_USER_FROM_USERNAME =
-            "SELECT USER_UNIQUE_ID " +
+            "SELECT USER_UNIQUE_ID, TENANT_ID " +
             "FROM UM_USER " +
             "WHERE USERNAME = :username;";
 
     private static final String GET_USER_FROM_ID =
-            "SELECT USERNAME " +
+            "SELECT USERNAME, TENANT_ID " +
             "FROM UM_USER " +
             "WHERE USER_UNIQUE_ID = :user_id;";
 
@@ -90,7 +90,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "VALUES (:group_name;, :group_id;)";
 
     private static final String LIST_USERS =
-            "SELECT USERNAME " +
+            "SELECT USERNAME, TENANT_ID " +
             "FROM UM_USER " +
             "WHERE USERNAME LIKE :username;" +
             "LIMIT :length;" +
@@ -106,7 +106,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                          "WHERE USER_UNIQUE_ID = :user_id;))";
 
     private static final String GET_USERS_OF_GROUP =
-            "SELECT USERNAME, USER_UNIQUE_ID " +
+            "SELECT USERNAME, USER_UNIQUE_ID, TENANT_ID " +
             "FROM UM_USER " +
             "WHERE ID = (SELECT USER_ID " +
                         "FROM UM_USER_GROUP " +

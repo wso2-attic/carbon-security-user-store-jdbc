@@ -18,13 +18,16 @@ package org.wso2.carbon.security.connector.jdbc.util;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Support class to implement Unit of work patter.
  */
 public class UnitOfWork implements AutoCloseable {
 
-    private Connection connection;
+    private Connection connection = null;
+    private List<AutoCloseable> listToClose = new ArrayList<>();
 
     private UnitOfWork() throws SQLException {
         super();
@@ -58,6 +61,14 @@ public class UnitOfWork implements AutoCloseable {
     }
 
     /**
+     * Queue any auto closable to close at the end.
+     * @param closeable Auto closable to be closed.
+     */
+    public void queueToClose(AutoCloseable closeable) {
+        listToClose.add(closeable);
+    }
+
+    /**
      * End the transaction by committing to the database.
      * @throws SQLException
      */
@@ -79,6 +90,14 @@ public class UnitOfWork implements AutoCloseable {
      */
     @Override
     public void close() throws SQLException {
+
+        for (AutoCloseable closeable : listToClose) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                throw new SQLException(e);
+            }
+        }
         connection.close();
     }
 }

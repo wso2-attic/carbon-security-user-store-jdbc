@@ -91,8 +91,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             }
 
             String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+            long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
 
-            return new User(userId, userStoreId, username);
+            return new User(username, userId, userStoreId, tenantId);
 
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -114,8 +115,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             }
 
             String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
+            long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
 
-            return new User(userID, userStoreId, username);
+            return new User(username, userID, userStoreId, tenantId);
 
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -141,7 +143,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             while (resultSet.next()) {
                 String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
                 String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-                userList.add(new User(userUniqueId, userStoreId, username));
+                long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
+                userList.add(new User( username, userUniqueId, userStoreId, tenantId));
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while listing users.", e);
@@ -291,7 +294,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             while (resultSet.next()) {
                 String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
                 String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                User user = new User(userId, userStoreId, username);
+                long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
+                User user = new User(username, userId, userStoreId, tenantId);
                 userList.add(user);
             }
 
@@ -382,8 +386,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             addPasswordInformationPreparedStatement.setString("password_salt", salt);
             addPasswordInformationPreparedStatement.getPreparedStatement().executeUpdate();
 
+            long tenantId = -1;
+
             // Add user claims if there are any.
             if (claims != null && !claims.isEmpty()) {
+
+                // TODO: Are we going to take the tenant id as a user claim?
+                tenantId = Long.parseLong(claims.get("tenantId"));
 
                 NamedPreparedStatement addUserClaimsPreparedStatement = new NamedPreparedStatement(
                         unitOfWork.getConnection(),
@@ -414,7 +423,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             }
 
             unitOfWork.endTransaction();
-            return new User(generatedUserId, userStoreId, username);
+            return new User(username, generatedUserId, userStoreId, tenantId);
 
         } catch (SQLException e) {
             throw new IdentityStoreException("Internal error occurred while adding the user.", e);
