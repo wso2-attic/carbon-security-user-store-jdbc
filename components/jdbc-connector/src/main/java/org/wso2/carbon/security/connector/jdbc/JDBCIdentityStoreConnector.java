@@ -144,7 +144,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
                 String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
                 long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
-                userList.add(new User( username, userUniqueId, userStoreId, tenantId));
+                userList.add(new User(username, userUniqueId, userStoreId, tenantId));
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while listing users.", e);

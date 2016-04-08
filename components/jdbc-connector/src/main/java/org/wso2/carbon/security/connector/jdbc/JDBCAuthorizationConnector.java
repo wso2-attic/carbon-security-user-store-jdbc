@@ -65,14 +65,15 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLE));
             namedPreparedStatement.setString("role_name", roleName);
 
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            if (!resultSet.next()) {
-                throw new AuthorizationStoreException("No role found for the given name.");
+                if (!resultSet.next()) {
+                    throw new AuthorizationStoreException("No role found for the given name.");
+                }
+
+                String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
+                return new Role(roleName, roleId);
             }
-
-            String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-            return new Role(roleName, roleId);
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
@@ -103,16 +104,17 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_USER));
             namedPreparedStatement.setString("user_id", userId);
 
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            List<Role> roles = new ArrayList<>();
-            while (resultSet.next()) {
-                String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
-                String roleUniqueId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                roles.add(new Role(roleName, roleUniqueId));
+                List<Role> roles = new ArrayList<>();
+                while (resultSet.next()) {
+                    String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
+                    String roleUniqueId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
+                    roles.add(new Role(roleName, roleUniqueId));
+                }
+
+                return roles;
             }
-
-            return roles;
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving roles for user.", e);
@@ -128,17 +130,18 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_GROUP));
             namedPreparedStatement.setString("group_id", groupId);
 
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            List<Role> roles = new ArrayList<>();
+                List<Role> roles = new ArrayList<>();
 
-            while (resultSet.next()) {
-                String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
-                roles.add(new Role(roleName, roleId));
+                while (resultSet.next()) {
+                    String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
+                    String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
+                    roles.add(new Role(roleName, roleId));
+                }
+
+                return roles;
             }
-
-            return roles;
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving the roles of group", e);
@@ -154,16 +157,16 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FOR_ROLE));
             namedPreparedStatement.setString("role_id", roleId);
 
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            List<Permission> permissions = new ArrayList<>();
-            while (resultSet.next()) {
-                String resourceId = resultSet.getString(DatabaseColumnNames.Permission.RESOURCE_ID);
-                String action = resultSet.getString(DatabaseColumnNames.Permission.ACTION);
-                permissions.add(new Permission(resourceId, action));
+                List<Permission> permissions = new ArrayList<>();
+                while (resultSet.next()) {
+                    String resourceId = resultSet.getString(DatabaseColumnNames.Permission.RESOURCE_ID);
+                    String action = resultSet.getString(DatabaseColumnNames.Permission.ACTION);
+                    permissions.add(new Permission(resourceId, action));
+                }
+                return permissions;
             }
-
-            return permissions;
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving permissions for role", e);
