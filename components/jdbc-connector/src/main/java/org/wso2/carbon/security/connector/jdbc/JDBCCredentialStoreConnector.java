@@ -97,13 +97,18 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_INFO));
             getPasswordInfoPreparedStatement.setString("username", username);
 
-            ResultSet resultSet = getPasswordInfoPreparedStatement.getPreparedStatement().executeQuery();
-            if (!resultSet.next()) {
-                throw new CredentialStoreException("Unable to retrieve password information.");
-            }
+            String hashAlgo;
+            String salt;
 
-            String hashAlgo = resultSet.getString(DatabaseColumnNames.PasswordInfo.HASH_ALGO);
-            String salt = resultSet.getString(DatabaseColumnNames.PasswordInfo.PASSWORD_SALT);
+            try (ResultSet resultSet = getPasswordInfoPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                if (!resultSet.next()) {
+                    throw new CredentialStoreException("Unable to retrieve password information.");
+                }
+
+                hashAlgo = resultSet.getString(DatabaseColumnNames.PasswordInfo.HASH_ALGO);
+                salt = resultSet.getString(DatabaseColumnNames.PasswordInfo.PASSWORD_SALT);
+            }
 
             NamedPreparedStatement comparePasswordPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
@@ -113,15 +118,17 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             comparePasswordPreparedStatement.setString("hashed_password", hashedPassword);
             comparePasswordPreparedStatement.setString("username", username);
 
-            resultSet = comparePasswordPreparedStatement.getPreparedStatement().executeQuery();
-            if (!resultSet.next()) {
-                throw new AuthenticationFailure("Invalid username or password");
+            try (ResultSet resultSet = comparePasswordPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                if (!resultSet.next()) {
+                    throw new AuthenticationFailure("Invalid username or password");
+                }
+
+                String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
+
+                return new User(username, userUniqueId, credentialStoreId, tenantId);
             }
-
-            String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-            long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
-
-            return new User(username, userUniqueId, credentialStoreId, tenantId);
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);
         }
@@ -137,25 +144,27 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_INFO));
             getPasswordInfoPreparedStatement.setString("username", username);
 
-            ResultSet resultSet = getPasswordInfoPreparedStatement.getPreparedStatement().executeQuery();
-            if (!resultSet.next()) {
-                throw new CredentialStoreException("Unable to retrieve password information.");
-            }
+            try (ResultSet resultSet = getPasswordInfoPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            String hashAlgo = resultSet.getString(DatabaseColumnNames.PasswordInfo.HASH_ALGO);
-            String salt = resultSet.getString(DatabaseColumnNames.PasswordInfo.PASSWORD_SALT);
+                if (!resultSet.next()) {
+                    throw new CredentialStoreException("Unable to retrieve password information.");
+                }
 
-            String hashedPassword = UserCoreUtil.hashPassword((char []) newCredential, salt, hashAlgo);
+                String hashAlgo = resultSet.getString(DatabaseColumnNames.PasswordInfo.HASH_ALGO);
+                String salt = resultSet.getString(DatabaseColumnNames.PasswordInfo.PASSWORD_SALT);
 
-            NamedPreparedStatement updateCredentialPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL));
-            updateCredentialPreparedStatement.setString("username", username);
-            updateCredentialPreparedStatement.setString("credential", hashedPassword);
-            int rowCount = updateCredentialPreparedStatement.getPreparedStatement().executeUpdate();
+                String hashedPassword = UserCoreUtil.hashPassword((char[]) newCredential, salt, hashAlgo);
 
-            if (rowCount < 1) {
-                throw new CredentialStoreException("No credentials updated.");
+                NamedPreparedStatement updateCredentialPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL));
+                updateCredentialPreparedStatement.setString("username", username);
+                updateCredentialPreparedStatement.setString("credential", hashedPassword);
+
+                int rowCount = updateCredentialPreparedStatement.getPreparedStatement().executeUpdate();
+                if (rowCount < 1) {
+                    throw new CredentialStoreException("No credentials updated.");
+                }
             }
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Error occurred while updating credentials.", e);

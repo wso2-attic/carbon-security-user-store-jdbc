@@ -237,15 +237,15 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ID));
             namedPreparedStatement.setString("group_id", groupId);
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("No group for given id.");
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("No group for given id.");
+                }
+                String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
+                return new Group(groupId, userStoreId, groupName);
             }
-            String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
-
-            return new Group(groupId, userStoreId, groupName);
-
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving group.", e);
         }
@@ -266,6 +266,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER));
             namedPreparedStatement.setString("user_id", userId);
+
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 List<Group> groupList = new ArrayList<>();
@@ -275,7 +276,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     Group group = new Group(groupId, userStoreId, groupName);
                     groupList.add(group);
                 }
-
                 return groupList;
             }
         } catch (SQLException e) {
@@ -291,6 +291,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_GROUP));
             namedPreparedStatement.setString("group_id", groupId);
+
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 List<User> userList = new ArrayList<>();
@@ -301,7 +302,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     User user = new User(username, userId, userStoreId, tenantId);
                     userList.add(user);
                 }
-
                 unitOfWork.endTransaction();
                 return userList;
             }
@@ -320,7 +320,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.setString("group_id", groupId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
                 return resultSet.next();
             }
         } catch (SQLException e) {
@@ -345,15 +344,17 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             // Get the related group id's from the group names if there are any groups.
             if (groupList != null && !groupList.isEmpty()) {
+
                 NamedPreparedStatement getGroupsPreparedStatement = new NamedPreparedStatement(
                         unitOfWork.getConnection(),
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS),
                         groupList.size());
                 getGroupsPreparedStatement.setString("groupnames", groupList);
-                ResultSet resultSet = getGroupsPreparedStatement.getPreparedStatement().executeQuery();
 
-                while (resultSet.next()) {
-                    groupIds.add(resultSet.getLong(DatabaseColumnNames.Group.ID));
+                try (ResultSet resultSet = getGroupsPreparedStatement.getPreparedStatement().executeQuery()) {
+                    while (resultSet.next()) {
+                        groupIds.add(resultSet.getLong(DatabaseColumnNames.Group.ID));
+                    }
                 }
             }
 
@@ -444,14 +445,16 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             // Get all user ids if there are any users to be added.
             if (users != null && !users.isEmpty()) {
+
                 NamedPreparedStatement getUserIdsPreparedStatement = new NamedPreparedStatement(
                         unitOfWork.getConnection(),
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
                 getUserIdsPreparedStatement.setString("usernames", users);
-                ResultSet resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery();
 
-                while (resultSet.next()) {
-                    userIds.add(resultSet.getLong(DatabaseColumnNames.User.ID));
+                try (ResultSet resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery()) {
+                    while (resultSet.next()) {
+                        userIds.add(resultSet.getLong(DatabaseColumnNames.User.ID));
+                    }
                 }
             }
 
@@ -463,22 +466,24 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             addGroupPreparedStatement.setString("group_name", groupName);
             addGroupPreparedStatement.setString("unique_id", generatedGroupId);
             addGroupPreparedStatement.getPreparedStatement().executeUpdate();
-            ResultSet resultSet = addGroupPreparedStatement.getPreparedStatement().getGeneratedKeys();
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("Failed to add group.");
-            }
+            try (ResultSet resultSet = addGroupPreparedStatement.getPreparedStatement().getGeneratedKeys()) {
 
-            long groupId = resultSet.getLong(1);
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("Failed to add group.");
+                }
 
-            if (!userIds.isEmpty()) {
+                long groupId = resultSet.getLong(1);
 
-                NamedPreparedStatement addGroupUsersPreparedStatement = new NamedPreparedStatement(
-                        unitOfWork.getConnection(), ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS);
-                for (long userId : userIds) {
-                    addGroupUsersPreparedStatement.setLong("user_id", userId);
-                    addGroupUsersPreparedStatement.setLong("group_id", groupId);
-                    addGroupUsersPreparedStatement.getPreparedStatement().addBatch();
+                if (!userIds.isEmpty()) {
+
+                    NamedPreparedStatement addGroupUsersPreparedStatement = new NamedPreparedStatement(
+                            unitOfWork.getConnection(), ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS);
+                    for (long userId : userIds) {
+                        addGroupUsersPreparedStatement.setLong("user_id", userId);
+                        addGroupUsersPreparedStatement.setLong("group_id", groupId);
+                        addGroupUsersPreparedStatement.getPreparedStatement().addBatch();
+                    }
                 }
             }
 
@@ -504,14 +509,16 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ID_FROM_UNIQUE_ID));
             getGroupUniqueIdPreparedStatement.setString("user_id", userId);
 
-            ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery();
+            long id;
+            try (ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("No user found for given unique id.");
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("No user found for given unique id.");
+                }
+
+                // Get the user DB id.
+                id = resultSet.getLong(DatabaseColumnNames.Group.ID);
             }
-
-            // Get the user DB id.
-            long id = resultSet.getLong(DatabaseColumnNames.Group.ID);
 
             List<Long> groupIds = new ArrayList<>();
 
@@ -519,22 +526,24 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS));
             getGroupIdsPreparedStatement.setString("groupnames", groups);
-            resultSet = getGroupIdsPreparedStatement.getPreparedStatement().executeQuery();
 
-            while (!resultSet.next()) {
-                groupIds.add(resultSet.getLong(DatabaseColumnNames.Group.ID));
+            try (ResultSet resultSet = getGroupIdsPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (!resultSet.next()) {
+                    groupIds.add(resultSet.getLong(DatabaseColumnNames.Group.ID));
+                }
+
+                NamedPreparedStatement assignUsersPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
+
+                for (long groupId : groupIds) {
+                    assignUsersPreparedStatement.setLong("user_id", id);
+                    assignUsersPreparedStatement.setLong("group_id", groupId);
+                    assignUsersPreparedStatement.getPreparedStatement().addBatch();
+                }
+                assignUsersPreparedStatement.getPreparedStatement().executeBatch();
             }
-
-            NamedPreparedStatement assignUsersPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
-
-            for (long groupId : groupIds) {
-                assignUsersPreparedStatement.setLong("user_id", id);
-                assignUsersPreparedStatement.setLong("group_id", groupId);
-                assignUsersPreparedStatement.getPreparedStatement().addBatch();
-            }
-            assignUsersPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while assigning groups to user.", e);
@@ -555,14 +564,16 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ID_FROM_UNIQUE_ID));
             getGroupUniqueIdPreparedStatement.setString("group_id", groupId);
 
-            ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery();
+            long id;
+            try (ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("No group found for given unique id.");
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("No group found for given unique id.");
+                }
+
+                // Get the group DB id.
+                id = resultSet.getLong(DatabaseColumnNames.Group.ID);
             }
-
-            // Get the group DB id.
-            long id = resultSet.getLong(DatabaseColumnNames.Group.ID);
 
             List<Long> userIds = new ArrayList<>();
 
@@ -570,22 +581,24 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
             getUserIdsPreparedStatement.setString("usernames", users);
-            resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery();
 
-            while (!resultSet.next()) {
-                userIds.add(resultSet.getLong(DatabaseColumnNames.User.ID));
+            try (ResultSet resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (!resultSet.next()) {
+                    userIds.add(resultSet.getLong(DatabaseColumnNames.User.ID));
+                }
+
+                NamedPreparedStatement assignUsersPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
+
+                for (long userId : userIds) {
+                    assignUsersPreparedStatement.setLong("group_id", id);
+                    assignUsersPreparedStatement.setLong("user_id", userId);
+                    assignUsersPreparedStatement.getPreparedStatement().addBatch();
+                }
+                assignUsersPreparedStatement.getPreparedStatement().executeBatch();
             }
-
-            NamedPreparedStatement assignUsersPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS));
-
-            for (long userId : userIds) {
-                assignUsersPreparedStatement.setLong("group_id", id);
-                assignUsersPreparedStatement.setLong("user_id", userId);
-                assignUsersPreparedStatement.getPreparedStatement().addBatch();
-            }
-            assignUsersPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while assigning users to group.", e);
@@ -606,14 +619,16 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ID_FROM_UNIQUE_ID));
             getGroupUniqueIdPreparedStatement.setString("user_id", userId);
 
-            ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery();
+            long id;
+            try (ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("No user found for given unique id.");
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("No user found for given unique id.");
+                }
+
+                // Get the user DB id.
+                id = resultSet.getLong(DatabaseColumnNames.Group.ID);
             }
-
-            // Get the user DB id.
-            long id = resultSet.getLong(DatabaseColumnNames.Group.ID);
 
             List<Long> groupIds = new ArrayList<>();
 
@@ -621,22 +636,24 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS));
             getGroupIdsPreparedStatement.setString("groupnames", groups);
-            resultSet = getGroupIdsPreparedStatement.getPreparedStatement().executeQuery();
 
-            while (!resultSet.next()) {
-                groupIds.add(resultSet.getLong(DatabaseColumnNames.Group.ID));
+            try (ResultSet resultSet = getGroupIdsPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (!resultSet.next()) {
+                    groupIds.add(resultSet.getLong(DatabaseColumnNames.Group.ID));
+                }
+
+                NamedPreparedStatement removeGroupsPreparedStatement = new NamedPreparedStatement(
+                        dataSource.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER));
+
+                for (long groupId : groupIds) {
+                    removeGroupsPreparedStatement.setLong("group_id", groupId);
+                    removeGroupsPreparedStatement.setLong("user_Id", id);
+                    removeGroupsPreparedStatement.getPreparedStatement().addBatch();
+                }
+                removeGroupsPreparedStatement.getPreparedStatement().executeBatch();
             }
-
-            NamedPreparedStatement removeGroupsPreparedStatement = new NamedPreparedStatement(
-                    dataSource.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER));
-
-            for (long groupId : groupIds) {
-                removeGroupsPreparedStatement.setLong("group_id", groupId);
-                removeGroupsPreparedStatement.setLong("user_Id", id);
-                removeGroupsPreparedStatement.getPreparedStatement().addBatch();
-            }
-            removeGroupsPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while removing groups from user.", e);
@@ -657,14 +674,16 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ID_FROM_UNIQUE_ID));
             getGroupUniqueIdPreparedStatement.setString("group_id", groupId);
 
-            ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery();
+            long id;
+            try (ResultSet resultSet = getGroupUniqueIdPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("No group found for given unique id.");
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("No group found for given unique id.");
+                }
+
+                // Get the group DB id.
+                id = resultSet.getLong(DatabaseColumnNames.Group.ID);
             }
-
-            // Get the group DB id.
-            long id = resultSet.getLong(DatabaseColumnNames.Group.ID);
 
             List<Long> userIds = new ArrayList<>();
 
@@ -672,22 +691,24 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS));
             getUserIdsPreparedStatement.setString("usernames", users);
-            resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery();
 
-            while (!resultSet.next()) {
-                userIds.add(resultSet.getLong(DatabaseColumnNames.User.ID));
+            try (ResultSet resultSet = getUserIdsPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (!resultSet.next()) {
+                    userIds.add(resultSet.getLong(DatabaseColumnNames.User.ID));
+                }
+
+                NamedPreparedStatement removeGroupsPreparedStatement = new NamedPreparedStatement(
+                        dataSource.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER));
+
+                for (long userId : userIds) {
+                    removeGroupsPreparedStatement.setLong("group_id", id);
+                    removeGroupsPreparedStatement.setLong("user_Id", userId);
+                    removeGroupsPreparedStatement.getPreparedStatement().addBatch();
+                }
+                removeGroupsPreparedStatement.getPreparedStatement().executeBatch();
             }
-
-            NamedPreparedStatement removeGroupsPreparedStatement = new NamedPreparedStatement(
-                    dataSource.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER));
-
-            for (long userId : userIds) {
-                removeGroupsPreparedStatement.setLong("group_id", id);
-                removeGroupsPreparedStatement.setLong("user_Id", userId);
-                removeGroupsPreparedStatement.getPreparedStatement().addBatch();
-            }
-            removeGroupsPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while removing users from group.", e);
