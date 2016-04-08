@@ -84,16 +84,17 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_USERNAME));
             namedPreparedStatement.setString("username", username);
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("No user for given id.");
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("No user for given id.");
+                }
+
+                String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
+
+                return new User(username, userId, userStoreId, tenantId);
             }
-
-            String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-            long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
-
-            return new User(username, userId, userStoreId, tenantId);
 
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -108,16 +109,17 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ID));
             namedPreparedStatement.setString("user_id", userID);
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("No user for given id.");
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("No user for given id.");
+                }
+
+                String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
+                long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
+
+                return new User(username, userID, userStoreId, tenantId);
             }
-
-            String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-            long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
-
-            return new User(username, userID, userStoreId, tenantId);
 
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -138,13 +140,14 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             listUsersNamedPreparedStatement.setInt("length", length);
             listUsersNamedPreparedStatement.setInt("offset", offset);
 
-            ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            while (resultSet.next()) {
-                String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-                long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
-                userList.add(new User(username, userUniqueId, userStoreId, tenantId));
+                while (resultSet.next()) {
+                    String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                    String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
+                    long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
+                    userList.add(new User(username, userUniqueId, userStoreId, tenantId));
+                }
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while listing users.", e);
@@ -161,18 +164,18 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES));
             namedPreparedStatement.setString("user_id", userId);
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            Map<String, String> userClaims = new HashMap<>();
+                Map<String, String> userClaims = new HashMap<>();
 
-            while (resultSet.next()) {
-                String attrName = resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_NAME);
-                String attrValue = resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_VALUE);
-                userClaims.put(attrName, attrValue);
+                while (resultSet.next()) {
+                    String attrName = resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_NAME);
+                    String attrValue = resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_VALUE);
+                    userClaims.put(attrName, attrValue);
+                }
+
+                return userClaims;
             }
-
-            return userClaims;
-
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user claims.", e);
         }
@@ -187,18 +190,18 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_URI));
             namedPreparedStatement.setString("user_id", userID);
             namedPreparedStatement.setString("claim_uris", claimURIs);
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            Map<String, String> userClaims = new HashMap<>();
+                Map<String, String> userClaims = new HashMap<>();
 
-            while (resultSet.next()) {
-                String attrName = resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_NAME);
-                String attrValue = resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_VALUE);
-                userClaims.put(attrName, attrValue);
+                while (resultSet.next()) {
+                    String attrName = resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_NAME);
+                    String attrValue = resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_VALUE);
+                    userClaims.put(attrName, attrValue);
+                }
+
+                return userClaims;
             }
-
-            return userClaims;
-
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user claims.");
         }
@@ -212,15 +215,15 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_NAME));
             namedPreparedStatement.setString("groupname", groupName);
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            if (!resultSet.next()) {
-                throw new IdentityStoreException("No group for given name.");
+                if (!resultSet.next()) {
+                    throw new IdentityStoreException("No group for given name.");
+                }
+                String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
+
+                return new Group(groupId, userStoreId, groupName);
             }
-            String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-
-            return new Group(groupId, userStoreId, groupName);
-
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving group.", e);
         }
@@ -263,18 +266,18 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER));
             namedPreparedStatement.setString("user_id", userId);
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            List<Group> groupList = new ArrayList<>();
-            while (resultSet.next()) {
-                String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
-                String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-                Group group = new Group(groupId, userStoreId, groupName);
-                groupList.add(group);
+                List<Group> groupList = new ArrayList<>();
+                while (resultSet.next()) {
+                    String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
+                    String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
+                    Group group = new Group(groupId, userStoreId, groupName);
+                    groupList.add(group);
+                }
+
+                return groupList;
             }
-
-            return groupList;
-
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving groups of user.", e);
         }
@@ -288,20 +291,20 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_GROUP));
             namedPreparedStatement.setString("group_id", groupId);
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            List<User> userList = new ArrayList<>();
-            while (resultSet.next()) {
-                String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-                String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
-                User user = new User(username, userId, userStoreId, tenantId);
-                userList.add(user);
+                List<User> userList = new ArrayList<>();
+                while (resultSet.next()) {
+                    String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
+                    String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                    long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
+                    User user = new User(username, userId, userStoreId, tenantId);
+                    userList.add(user);
+                }
+
+                unitOfWork.endTransaction();
+                return userList;
             }
-
-            unitOfWork.endTransaction();
-            return userList;
-
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving users of group.", e);
         }
@@ -316,10 +319,10 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.setString("user_id", userId);
             namedPreparedStatement.setString("group_id", groupId);
 
-            ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery();
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            return resultSet.next();
-
+                return resultSet.next();
+            }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error while checking users in group", e);
         }
