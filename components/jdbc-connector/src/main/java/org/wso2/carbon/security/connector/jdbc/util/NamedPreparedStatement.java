@@ -55,7 +55,7 @@ public class NamedPreparedStatement {
             for (int i = 0; i < repetition - 1; i++) {
                 builder.append(", ?");
             }
-            sqlQuery = sqlQuery.substring(0, pos) + builder.toString() + sqlQuery.substring(end + 1);
+            sqlQuery = String.format(sqlQuery.substring(0, pos), builder.toString(), sqlQuery.substring(end + 1));
         }
         preparedStatement = connection.prepareStatement(sqlQuery);
     }
