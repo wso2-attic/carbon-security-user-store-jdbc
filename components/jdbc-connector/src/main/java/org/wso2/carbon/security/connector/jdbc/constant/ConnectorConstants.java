@@ -21,12 +21,12 @@ package org.wso2.carbon.security.connector.jdbc.constant;
  */
 public class ConnectorConstants {
 
-    public static final String DATA_SOURCE = "DataSource";
-    public static final String DATABASE_TYPE = "DatabaseType";
+    public static final String DATA_SOURCE = "dataSource";
+    public static final String DATABASE_TYPE = "databaseType";
     public static final String SQL_QUERIES = "SqlStatements";
     public static final String USERSTORE_ID = "UserstoreId";
     public static final String USERSTORE_NAME = "UserstoreName";
-    public static final String HASH_ALGORITHM = "HashAlgorithm";
+    public static final String HASH_ALGORITHM = "hashAlgorithm";
 
     /**
      * Query type related constants.
