@@ -90,10 +90,10 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "VALUES (:group_name;, :group_id;)";
 
     private static final String LIST_USERS =
-            "SELECT USERNAME, TENANT_ID " +
+            "SELECT USERNAME, TENANT_ID, USER_UNIQUE_ID " +
             "FROM UM_USER " +
-            "WHERE USERNAME LIKE :username;" +
-            "LIMIT :length;" +
+            "WHERE USERNAME LIKE :username; " +
+            "LIMIT :length; " +
             "OFFSET :offset;";
 
     private static final String GET_GROUPS_OF_USER =
@@ -173,7 +173,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                         "FROM UM_USER_ROLE " +
                         "WHERE USER_UNIQUE_ID = :user_id;)";
 
-    public static final String GET_PERMISSIONS_FOR_ROLE =
+    private static final String GET_PERMISSIONS_FOR_ROLE =
             "SELECT RESOURCE_ID, ACTION " +
             "FROM UM_PERMISSION " +
             "WHERE ID = (SELECT PERMISSION_ID " +
@@ -182,12 +182,19 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                          "FROM UM_ROLE " +
                                          "WHERE ROLE_UNIQUE_ID = :role_id;))";
 
-    public static final String GET_ROLES_FOR_GROUP =
+    private static final String GET_ROLES_FOR_GROUP =
             "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
             "FROM UM_ROLE " +
             "WHERE ID = (SELECT ROLE_ID " +
                         "FROM UM_GROUP_ROLE " +
                         "WHERE GROUP_UNIQUE_ID = :group_id;)";
+
+    private static final String LIST_GROUP =
+            "SELECT GROUP_NAME, GROUP_UNIQUE_ID " +
+                    "FROM UM_GROUP " +
+                    "WHERE GROUP_NAME LIKE :group_name; " +
+                    "LIMIT :length; " +
+                    "OFFSET :offset;";
 
     public MySQLFamilySQLQueryFactory() {
 
@@ -222,5 +229,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_USER, GET_ROLES_FOR_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FOR_ROLE, GET_PERMISSIONS_FOR_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_GROUP, GET_ROLES_FOR_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP, LIST_GROUP);
     }
 }

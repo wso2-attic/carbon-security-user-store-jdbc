@@ -65,5 +65,6 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_ROLES_FOR_USER = "sql_query_get_roles_for_user";
         public static final String SQL_QUERY_GET_PERMISSIONS_FOR_ROLE = "sql_query_get_permissions_for_role";
         public static final String SQL_QUERY_GET_ROLES_FOR_GROUP = "sql_query_get_roles_for_group";
+        public static final String SQL_QUERY_LIST_GROUP = "sql_query_list_group";
     }
 }

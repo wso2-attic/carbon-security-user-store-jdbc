@@ -254,8 +254,30 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public List<Group> listGroups(String filterPattern, int offset, int length) throws IdentityStoreException {
 
-        // TODO What is this method do?
-        return null;
+        List<Group> groups = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement listGroupsNamedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP));
+            listGroupsNamedPreparedStatement.setString("group_name", filterPattern);
+            listGroupsNamedPreparedStatement.setInt("length", length);
+            listGroupsNamedPreparedStatement.setInt("offset", offset);
+
+            try (ResultSet resultSet = listGroupsNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (resultSet.next()) {
+                    String groupUniqueId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
+                    String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
+                    groups.add(new Group(groupUniqueId, userStoreId, groupName));
+                }
+            }
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while retrieving group list.");
+        }
+
+        return groups;
     }
 
     @Override
