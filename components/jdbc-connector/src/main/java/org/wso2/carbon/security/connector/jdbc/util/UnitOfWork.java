@@ -16,6 +16,9 @@
 
 package org.wso2.carbon.security.connector.jdbc.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,6 +28,8 @@ import java.util.List;
  * Support class to implement Unit of work patter.
  */
 public class UnitOfWork implements AutoCloseable {
+
+    private static Logger log = LoggerFactory.getLogger(UnitOfWork.class);
 
     private Connection connection = null;
     private List<AutoCloseable> listToClose = new ArrayList<>();
@@ -91,13 +96,26 @@ public class UnitOfWork implements AutoCloseable {
     @Override
     public void close() throws SQLException {
 
+        SQLException exception = null;
+
         for (AutoCloseable closeable : listToClose) {
             try {
                 closeable.close();
             } catch (Exception e) {
-                throw new SQLException(e);
+                if (exception == null) {
+                    exception = new SQLException(e);
+                    log.debug("Exception occurred while closing the closable.", e);
+                } else {
+                    exception.addSuppressed(e);
+                    log.debug("Exception occurred and suppressed while closing the closable.", e);
+                }
             }
         }
+
         connection.close();
+
+        if (exception != null) {
+            throw exception;
+        }
     }
 }
