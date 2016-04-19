@@ -34,7 +34,7 @@ public class ConnectorConstants {
     public static final class QueryTypes {
 
         public static final String SQL_QUERY_GET_GROUP_FROM_NAME = "sql_query_get_group_from_name";
-        public static final String SQL_QUERY_GET_GROUP_FROM_ID = "sql_query_get_group_from_name";
+        public static final String SQL_QUERY_GET_GROUP_FROM_ID = "sql_query_get_group_from_id";
         public static final String SQL_QUERY_COMPARE_PASSWORD_HASH = "sql_query_compare_password_hash";
         public static final String SQL_QUERY_GET_USER_FROM_ID = "sql_query_get_user_from_id";
         public static final String SQL_QUERY_GET_USER_FROM_USERNAME = "sql_query_get_user_from_username";

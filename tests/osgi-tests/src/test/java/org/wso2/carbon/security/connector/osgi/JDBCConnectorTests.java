@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+import org.wso2.carbon.security.usercore.bean.Group;
 import org.wso2.carbon.security.usercore.bean.Permission;
 import org.wso2.carbon.security.usercore.bean.User;
 import org.wso2.carbon.security.usercore.exception.AuthenticationFailure;
@@ -26,7 +27,6 @@ import org.wso2.carbon.security.usercore.store.IdentityStore;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -35,6 +35,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
@@ -183,28 +184,6 @@ public class JDBCConnectorTests {
     }
 
     @Test
-    public void testAddUserValid() throws IdentityStoreException {
-
-        String username = "jayangak";
-        char [] password = {'t', 'e', 's', 't'};
-
-        Map<String, String> userClaims = new HashMap<>();
-        userClaims.put("First Name", "Jayanga");
-        userClaims.put("Last Name", "Kaushalya");
-
-        List<String> groups = new ArrayList<>();
-        groups.add("is");
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-
-        try {
-            User user = identityStore.addUser(username, userClaims, password, groups);
-        } catch (UnsupportedOperationException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
     public void testGetUserFromUsername() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -218,5 +197,82 @@ public class JDBCConnectorTests {
         IdentityStore identityStore = realmService.getIdentityStore();
         User user  = identityStore.getUserfromId(DEFAULT_USER_ID);
         assertNotNull(user);
+    }
+
+    @Test
+    public void testListUsers() throws IdentityStoreException {
+
+        String filterPattern = "admin";
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        List<User> users = identityStore.listUsers(filterPattern, 0, 1);
+
+        assertFalse(users.isEmpty());
+    }
+
+    @Test
+    public void testGetUserClaimValues() throws IdentityStoreException {
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        Map<String, String> claims = identityStore.getUserClaimValues(DEFAULT_USER_ID);
+
+        assertFalse(claims.isEmpty());
+    }
+
+    @Test
+    public void testGetUserClaimValuesFromURIs() throws IdentityStoreException {
+
+        List<String> claimURIs = new ArrayList<>();
+        claimURIs.add("firstName");
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        Map<String, String> claims = identityStore.getUserClaimValues(DEFAULT_USER_ID, claimURIs);
+
+        assertFalse(claims.isEmpty());
+    }
+
+    @Test
+    public void testGetGroup() throws IdentityStoreException {
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        Group group = identityStore.getGroup(DEFAULT_GROUP);
+
+        assertNotNull(group);
+    }
+
+    @Test
+    public void testGetGroupFromId() throws IdentityStoreException {
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        Group group = identityStore.getGroupFromId(DEFAULT_GROUP_ID);
+
+        assertNotNull(group);
+    }
+
+    @Test
+    public void testListGroups() throws IdentityStoreException {
+
+        String filterPattern = "is";
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        List<Group> groups = identityStore.listGroups(filterPattern, 0, 1);
+
+        assertFalse(groups.isEmpty());
+    }
+
+    @Test
+    public void testGetGroupsOfUser() throws IdentityStoreException {
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        List<Group> groups = identityStore.getGroupsOfUser(DEFAULT_USER_ID);
+        assertFalse(groups.isEmpty());
+    }
+
+    @Test
+    public void testGetUsersOfGroup() throws IdentityStoreException {
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        List<User> users = identityStore.getUsersOfGroup(DEFAULT_GROUP_ID, null);
+        assertFalse(users.isEmpty());
     }
 }
