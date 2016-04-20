@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.jdbc.queries;
+package org.wso2.carbon.security.userstore.jdbc.queries;
 
-import org.wso2.carbon.security.connector.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 
 /**
  * SQL queries for MySQL family based databases.
+ * @since 1.0.0
  */
 public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 

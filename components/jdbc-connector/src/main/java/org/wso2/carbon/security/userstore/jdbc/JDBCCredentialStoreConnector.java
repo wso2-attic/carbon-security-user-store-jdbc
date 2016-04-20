@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.jdbc;
+package org.wso2.carbon.security.userstore.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.connector.jdbc.constant.ConnectorConstants;
-import org.wso2.carbon.security.connector.jdbc.constant.DatabaseColumnNames;
-import org.wso2.carbon.security.connector.jdbc.util.DatabaseUtil;
-import org.wso2.carbon.security.connector.jdbc.util.NamedPreparedStatement;
-import org.wso2.carbon.security.connector.jdbc.util.UnitOfWork;
-import org.wso2.carbon.security.usercore.bean.User;
-import org.wso2.carbon.security.usercore.config.CredentialStoreConfig;
-import org.wso2.carbon.security.usercore.connector.CredentialStoreConnector;
-import org.wso2.carbon.security.usercore.constant.UserStoreConstants;
-import org.wso2.carbon.security.usercore.exception.AuthenticationFailure;
-import org.wso2.carbon.security.usercore.exception.CredentialStoreException;
-import org.wso2.carbon.security.usercore.util.UserCoreUtil;
+import org.wso2.carbon.security.user.core.bean.User;
+import org.wso2.carbon.security.user.core.config.CredentialStoreConfig;
+import org.wso2.carbon.security.user.core.constant.UserStoreConstants;
+import org.wso2.carbon.security.user.core.exception.AuthenticationFailure;
+import org.wso2.carbon.security.user.core.exception.CredentialStoreException;
+import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnector;
+import org.wso2.carbon.security.user.core.util.UserCoreUtil;
+import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
+import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
+import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
+import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
 
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
@@ -43,10 +43,11 @@ import javax.sql.DataSource;
 
 /**
  * JDBC connector for the credential store.
+ * @since 1.0.0
  */
 public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements CredentialStoreConnector {
 
-    Logger log = LoggerFactory.getLogger(JDBCCredentialStoreConnector.class);
+    private static Logger log = LoggerFactory.getLogger(JDBCCredentialStoreConnector.class);
 
     private DataSource dataSource;
     private CredentialStoreConfig credentialStoreConfig;
@@ -63,7 +64,11 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             this.dataSource = DatabaseUtil.getInstance().getDataSource(properties
                     .getProperty(ConnectorConstants.DATA_SOURCE));
         } catch (DataSourceException e) {
-            throw new CredentialStoreException("Error while setting the data source", e);
+            throw new CredentialStoreException("Error while setting the data source.", e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("JDBC credential store connector initialized.");
         }
     }
 

@@ -11,18 +11,18 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.security.usercore.bean.Group;
-import org.wso2.carbon.security.usercore.bean.Permission;
-import org.wso2.carbon.security.usercore.bean.User;
-import org.wso2.carbon.security.usercore.exception.AuthenticationFailure;
-import org.wso2.carbon.security.usercore.exception.AuthorizationException;
-import org.wso2.carbon.security.usercore.exception.AuthorizationStoreException;
-import org.wso2.carbon.security.usercore.exception.CredentialStoreException;
-import org.wso2.carbon.security.usercore.exception.IdentityStoreException;
-import org.wso2.carbon.security.usercore.service.RealmService;
-import org.wso2.carbon.security.usercore.store.AuthorizationStore;
-import org.wso2.carbon.security.usercore.store.CredentialStore;
-import org.wso2.carbon.security.usercore.store.IdentityStore;
+import org.wso2.carbon.security.user.core.bean.Group;
+import org.wso2.carbon.security.user.core.bean.Permission;
+import org.wso2.carbon.security.user.core.bean.User;
+import org.wso2.carbon.security.user.core.exception.AuthenticationFailure;
+import org.wso2.carbon.security.user.core.exception.AuthorizationException;
+import org.wso2.carbon.security.user.core.exception.AuthorizationStoreException;
+import org.wso2.carbon.security.user.core.exception.CredentialStoreException;
+import org.wso2.carbon.security.user.core.exception.IdentityStoreException;
+import org.wso2.carbon.security.user.core.service.RealmService;
+import org.wso2.carbon.security.user.core.store.AuthorizationStore;
+import org.wso2.carbon.security.user.core.store.CredentialStore;
+import org.wso2.carbon.security.user.core.store.IdentityStore;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +42,6 @@ import static org.testng.Assert.assertTrue;
 /**
  * Carbon Security JDBC connector OSGi tests.
  */
-
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class JDBCConnectorTests {
@@ -53,6 +52,9 @@ public class JDBCConnectorTests {
     private static final String DEFAULT_USER_ID = "41dadd2aea6e11e59ce95e5517507c66";
     private static final String DEFAULT_ROLE_ID = "985b79ecfcdf11e586aa5e5517507c66";
     private static final String DEFAULT_GROUP_ID = "a422aa98ecf411e59ce95e5517507c66";
+    private static final String DEFAULT_IDENTITY_STORE = "JDBCIdentityStore";
+    private static final String DEFAULT_CREDENTIAL_STORE = "JDBCCredentialStore";
+    private static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAuthorizationStore";
 
     @Inject
     private BundleContext bundleContext;
@@ -112,8 +114,8 @@ public class JDBCConnectorTests {
                 .artifactId("org.wso2.carbon.security")
                 .versionAsInProject());
         optionList.add(mavenBundle()
-                .groupId("org.wso2.carbon.security.connector")
-                .artifactId("org.wso2.carbon.security.connector.jdbc")
+                .groupId("org.wso2.carbon.security.userstore")
+                .artifactId("org.wso2.carbon.security.userstore.jdbc")
                 .version("1.0.0-SNAPSHOT"));
         optionList.add(mavenBundle()
                 .groupId("commons-io.wso2")
@@ -171,7 +173,7 @@ public class JDBCConnectorTests {
         Permission permission = new Permission("root/resource/id", "add");
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        assertTrue(authorizationStore.isUserAuthorized(DEFAULT_USER_ID, permission));
+        assertTrue(authorizationStore.isUserAuthorized(DEFAULT_USER_ID, permission, DEFAULT_IDENTITY_STORE));
     }
 
     /* Identity management flow */
@@ -180,7 +182,7 @@ public class JDBCConnectorTests {
     public void testIsUserInGroupValid() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        assertTrue(identityStore.isUserInGroup(DEFAULT_USER_ID, DEFAULT_GROUP_ID));
+        assertTrue(identityStore.isUserInGroup(DEFAULT_USER_ID, DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE));
     }
 
     @Test
@@ -214,7 +216,7 @@ public class JDBCConnectorTests {
     public void testGetUserClaimValues() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        Map<String, String> claims = identityStore.getUserClaimValues(DEFAULT_USER_ID);
+        Map<String, String> claims = identityStore.getUserClaimValues(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
 
         assertFalse(claims.isEmpty());
     }
@@ -226,7 +228,8 @@ public class JDBCConnectorTests {
         claimURIs.add("firstName");
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        Map<String, String> claims = identityStore.getUserClaimValues(DEFAULT_USER_ID, claimURIs);
+        Map<String, String> claims = identityStore.getUserClaimValues(DEFAULT_USER_ID, claimURIs,
+                DEFAULT_IDENTITY_STORE);
 
         assertFalse(claims.isEmpty());
     }
@@ -264,7 +267,7 @@ public class JDBCConnectorTests {
     public void testGetGroupsOfUser() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<Group> groups = identityStore.getGroupsOfUser(DEFAULT_USER_ID);
+        List<Group> groups = identityStore.getGroupsOfUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
         assertFalse(groups.isEmpty());
     }
 
@@ -272,7 +275,7 @@ public class JDBCConnectorTests {
     public void testGetUsersOfGroup() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<User> users = identityStore.getUsersOfGroup(DEFAULT_GROUP_ID, null);
+        List<User> users = identityStore.getUsersOfGroup(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE);
         assertFalse(users.isEmpty());
     }
 }

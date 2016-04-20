@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.jdbc;
+package org.wso2.carbon.security.userstore.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.connector.jdbc.constant.ConnectorConstants;
-import org.wso2.carbon.security.connector.jdbc.constant.DatabaseColumnNames;
-import org.wso2.carbon.security.connector.jdbc.util.DatabaseUtil;
-import org.wso2.carbon.security.connector.jdbc.util.NamedPreparedStatement;
-import org.wso2.carbon.security.connector.jdbc.util.UnitOfWork;
-import org.wso2.carbon.security.usercore.bean.Group;
-import org.wso2.carbon.security.usercore.bean.User;
-import org.wso2.carbon.security.usercore.config.IdentityStoreConfig;
-import org.wso2.carbon.security.usercore.connector.IdentityStoreConnector;
-import org.wso2.carbon.security.usercore.exception.IdentityStoreException;
+import org.wso2.carbon.security.user.core.bean.Group;
+import org.wso2.carbon.security.user.core.bean.User;
+import org.wso2.carbon.security.user.core.config.IdentityStoreConfig;
+import org.wso2.carbon.security.user.core.exception.IdentityStoreException;
+import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnector;
+import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
+import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
+import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
+import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,8 +41,11 @@ import javax.sql.DataSource;
 
 /**
  * Identity store connector for JDBC based stores.
+ * @since 1.0.0
  */
 public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements IdentityStoreConnector {
+
+    private static Logger log = LoggerFactory.getLogger(JDBCIdentityStoreConnector.class);
 
     private DataSource dataSource;
     private IdentityStoreConfig identityStoreConfig;
@@ -62,6 +67,10 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         } catch (DataSourceException e) {
             throw new IdentityStoreException("Error occurred while initiating data source.", e);
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("JDBC identity store connector initialized.");
+        }
     }
 
     @Override
@@ -70,7 +79,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public String getUserStoreID() {
+    public String getUserStoreId() {
         return userStoreId;
     }
 
@@ -82,10 +91,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_USERNAME));
             namedPreparedStatement.setString("username", username);
+
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 if (!resultSet.next()) {
-                    throw new IdentityStoreException("No user for given id.");
+                    return null;
                 }
 
                 String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
@@ -93,32 +103,31 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
                 return new User(username, userId, userStoreId, tenantId);
             }
-
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
         }
     }
 
     @Override
-    public User getUserFromId(String userID) throws IdentityStoreException {
+    public User getUserFromId(String userId) throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ID));
-            namedPreparedStatement.setString("user_id", userID);
+            namedPreparedStatement.setString("user_id", userId);
+
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 if (!resultSet.next()) {
-                    throw new IdentityStoreException("No user for given id.");
+                    return null;
                 }
 
                 String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
                 long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
 
-                return new User(username, userID, userStoreId, tenantId);
+                return new User(username, userId, userStoreId, tenantId);
             }
-
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
         }
@@ -180,13 +189,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public Map<String, String> getUserClaimValues(String userID, List<String> claimURIs) throws IdentityStoreException {
+    public Map<String, String> getUserClaimValues(String userId, List<String> claimURIs) throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_URI));
-            namedPreparedStatement.setString("user_id", userID);
+            namedPreparedStatement.setString("user_id", userId);
             namedPreparedStatement.setString("claim_uris", claimURIs);
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 

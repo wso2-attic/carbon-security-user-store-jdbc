@@ -18,26 +18,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon.security.connector</groupId>
-        <artifactId>org.wso2.carbon.security.connector.jdbc.parent</artifactId>
+        <groupId>org.wso2.carbon.security.userstore</groupId>
+        <artifactId>org.wso2.carbon.security.userstore.jdbc.parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.wso2.carbon.security.connector.jdbc.feature</artifactId>
+    <artifactId>org.wso2.carbon.security.userstore.jdbc.feature</artifactId>
 
     <packaging>carbon-feature</packaging>
-    <name>WSO2 Carbon Security JDBC Connector Feature - Feature</name>
+    <name>WSO2 Carbon Security JDBC User Store Feature - Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the jdbc connector functionality required by the Carbon Security</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon.security.connector</groupId>
-            <artifactId>org.wso2.carbon.security.connector.jdbc</artifactId>
-            <version>${carbon.security.connector.jdbc.version}</version>
+            <groupId>org.wso2.carbon.security.userstore</groupId>
+            <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
+            <version>${carbon.security.userstore.jdbc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.security</groupId>
@@ -115,8 +115,8 @@
                             </adviceFileContents>
                             <bundles>
                                 <bundle>
-                                    <symbolicName>org.wso2.carbon.security.connector.jdbc</symbolicName>
-                                    <version>${carbon.security.connector.jdbc.version}</version>
+                                    <symbolicName>org.wso2.carbon.security.userstore.jdbc</symbolicName>
+                                    <version>${carbon.security.userstore.jdbc.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
