@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.jdbc;
+package org.wso2.carbon.security.userstore.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.connector.jdbc.constant.ConnectorConstants;
-import org.wso2.carbon.security.connector.jdbc.constant.DatabaseColumnNames;
-import org.wso2.carbon.security.connector.jdbc.util.DatabaseUtil;
-import org.wso2.carbon.security.connector.jdbc.util.NamedPreparedStatement;
-import org.wso2.carbon.security.connector.jdbc.util.UnitOfWork;
-import org.wso2.carbon.security.usercore.bean.Permission;
-import org.wso2.carbon.security.usercore.bean.Role;
-import org.wso2.carbon.security.usercore.config.AuthorizationStoreConfig;
-import org.wso2.carbon.security.usercore.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.security.usercore.exception.AuthorizationStoreException;
+import org.wso2.carbon.security.user.core.bean.Permission;
+import org.wso2.carbon.security.user.core.bean.Role;
+import org.wso2.carbon.security.user.core.config.AuthorizationStoreConfig;
+import org.wso2.carbon.security.user.core.exception.AuthorizationStoreException;
+import org.wso2.carbon.security.user.core.store.connector.AuthorizationStoreConnector;
+import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
+import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
+import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
+import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,8 +39,11 @@ import javax.sql.DataSource;
 
 /**
  * JDBC connector for authorization store.
+ * @since 1.0.0
  */
 public class JDBCAuthorizationConnector extends JDBCStoreConnector implements AuthorizationStoreConnector {
+
+    private static Logger log = LoggerFactory.getLogger(JDBCAuthorizationConnector.class);
 
     private DataSource dataSource;
 
@@ -51,7 +56,11 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             this.dataSource = DatabaseUtil.getInstance().getDataSource(properties
                     .getProperty(ConnectorConstants.DATA_SOURCE));
         } catch (DataSourceException e) {
-            throw new AuthorizationStoreException("Error while setting the data source", e);
+            throw new AuthorizationStoreException("Error while setting the data source.", e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("JDBC authorization store connector initialized.");
         }
 
     }
@@ -175,7 +184,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
     @Override
     public void assignUserRole(String userId, String roleName) throws AuthorizationStoreException {
-
     }
 
     @Override

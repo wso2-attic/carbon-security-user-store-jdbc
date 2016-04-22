@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.jdbc;
+package org.wso2.carbon.security.userstore.jdbc.queries;
 
-import org.wso2.carbon.security.connector.jdbc.queries.MySQLFamilySQLQueryFactory;
-
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a JDBC based store connector.
+ * Factory to create sql queries specific to database.
+ * @since 1.0.0
  */
-public abstract class JDBCStoreConnector {
+public abstract class SQLQueryFactory {
 
-    protected Map<String, String> sqlQueries;
+    protected Map<String, String> sqlQueries = new HashMap<>();
 
-    protected void loadQueries(String databaseType) {
+    public String getQuery(String queryName) {
+        return sqlQueries.get(queryName);
+    }
 
-        if (databaseType != null && databaseType.equals("MySQL")) {
-            sqlQueries = new MySQLFamilySQLQueryFactory().getQueries();
-        }
+    public Map<String, String> getQueries() {
+        return sqlQueries;
     }
 }

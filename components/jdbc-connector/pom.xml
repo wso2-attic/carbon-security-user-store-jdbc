@@ -2,16 +2,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon.security.connector</groupId>
-        <artifactId>org.wso2.carbon.security.connector.jdbc.parent</artifactId>
+        <groupId>org.wso2.carbon.security.userstore</groupId>
+        <artifactId>org.wso2.carbon.security.userstore.jdbc.parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.security.connector.jdbc</artifactId>
+    <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon Security Connector - JDBC</name>
+    <name>WSO2 Carbon Security User Store - JDBC</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
@@ -30,10 +30,10 @@
     </dependencies>
 
     <properties>
-        <private.package>org.wso2.carbon.security.connector.internal</private.package>
+        <private.package>org.wso2.carbon.security.userstore.internal</private.package>
         <export.package>
-            !org.wso2.carbon.security.connector.internal,
-            org.wso2.carbon.security.connector.*
+            !org.wso2.carbon.security.userstore.internal,
+            org.wso2.carbon.security.userstore.*
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",

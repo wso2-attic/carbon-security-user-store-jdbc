@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.jdbc.util;
+package org.wso2.carbon.security.userstore.jdbc.util;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

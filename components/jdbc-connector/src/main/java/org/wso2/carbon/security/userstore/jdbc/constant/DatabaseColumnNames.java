@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.jdbc.constant;
+package org.wso2.carbon.security.userstore.jdbc.constant;
 
 /**
  * Names of the database table columns.

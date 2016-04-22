@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.jdbc.internal;
+package org.wso2.carbon.security.userstore.jdbc.internal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -25,19 +25,20 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
-import org.wso2.carbon.security.connector.jdbc.JDBCAuthorizationConnector;
-import org.wso2.carbon.security.connector.jdbc.JDBCCredentialStoreConnector;
-import org.wso2.carbon.security.connector.jdbc.JDBCIdentityStoreConnector;
-import org.wso2.carbon.security.connector.jdbc.util.DatabaseUtil;
-import org.wso2.carbon.security.usercore.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.security.usercore.connector.CredentialStoreConnector;
-import org.wso2.carbon.security.usercore.connector.IdentityStoreConnector;
+import org.wso2.carbon.security.user.core.store.connector.AuthorizationStoreConnector;
+import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnector;
+import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnector;
+import org.wso2.carbon.security.userstore.jdbc.JDBCAuthorizationConnector;
+import org.wso2.carbon.security.userstore.jdbc.JDBCCredentialStoreConnector;
+import org.wso2.carbon.security.userstore.jdbc.JDBCIdentityStoreConnector;
+import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 
 /**
  * OSGi component for carbon security connectors.
+ * @since 1.0.0
  */
 @Component(
         name = "org.wso2.carbon.security.connector.jdbc.ConnectorComponent",
@@ -47,6 +48,10 @@ public class ConnectorComponent {
 
     private static final Logger log = LoggerFactory.getLogger(ConnectorComponent.class);
 
+    /**
+     * Register user store connectors as OSGi services.
+     * @param bundleContext @see BundleContext
+     */
     @Activate
     public void registerCarbonSecurityConnectors(BundleContext bundleContext) {
 
@@ -65,6 +70,10 @@ public class ConnectorComponent {
         connectorProperties.put("connector-id", "JDBCCredentialStore");
         bundleContext.registerService(CredentialStoreConnector.class, new JDBCCredentialStoreConnector(),
                 connectorProperties);
+
+        if (log.isDebugEnabled()) {
+            log.debug("JDBC user store connectors registered as services successfully.");
+        }
     }
 
     @Reference(
@@ -77,12 +86,22 @@ public class ConnectorComponent {
     protected void registerDataSourceService(DataSourceService service) {
 
         if (service == null) {
-            log.error("DataSourceService is null");
+            log.error("Data source service is null. Register unsuccessful.");
             return;
         }
+
         DatabaseUtil.getInstance().setDataSourceService(service);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Data source service registered successfully.");
+        }
     }
 
     protected void unregisterDataSourceService(DataSourceService service) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Data source service unregistered.");
+        }
+        DatabaseUtil.getInstance().setDataSourceService(null);
     }
 }
