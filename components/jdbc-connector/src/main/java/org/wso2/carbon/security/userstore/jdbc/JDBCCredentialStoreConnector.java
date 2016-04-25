@@ -78,7 +78,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public User authenticate(Callback[] callbacks) throws CredentialStoreException, AuthenticationFailure {
+    public User.UserBuilder authenticate(Callback[] callbacks) throws CredentialStoreException, AuthenticationFailure {
 
         String username = null;
         char [] password = null;
@@ -132,7 +132,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                 String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
                 long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
 
-                return new User(username, userUniqueId, credentialStoreId, tenantId);
+                return new User.UserBuilder(username, userUniqueId, credentialStoreId, tenantId);
             }
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);

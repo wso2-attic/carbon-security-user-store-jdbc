@@ -52,9 +52,9 @@ public class JDBCConnectorTests {
     private static final String DEFAULT_USER_ID = "41dadd2aea6e11e59ce95e5517507c66";
     private static final String DEFAULT_ROLE_ID = "985b79ecfcdf11e586aa5e5517507c66";
     private static final String DEFAULT_GROUP_ID = "a422aa98ecf411e59ce95e5517507c66";
-    private static final String DEFAULT_IDENTITY_STORE = "JDBCIdentityStore";
-    private static final String DEFAULT_CREDENTIAL_STORE = "JDBCCredentialStore";
-    private static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAuthorizationStore";
+    private static final String DEFAULT_IDENTITY_STORE = "JDBCIS1";
+    private static final String DEFAULT_CREDENTIAL_STORE = "JDBCCS1";
+    private static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAS1";
 
     @Inject
     private BundleContext bundleContext;

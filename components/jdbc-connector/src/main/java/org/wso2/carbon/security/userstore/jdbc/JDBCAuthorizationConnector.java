@@ -62,11 +62,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
         if (log.isDebugEnabled()) {
             log.debug("JDBC authorization store connector initialized.");
         }
-
     }
 
     @Override
-    public Role getRole(String roleName) throws AuthorizationStoreException {
+    public Role.RoleBuilder getRole(String roleName) throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -81,9 +80,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 }
 
                 String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                return new Role(roleName, roleId);
+                return new Role.RoleBuilder(roleName, roleId);
             }
-
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
         }
@@ -95,7 +93,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public List<Role> listRoles(String attribute, String filter) {
+    public List<Role.RoleBuilder> listRoles(String attribute, String filter) {
         return null;
     }
 
@@ -105,7 +103,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public List<Role> getRolesForUser(String userId) throws AuthorizationStoreException {
+    public List<Role.RoleBuilder> getRolesForUser(String userId) throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -115,23 +113,21 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-                List<Role> roles = new ArrayList<>();
+                List<Role.RoleBuilder> roles = new ArrayList<>();
                 while (resultSet.next()) {
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
                     String roleUniqueId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                    roles.add(new Role(roleName, roleUniqueId));
+                    roles.add(new Role.RoleBuilder(roleName, roleUniqueId));
                 }
-
                 return roles;
             }
-
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving roles for user.", e);
         }
     }
 
     @Override
-    public List<Role> getRolesForGroup(String groupId) throws AuthorizationStoreException {
+    public List<Role.RoleBuilder> getRolesForGroup(String groupId) throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -141,17 +137,15 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-                List<Role> roles = new ArrayList<>();
+                List<Role.RoleBuilder> roles = new ArrayList<>();
 
                 while (resultSet.next()) {
                     String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
-                    roles.add(new Role(roleName, roleId));
+                    roles.add(new Role.RoleBuilder(roleName, roleId));
                 }
-
                 return roles;
             }
-
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving the roles of group", e);
         }
@@ -176,10 +170,19 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 }
                 return permissions;
             }
-
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving permissions for role", e);
         }
+    }
+
+    @Override
+    public Permission addNewPermission(String s, String s1) throws AuthorizationStoreException {
+        return null;
+    }
+
+    @Override
+    public Role.RoleBuilder addNewRole(String s, List<Permission> list) throws AuthorizationStoreException {
+        return null;
     }
 
     @Override

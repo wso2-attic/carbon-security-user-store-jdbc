@@ -25,12 +25,12 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
-import org.wso2.carbon.security.user.core.store.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnector;
-import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnector;
-import org.wso2.carbon.security.userstore.jdbc.JDBCAuthorizationConnector;
-import org.wso2.carbon.security.userstore.jdbc.JDBCCredentialStoreConnector;
-import org.wso2.carbon.security.userstore.jdbc.JDBCIdentityStoreConnector;
+import org.wso2.carbon.security.user.core.store.connector.AuthorizationStoreConnectorFactory;
+import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnectorFactory;
+import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.JDBCAuthorizationStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.JDBCCredentialStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.JDBCIdentityStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
 
 import java.util.Dictionary;
@@ -57,18 +57,18 @@ public class ConnectorComponent {
 
         Dictionary<String, String> connectorProperties = new Hashtable<>();
 
-        connectorProperties.put("connector-id", "JDBCIdentityStore");
-        bundleContext.registerService(IdentityStoreConnector.class, new JDBCIdentityStoreConnector(),
+        connectorProperties.put("connector-type", "JDBCIdentityStore");
+        bundleContext.registerService(IdentityStoreConnectorFactory.class, new JDBCIdentityStoreConnectorFactory(),
                 connectorProperties);
 
         connectorProperties = new Hashtable<>();
-        connectorProperties.put("connector-id", "JDBCAuthorizationStore");
-        bundleContext.registerService(AuthorizationStoreConnector.class, new JDBCAuthorizationConnector(),
-                connectorProperties);
+        connectorProperties.put("connector-type", "JDBCAuthorizationStore");
+        bundleContext.registerService(AuthorizationStoreConnectorFactory.class,
+                new JDBCAuthorizationStoreConnectorFactory(), connectorProperties);
 
         connectorProperties = new Hashtable<>();
-        connectorProperties.put("connector-id", "JDBCCredentialStore");
-        bundleContext.registerService(CredentialStoreConnector.class, new JDBCCredentialStoreConnector(),
+        connectorProperties.put("connector-type", "JDBCCredentialStore");
+        bundleContext.registerService(CredentialStoreConnectorFactory.class, new JDBCCredentialStoreConnectorFactory(),
                 connectorProperties);
 
         if (log.isDebugEnabled()) {
@@ -86,7 +86,7 @@ public class ConnectorComponent {
     protected void registerDataSourceService(DataSourceService service) {
 
         if (service == null) {
-            log.error("Data source service is null. Register unsuccessful.");
+            log.error("Data source service is null. Registering data source service is unsuccessful.");
             return;
         }
 

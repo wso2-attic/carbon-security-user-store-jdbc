@@ -1,21 +1,27 @@
 credentialStore:
- connector: "#JDBCCredentialStore"
+ connector: "#JDBCCS1"
 identityStore:
- connector: "#JDBCIdentityStore"
+ connector: "#JDBCIS1"
 authorizationStore:
- connector: "#JDBCAuthorizationStore"
+ connector: "#JDBCAS1"
 
 storeConnectors:
  -
-  name: "JDBCCredentialStore"
-  dataSource: "WSO2_CARBON_DB"
-  hashAlgorithm: "SHA-256"
-  databaseType: "MySQL"
+  name: "JDBCCS1"
+  properties:
+   connectorType: "JDBCCredentialStore"
+   dataSource: "WSO2_CARBON_DB"
+   hashAlgorithm: "SHA-256"
+   databaseType: "MySQL"
  -
-  name: "JDBCIdentityStore"
-  dataSource: "WSO2_CARBON_DB"
-  databaseType: "MySQL"
+  name: "JDBCIS1"
+  properties:
+   connectorType: "JDBCIdentityStore"
+   dataSource: "WSO2_CARBON_DB"
+   databaseType: "MySQL"
  -
-  name: "JDBCAuthorizationStore"
-  dataSource: "WSO2_CARBON_DB"
-  databaseType: "MySQL"
+  name: "JDBCAS1"
+  properties:
+   connectorType: "JDBCAuthorizationStore"
+   dataSource: "WSO2_CARBON_DB"
+   databaseType: "MySQL"
