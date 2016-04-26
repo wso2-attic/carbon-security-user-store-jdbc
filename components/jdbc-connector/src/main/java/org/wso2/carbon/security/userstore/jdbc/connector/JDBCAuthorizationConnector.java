@@ -45,12 +45,16 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
     private static Logger log = LoggerFactory.getLogger(JDBCAuthorizationConnector.class);
 
+    private String authorizationStoreId;
+    private AuthorizationStoreConfig authorizationStoreConfig;
     private DataSource dataSource;
 
-    public void init(AuthorizationStoreConfig authorizationStoreConfig) throws AuthorizationStoreException {
+    public void init(String storeId, AuthorizationStoreConfig authorizationStoreConfig)
+            throws AuthorizationStoreException {
 
         Properties properties = authorizationStoreConfig.getStoreProperties();
-        loadQueries(properties.getProperty(ConnectorConstants.DATABASE_TYPE));
+        this.authorizationStoreId = storeId;
+        this.authorizationStoreConfig = authorizationStoreConfig;
 
         try {
             this.dataSource = DatabaseUtil.getInstance().getDataSource(properties
@@ -59,9 +63,16 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             throw new AuthorizationStoreException("Error while setting the data source.", e);
         }
 
+        loadQueries(properties.getProperty(ConnectorConstants.DATABASE_TYPE));
+
         if (log.isDebugEnabled()) {
             log.debug("JDBC authorization store connector initialized.");
         }
+    }
+
+    @Override
+    public String getAuthorizationStoreId() {
+        return authorizationStoreId;
     }
 
     @Override
@@ -80,7 +91,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 }
 
                 String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                return new Role.RoleBuilder(roleName, roleId);
+                return new Role.RoleBuilder(roleName, roleId, authorizationStoreId);
             }
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
@@ -117,7 +128,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
                     String roleUniqueId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                    roles.add(new Role.RoleBuilder(roleName, roleUniqueId));
+                    roles.add(new Role.RoleBuilder(roleName, roleUniqueId, authorizationStoreId));
                 }
                 return roles;
             }
@@ -142,7 +153,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
-                    roles.add(new Role.RoleBuilder(roleName, roleId));
+                    roles.add(new Role.RoleBuilder(roleName, roleId, authorizationStoreId));
                 }
                 return roles;
             }
@@ -191,5 +202,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
     @Override
     public void addRolePermission(String roleName, String permissionName) throws AuthorizationStoreException {
+    }
+
+    @Override
+    public AuthorizationStoreConfig getAuthorizationStoreConfig() {
+        return authorizationStoreConfig;
     }
 }

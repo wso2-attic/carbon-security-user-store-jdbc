@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.user.core.bean.User;
 import org.wso2.carbon.security.user.core.config.CredentialStoreConfig;
-import org.wso2.carbon.security.user.core.constant.UserStoreConstants;
 import org.wso2.carbon.security.user.core.exception.AuthenticationFailure;
 import org.wso2.carbon.security.user.core.exception.CredentialStoreException;
 import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnector;
@@ -49,23 +48,24 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
     private static Logger log = LoggerFactory.getLogger(JDBCCredentialStoreConnector.class);
 
-    private DataSource dataSource;
-    private CredentialStoreConfig credentialStoreConfig;
     private String credentialStoreId;
+    private CredentialStoreConfig credentialStoreConfig;
+    private DataSource dataSource;
 
-    public void init(CredentialStoreConfig configuration) throws CredentialStoreException {
+    public void init(String storeId, CredentialStoreConfig configuration) throws CredentialStoreException {
 
         Properties properties = configuration.getStoreProperties();
-
         this.credentialStoreConfig = configuration;
-        this.credentialStoreId = properties.getProperty(UserStoreConstants.USER_STORE_ID);
-        this.loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
+        this.credentialStoreId = storeId;
+
         try {
             this.dataSource = DatabaseUtil.getInstance().getDataSource(properties
                     .getProperty(ConnectorConstants.DATA_SOURCE));
         } catch (DataSourceException e) {
             throw new CredentialStoreException("Error while setting the data source.", e);
         }
+
+        loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
 
         if (log.isDebugEnabled()) {
             log.debug("JDBC credential store connector initialized.");
@@ -155,5 +155,10 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         }
 
         return nameCallbackPresent && passwordCallbackPresent;
+    }
+
+    @Override
+    public CredentialStoreConfig getCredentialStoreConfig() {
+        return credentialStoreConfig;
     }
 }
