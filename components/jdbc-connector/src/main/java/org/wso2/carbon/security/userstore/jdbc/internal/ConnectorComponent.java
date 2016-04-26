@@ -28,9 +28,9 @@ import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.security.user.core.store.connector.AuthorizationStoreConnectorFactory;
 import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnectorFactory;
 import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnectorFactory;
-import org.wso2.carbon.security.userstore.jdbc.JDBCAuthorizationStoreConnectorFactory;
-import org.wso2.carbon.security.userstore.jdbc.JDBCCredentialStoreConnectorFactory;
-import org.wso2.carbon.security.userstore.jdbc.JDBCIdentityStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCAuthorizationStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCCredentialStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCIdentityStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
 
 import java.util.Dictionary;

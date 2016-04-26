@@ -137,13 +137,13 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                              "WHERE USER_UNIQUE_ID = :user_id;) " +
             "AND ATTR_NAME = :attr_name;";
 
-    private static final String GET_USER_ATTRIBUTES_FROM_URI =
+    private static final String GET_USER_ATTRIBUTES_FROM_NAME =
             "SELECT ATTR_NAME, ATTR_VALUE " +
             "FROM UM_USER_ATTRIBUTES " +
             "WHERE USER_ID = (SELECT ID " +
                              "FROM UM_USER " +
                              "WHERE USER_UNIQUE_ID = :user_id;) " +
-                             "AND ATTR_NAME IN (:claim_uris;)";
+                             "AND ATTR_NAME IN (:attr_names;)";
 
     private static final String UPDATE_CREDENTIALS =
             "UPDATE UM_USER " +
@@ -222,8 +222,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO, ADD_PASSWORD_INFO);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_SET_USER_ATTRIBUTE, SET_USER_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER_ATTRIBUTE, DELETE_USER_ATTRIBUTE);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_URI,
-                GET_USER_ATTRIBUTES_FROM_URI);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME,
+                GET_USER_ATTRIBUTES_FROM_NAME);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL, UPDATE_CREDENTIALS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER, REMOVE_GROUP_FROM_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_RENAME_USER, RENAME_USER);

@@ -216,7 +216,7 @@ public class JDBCConnectorTests {
     public void testGetUserClaimValues() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        Map<String, String> claims = identityStore.getUserClaimValues(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+        Map<String, String> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
 
         assertFalse(claims.isEmpty());
     }
@@ -224,11 +224,11 @@ public class JDBCConnectorTests {
     @Test
     public void testGetUserClaimValuesFromURIs() throws IdentityStoreException {
 
-        List<String> claimURIs = new ArrayList<>();
-        claimURIs.add("firstName");
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add("firstName");
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        Map<String, String> claims = identityStore.getUserClaimValues(DEFAULT_USER_ID, claimURIs,
+        Map<String, String> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, attributeNames,
                 DEFAULT_IDENTITY_STORE);
 
         assertFalse(claims.isEmpty());

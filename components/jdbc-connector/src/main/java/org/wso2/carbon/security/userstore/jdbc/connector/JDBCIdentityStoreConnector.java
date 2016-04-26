@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.userstore.jdbc;
+package org.wso2.carbon.security.userstore.jdbc.connector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,18 +49,15 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     private DataSource dataSource;
     private IdentityStoreConfig identityStoreConfig;
-    private String userStoreId;
-    private String userStoreName;
+    private String identityStoreId;
 
     @Override
-    public void init(IdentityStoreConfig identityStoreConfig) throws IdentityStoreException {
+    public void init(String storeId, IdentityStoreConfig identityStoreConfig) throws IdentityStoreException {
 
         Properties properties = identityStoreConfig.getStoreProperties();
-
-        this.loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
-        this.userStoreId = properties.getProperty(ConnectorConstants.USERSTORE_ID);
-        this.userStoreName = properties.getProperty(ConnectorConstants.USERSTORE_NAME);
+        this.identityStoreId = storeId;
         this.identityStoreConfig = identityStoreConfig;
+
         try {
             dataSource = DatabaseUtil.getInstance()
                     .getDataSource(properties.getProperty(ConnectorConstants.DATA_SOURCE));
@@ -68,19 +65,16 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             throw new IdentityStoreException("Error occurred while initiating data source.", e);
         }
 
+        loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
+
         if (log.isDebugEnabled()) {
             log.debug("JDBC identity store connector initialized.");
         }
     }
 
     @Override
-    public String getUserStoreName() {
-        return userStoreName;
-    }
-
-    @Override
-    public String getUserStoreId() {
-        return userStoreId;
+    public String getIdentityStoreId() {
+        return identityStoreId;
     }
 
     @Override
@@ -101,7 +95,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
                 long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
 
-                return new User.UserBuilder(username, userId, userStoreId, tenantId);
+                return new User.UserBuilder(username, userId, identityStoreId, tenantId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -126,7 +120,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
                 long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
 
-                return new User.UserBuilder(username, userId, userStoreId, tenantId);
+                return new User.UserBuilder(username, userId, identityStoreId, tenantId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -154,7 +148,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
                     String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
                     long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
-                    userList.add(new User.UserBuilder(username, userUniqueId, userStoreId, tenantId));
+                    userList.add(new User.UserBuilder(username, userUniqueId, identityStoreId, tenantId));
                 }
             }
         } catch (SQLException e) {
@@ -165,7 +159,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public Map<String, String> getUserClaimValues(String userId) throws IdentityStoreException {
+    public Map<String, String> getUserAttributeValues(String userId) throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -190,14 +184,15 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public Map<String, String> getUserClaimValues(String userId, List<String> claimURIs) throws IdentityStoreException {
+    public Map<String, String> getUserAttributeValues(String userId, List<String> attributeNames)
+            throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_URI));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME));
             namedPreparedStatement.setString("user_id", userId);
-            namedPreparedStatement.setString("claim_uris", claimURIs);
+            namedPreparedStatement.setString("attr_names", attributeNames);
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 Map<String, String> userClaims = new HashMap<>();
@@ -230,7 +225,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
                 String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
 
-                return new Group.GroupBuilder(groupId, userStoreId, groupName);
+                return new Group.GroupBuilder(groupId, identityStoreId, groupName);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving group.", e);
@@ -252,7 +247,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     throw new IdentityStoreException("No group for given id.");
                 }
                 String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
-                return new Group.GroupBuilder(groupId, userStoreId, groupName);
+                return new Group.GroupBuilder(groupId, identityStoreId, groupName);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving group.", e);
@@ -279,7 +274,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 while (resultSet.next()) {
                     String groupUniqueId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
                     String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
-                    groups.add(new Group.GroupBuilder(groupUniqueId, userStoreId, groupName));
+                    groups.add(new Group.GroupBuilder(groupUniqueId, identityStoreId, groupName));
                 }
             }
         } catch (SQLException e) {
@@ -304,7 +299,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 while (resultSet.next()) {
                     String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
                     String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-                    Group.GroupBuilder group = new Group.GroupBuilder(groupId, userStoreId, groupName);
+                    Group.GroupBuilder group = new Group.GroupBuilder(groupId, identityStoreId, groupName);
                     groupList.add(group);
                 }
                 return groupList;
@@ -330,7 +325,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
                     String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
                     long tenantId = resultSet.getLong(DatabaseColumnNames.User.TENANT_ID);
-                    User.UserBuilder user = new User.UserBuilder(username, userId, userStoreId, tenantId);
+                    User.UserBuilder user = new User.UserBuilder(username, userId, identityStoreId, tenantId);
                     userList.add(user);
                 }
                 unitOfWork.endTransaction();
