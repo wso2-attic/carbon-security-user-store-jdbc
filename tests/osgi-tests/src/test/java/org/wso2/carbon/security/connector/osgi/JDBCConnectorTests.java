@@ -15,7 +15,6 @@ import org.wso2.carbon.security.user.core.bean.Group;
 import org.wso2.carbon.security.user.core.bean.Permission;
 import org.wso2.carbon.security.user.core.bean.User;
 import org.wso2.carbon.security.user.core.exception.AuthenticationFailure;
-import org.wso2.carbon.security.user.core.exception.AuthorizationException;
 import org.wso2.carbon.security.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.user.core.exception.CredentialStoreException;
 import org.wso2.carbon.security.user.core.exception.IdentityStoreException;
@@ -167,7 +166,7 @@ public class JDBCConnectorTests {
     /* Authorization flow */
 
     @Test
-    public void testIsUserAuthorizedValid() throws AuthorizationException, AuthorizationStoreException,
+    public void testIsUserAuthorizedValid() throws AuthorizationStoreException,
             IdentityStoreException {
 
         Permission permission = new Permission("root/resource/id", "add");
