@@ -165,7 +165,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public Map<String, String> getUserClaimValues(String userId) throws IdentityStoreException {
+    public Map<String, String> getUserAttributeValues(String userId) throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -190,14 +190,15 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public Map<String, String> getUserClaimValues(String userId, List<String> claimURIs) throws IdentityStoreException {
+    public Map<String, String> getUserAttributeValues(String userId, List<String> attributeNames)
+            throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_URI));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME));
             namedPreparedStatement.setString("user_id", userId);
-            namedPreparedStatement.setString("claim_uris", claimURIs);
+            namedPreparedStatement.setString("attr_names", attributeNames);
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 Map<String, String> userClaims = new HashMap<>();

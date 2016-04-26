@@ -57,7 +57,7 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_UPDATE_CREDENTIAL = "sql_query_update_credential";
         public static final String SQL_QUERY_SET_USER_ATTRIBUTE = "sql_query_set_user_attribute";
         public static final String SQL_QUERY_DELETE_USER_ATTRIBUTE = "sql_query_delete_user_attribute";
-        public static final String SQL_QUERY_GET_USER_ATTRIBUTES_FROM_URI = "sql_query_get_user_attributes_from_uri";
+        public static final String SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME = "sql_query_get_user_attributes_from_uri";
         public static final String SQL_QUERY_IS_USER_IN_GROUP = "sql_query_is_user_in_group";
         public static final String SQL_QUERY_REMOVE_GROUP_FROM_USER = "sql_query_remove_group_from_user";
         public static final String SQL_QUERY_RENAME_USER = "sql_query_rename_user";
