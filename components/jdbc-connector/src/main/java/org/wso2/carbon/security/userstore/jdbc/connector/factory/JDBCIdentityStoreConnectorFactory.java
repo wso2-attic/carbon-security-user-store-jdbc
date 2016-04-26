@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.userstore.jdbc;
+package org.wso2.carbon.security.userstore.jdbc.connector.factory;
 
-import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnector;
-import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnectorFactory;
+import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnector;
+import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.connector.JDBCIdentityStoreConnector;
 
 /**
- * JDBC based credential store connector factory.
+ * JDBC based identity store connector factory.
  */
-public class JDBCCredentialStoreConnectorFactory implements CredentialStoreConnectorFactory {
+public class JDBCIdentityStoreConnectorFactory implements IdentityStoreConnectorFactory {
 
     @Override
-    public CredentialStoreConnector getInstance() {
-        return new JDBCCredentialStoreConnector();
+    public IdentityStoreConnector getInstance() {
+        return new JDBCIdentityStoreConnector();
     }
 }

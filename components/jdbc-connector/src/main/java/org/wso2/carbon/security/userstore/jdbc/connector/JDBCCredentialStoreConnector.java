@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.userstore.jdbc;
+package org.wso2.carbon.security.userstore.jdbc.connector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

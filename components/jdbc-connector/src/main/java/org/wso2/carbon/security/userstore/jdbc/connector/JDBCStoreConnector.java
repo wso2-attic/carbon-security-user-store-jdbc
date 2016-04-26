@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.userstore.jdbc;
+package org.wso2.carbon.security.userstore.jdbc.connector;
 
 import org.wso2.carbon.security.userstore.jdbc.queries.MySQLFamilySQLQueryFactory;
 
