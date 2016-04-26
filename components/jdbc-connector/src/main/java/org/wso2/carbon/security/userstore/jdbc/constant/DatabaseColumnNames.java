@@ -82,4 +82,11 @@ public class DatabaseColumnNames {
         public static final String RESOURCE_ID = "RESOURCE_ID";
         public static final String ACTION = "ACTION";
     }
+
+    /**
+     * Names of the Tenant table columns.
+     */
+    public static final class Tenant {
+        public static final String DOMAIN_NAME = "DOMAIN_NAME";
+    }
 }
