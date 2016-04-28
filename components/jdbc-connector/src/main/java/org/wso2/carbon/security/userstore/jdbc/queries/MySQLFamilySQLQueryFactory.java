@@ -25,19 +25,19 @@ import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String COMPARE_PASSWORD_HASH =
-            "SELECT UM_USER.USER_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.IDENTITY_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USERNAME = :username; AND UM_USER.PASSWORD = :hashed_password;";
 
     private static final String GET_USER_FROM_USERNAME =
-            "SELECT UM_USER.USER_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USERNAME = :username;";
 
     private static final String GET_USER_FROM_ID =
-            "SELECT UM_USER.USERNAME, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USERNAME, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USER_UNIQUE_ID = :user_id;";
@@ -96,7 +96,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "VALUES (:group_name;, :group_id;)";
 
     private static final String LIST_USERS =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USERNAME LIKE :username; " +
@@ -114,7 +114,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                          "WHERE USER_UNIQUE_ID = :user_id;))";
 
     private static final String GET_USERS_OF_GROUP =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.ID = (SELECT USER_ID " +

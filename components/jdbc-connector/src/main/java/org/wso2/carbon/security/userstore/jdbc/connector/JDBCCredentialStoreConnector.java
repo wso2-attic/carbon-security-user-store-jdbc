@@ -131,8 +131,11 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
                 String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
                 String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
+                String identityStoreId = resultSet.getString(DatabaseColumnNames.User.IDENTITY_STORE_ID);
 
-                return new User.UserBuilder(username, userUniqueId, credentialStoreId, tenantDomain);
+                return new User.UserBuilder().setUserName(username).setUserId(userUniqueId)
+                        .setIdentityStoreId(identityStoreId).setCredentialStoreId(credentialStoreId)
+                        .setTenantDomain(tenantDomain);
             }
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);

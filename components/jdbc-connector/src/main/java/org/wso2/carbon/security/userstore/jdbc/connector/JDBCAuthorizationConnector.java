@@ -19,8 +19,10 @@ package org.wso2.carbon.security.userstore.jdbc.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
+import org.wso2.carbon.security.user.core.bean.Group;
 import org.wso2.carbon.security.user.core.bean.Permission;
 import org.wso2.carbon.security.user.core.bean.Role;
+import org.wso2.carbon.security.user.core.bean.User;
 import org.wso2.carbon.security.user.core.config.AuthorizationStoreConfig;
 import org.wso2.carbon.security.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.user.core.store.connector.AuthorizationStoreConnector;
@@ -91,7 +93,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 }
 
                 String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                return new Role.RoleBuilder(roleName, roleId, authorizationStoreId);
+                return new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId)
+                        .setAuthorizationStoreId(authorizationStoreId);
             }
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
@@ -128,7 +131,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
                     String roleUniqueId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                    roles.add(new Role.RoleBuilder(roleName, roleUniqueId, authorizationStoreId));
+                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleUniqueId)
+                            .setAuthorizationStoreId(authorizationStoreId));
                 }
                 return roles;
             }
@@ -153,7 +157,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
-                    roles.add(new Role.RoleBuilder(roleName, roleId, authorizationStoreId));
+                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId)
+                            .setAuthorizationStoreId(authorizationStoreId));
                 }
                 return roles;
             }
@@ -187,7 +192,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public Permission addNewPermission(String s, String s1) throws AuthorizationStoreException {
+    public Permission addPermission(String s, String s1) throws AuthorizationStoreException {
         return null;
     }
 
@@ -207,5 +212,35 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public AuthorizationStoreConfig getAuthorizationStoreConfig() {
         return authorizationStoreConfig;
+    }
+
+    @Override
+    public boolean isUserInRole(String s, String s1) {
+        return false;
+    }
+
+    @Override
+    public boolean isGroupInRole(String s, String s1) {
+        return false;
+    }
+
+    @Override
+    public List<User.UserBuilder> getUsersOfRole(String s) {
+        return null;
+    }
+
+    @Override
+    public List<Group.GroupBuilder> getGroupsOfRole(String s) {
+        return null;
+    }
+
+    @Override
+    public void deleteRole(String s) {
+
+    }
+
+    @Override
+    public void deletePermission(String s) {
+
     }
 }
