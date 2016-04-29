@@ -29,7 +29,7 @@
     <artifactId>org.wso2.carbon.security.userstore.jdbc.feature</artifactId>
 
     <packaging>carbon-feature</packaging>
-    <name>WSO2 Carbon Security JDBC User Store Feature - Feature</name>
+    <name>WSO2 Carbon Security JDBC User Store - Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the jdbc connector functionality required by the Carbon Security</description>
 
