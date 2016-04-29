@@ -19,12 +19,12 @@ package org.wso2.carbon.security.userstore.jdbc.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.user.core.bean.User;
-import org.wso2.carbon.security.user.core.config.CredentialStoreConfig;
-import org.wso2.carbon.security.user.core.exception.AuthenticationFailure;
-import org.wso2.carbon.security.user.core.exception.CredentialStoreException;
-import org.wso2.carbon.security.user.core.store.connector.CredentialStoreConnector;
-import org.wso2.carbon.security.user.core.util.UserCoreUtil;
+import org.wso2.carbon.security.caas.user.core.bean.User;
+import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConfig;
+import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
+import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
+import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnector;
+import org.wso2.carbon.security.caas.user.core.util.UserCoreUtil;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
@@ -131,8 +131,11 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
                 String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
                 String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
+                String identityStoreId = resultSet.getString(DatabaseColumnNames.User.IDENTITY_STORE_ID);
 
-                return new User.UserBuilder(username, userUniqueId, credentialStoreId, tenantDomain);
+                return new User.UserBuilder().setUserName(username).setUserId(userUniqueId)
+                        .setIdentityStoreId(identityStoreId).setCredentialStoreId(credentialStoreId)
+                        .setTenantDomain(tenantDomain);
             }
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);

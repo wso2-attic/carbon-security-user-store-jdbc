@@ -25,19 +25,19 @@ import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String COMPARE_PASSWORD_HASH =
-            "SELECT UM_USER.USER_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.IDENTITY_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USERNAME = :username; AND UM_USER.PASSWORD = :hashed_password;";
 
     private static final String GET_USER_FROM_USERNAME =
-            "SELECT UM_USER.USER_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USERNAME = :username;";
 
     private static final String GET_USER_FROM_ID =
-            "SELECT UM_USER.USERNAME, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USERNAME, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USER_UNIQUE_ID = :user_id;";
@@ -96,7 +96,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "VALUES (:group_name;, :group_id;)";
 
     private static final String LIST_USERS =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USERNAME LIKE :username; " +
@@ -114,7 +114,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                          "WHERE USER_UNIQUE_ID = :user_id;))";
 
     private static final String GET_USERS_OF_GROUP =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.ID = (SELECT USER_ID " +
@@ -185,7 +185,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                         "WHERE USER_UNIQUE_ID = :user_id;)";
 
     private static final String GET_PERMISSIONS_FOR_ROLE =
-            "SELECT RESOURCE_ID, ACTION " +
+            "SELECT RESOURCE_ID, ACTION, PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
             "WHERE ID = (SELECT PERMISSION_ID " +
                         "FROM UM_ROLE_PERMISSION " +
@@ -207,6 +207,23 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "WHERE UM_GROUP.GROUP_NAME LIKE :group_name; " +
             "LIMIT :length; " +
             "OFFSET :offset;";
+
+    private static final String ADD_PERMISSION =
+            "INSERT INTO UM_PERMISSION (RESOURCE_ID, ACTION, PERMISSION_UNIQUE_ID) " +
+            "VALUES (:resource_id;, :action;, :permission_id;)";
+
+    private static final String GET_PERMISSION_IDS =
+            "SELECT ID " +
+            "FROM UM_PERMISSION " +
+            "WHERE RESOURCE_ID IN (:resource_ids;) AND ACTION IN (:actions;)";
+
+    private static final String ADD_ROLE =
+            "INSERT INTO UM_ROLE (ROLE_NAME, ROLE_UNIQUE_ID) " +
+            "VALUES (:role_name;, :role_unique_id;)";
+
+    private static final String ADD_ROLE_PERMISSION =
+            "INSERT INTO UM_ROLE_PERMISSION (ROLE_ID, PERMISSION_ID)" +
+            "VALUES (:role_id;, :permission_id;)";
 
     public MySQLFamilySQLQueryFactory() {
 
@@ -242,5 +259,9 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FOR_ROLE, GET_PERMISSIONS_FOR_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_GROUP, GET_ROLES_FOR_GROUP);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP, LIST_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSION, ADD_PERMISSION);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION_IDS, GET_PERMISSION_IDS);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE, ADD_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE_PERMISSION, ADD_ROLE_PERMISSION);
     }
 }

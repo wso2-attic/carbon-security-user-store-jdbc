@@ -38,6 +38,8 @@ public class DatabaseColumnNames {
         public static final String USERNAME = "USERNAME";
         public static final String PASSWORD = "PASSWORD";
         public static final String USER_UNIQUE_ID = "USER_UNIQUE_ID";
+        public static final String IDENTITY_STORE_ID = "IDENTITY_STORE_ID";
+        public static final String CREDENTIAL_STORE_ID = "CREDENTIAL_STORE_ID";
         public static final String TENANT_ID = "TENANT_ID";
     }
 
@@ -79,8 +81,10 @@ public class DatabaseColumnNames {
      * Names of the Permission table columns.
      */
     public static final class Permission {
+        public static final String ID = "ID";
         public static final String RESOURCE_ID = "RESOURCE_ID";
         public static final String ACTION = "ACTION";
+        public static final String PERMISSION_ID = "PERMISSION_UNIQUE_ID";
     }
 
     /**
