@@ -81,8 +81,10 @@ public class DatabaseColumnNames {
      * Names of the Permission table columns.
      */
     public static final class Permission {
+        public static final String ID = "ID";
         public static final String RESOURCE_ID = "RESOURCE_ID";
         public static final String ACTION = "ACTION";
+        public static final String PERMISSION_ID = "PERMISSION_UNIQUE_ID";
     }
 
     /**

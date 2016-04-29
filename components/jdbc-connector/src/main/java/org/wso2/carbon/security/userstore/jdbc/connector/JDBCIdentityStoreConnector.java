@@ -19,11 +19,11 @@ package org.wso2.carbon.security.userstore.jdbc.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.user.core.bean.Group;
-import org.wso2.carbon.security.user.core.bean.User;
-import org.wso2.carbon.security.user.core.config.IdentityStoreConfig;
-import org.wso2.carbon.security.user.core.exception.IdentityStoreException;
-import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnector;
+import org.wso2.carbon.security.caas.user.core.bean.Group;
+import org.wso2.carbon.security.caas.user.core.bean.User;
+import org.wso2.carbon.security.caas.user.core.config.IdentityStoreConfig;
+import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
+import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnector;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
@@ -97,8 +97,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
 
                 return new User.UserBuilder().setUserName(username).setUserId(userId)
-                        .setIdentityStoreId(identityStoreId)
-                        .setCredentialStoreId(credentialStoreId).setTenantDomain(tenantDomain);
+                        .setIdentityStoreId(identityStoreId).setCredentialStoreId(credentialStoreId)
+                        .setTenantDomain(tenantDomain);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -236,7 +236,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
                 String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
 
-                return new Group.GroupBuilder().setGroupId(groupId).setUserStoreId(identityStoreId)
+                return new Group.GroupBuilder().setGroupId(groupId).setIdentityStoreId(identityStoreId)
                         .setGroupName(groupName).setTenantDomain(tenantDomain);
             }
         } catch (SQLException e) {
@@ -262,7 +262,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
                 String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
 
-                return new Group.GroupBuilder().setGroupId(groupId).setUserStoreId(identityStoreId)
+                return new Group.GroupBuilder().setGroupId(groupId).setIdentityStoreId(identityStoreId)
                         .setGroupName(groupName).setTenantDomain(tenantDomain);
             }
         } catch (SQLException e) {
@@ -291,7 +291,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     String groupUniqueId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
                     String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
                     String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
-                    groups.add(new Group.GroupBuilder().setGroupId(groupUniqueId).setUserStoreId(identityStoreId)
+                    groups.add(new Group.GroupBuilder().setGroupId(groupUniqueId).setIdentityStoreId(identityStoreId)
                             .setGroupName(groupName).setTenantDomain(tenantDomain));
                 }
             }
@@ -319,7 +319,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
                     String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
                     Group.GroupBuilder group = new Group.GroupBuilder().setGroupId(groupId)
-                            .setUserStoreId(identityStoreId).setGroupName(groupName).setTenantDomain(tenantDomain);
+                            .setIdentityStoreId(identityStoreId).setGroupName(groupName).setTenantDomain(tenantDomain);
                     groupList.add(group);
                 }
                 return groupList;

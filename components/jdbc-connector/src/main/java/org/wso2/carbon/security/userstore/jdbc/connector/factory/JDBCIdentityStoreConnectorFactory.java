@@ -16,8 +16,8 @@
 
 package org.wso2.carbon.security.userstore.jdbc.connector.factory;
 
-import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnector;
-import org.wso2.carbon.security.user.core.store.connector.IdentityStoreConnectorFactory;
+import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnector;
+import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.connector.JDBCIdentityStoreConnector;
 
 /**

@@ -19,13 +19,14 @@ package org.wso2.carbon.security.userstore.jdbc.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.user.core.bean.Group;
-import org.wso2.carbon.security.user.core.bean.Permission;
-import org.wso2.carbon.security.user.core.bean.Role;
-import org.wso2.carbon.security.user.core.bean.User;
-import org.wso2.carbon.security.user.core.config.AuthorizationStoreConfig;
-import org.wso2.carbon.security.user.core.exception.AuthorizationStoreException;
-import org.wso2.carbon.security.user.core.store.connector.AuthorizationStoreConnector;
+import org.wso2.carbon.security.caas.user.core.bean.Group;
+import org.wso2.carbon.security.caas.user.core.bean.Permission;
+import org.wso2.carbon.security.caas.user.core.bean.Role;
+import org.wso2.carbon.security.caas.user.core.bean.User;
+import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConfig;
+import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
+import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;
+import org.wso2.carbon.security.caas.user.core.util.UserCoreUtil;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
@@ -37,6 +38,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 /**
@@ -102,22 +104,13 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public Permission getPermission(String permissionId) {
+    public Permission.PermissionBuilder getPermission(String permissionId) throws AuthorizationStoreException {
         return null;
     }
 
     @Override
-    public List<Role.RoleBuilder> listRoles(String attribute, String filter) {
-        return null;
-    }
-
-    @Override
-    public List<Permission> listPermissions(String attribute, String filter) {
-        return null;
-    }
-
-    @Override
-    public List<Role.RoleBuilder> getRolesForUser(String userId) throws AuthorizationStoreException {
+    public List<Role.RoleBuilder> getRolesForUser(String userId, String identityStoreId)
+            throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -142,7 +135,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public List<Role.RoleBuilder> getRolesForGroup(String groupId) throws AuthorizationStoreException {
+    public List<Role.RoleBuilder> getRolesForGroup(String groupId, String identityStoreId)
+            throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -168,7 +162,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public List<Permission> getPermissionsForRole(String roleId) throws AuthorizationStoreException {
+    public List<Permission.PermissionBuilder> getPermissionsForRole(String roleId) throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -178,13 +172,16 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-                List<Permission> permissions = new ArrayList<>();
+                List<Permission.PermissionBuilder> permissionBuilders = new ArrayList<>();
                 while (resultSet.next()) {
                     String resourceId = resultSet.getString(DatabaseColumnNames.Permission.RESOURCE_ID);
                     String action = resultSet.getString(DatabaseColumnNames.Permission.ACTION);
-                    permissions.add(new Permission(resourceId, action));
+                    String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
+                    permissionBuilders.add(new Permission.PermissionBuilder(resourceId, action, permissionId,
+                            authorizationStoreId));
                 }
-                return permissions;
+
+                return permissionBuilders;
             }
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving permissions for role", e);
@@ -192,13 +189,87 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public Permission addPermission(String s, String s1) throws AuthorizationStoreException {
-        return null;
+    public Permission.PermissionBuilder addPermission(String resourceId, String action)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSION));
+
+            String permissionId = UserCoreUtil.getRandomId();
+
+            namedPreparedStatement.setString("resource_id", resourceId);
+            namedPreparedStatement.setString("action", action);
+            namedPreparedStatement.setString("permission_id", permissionId);
+
+            namedPreparedStatement.getPreparedStatement().execute();
+
+            return new Permission.PermissionBuilder(resourceId, action,
+                    permissionId, authorizationStoreId);
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while adding the permission.", e);
+        }
     }
 
     @Override
-    public Role.RoleBuilder addNewRole(String s, List<Permission> list) throws AuthorizationStoreException {
-        return null;
+    public Role.RoleBuilder addRole(String roleName, List<Permission> permissions) throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            List<Long> permissionIds = new ArrayList<>();
+            if (!permissions.isEmpty()) {
+                NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION_IDS));
+                namedPreparedStatement.setString("actions", permissions
+                        .stream()
+                        .map(Permission::getAction)
+                        .collect(Collectors.toList()));
+                namedPreparedStatement.setString("resource_ids", permissions
+                        .stream()
+                        .map(Permission::getResourceId)
+                        .collect(Collectors.toList()));
+                try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                    while (resultSet.next()) {
+                        permissionIds.add(resultSet.getLong(DatabaseColumnNames.Permission.ID));
+                    }
+                }
+            }
+
+            NamedPreparedStatement addRolePreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE));
+
+            String roleUniqueId = UserCoreUtil.getRandomId();
+
+            addRolePreparedStatement.setString("role_name", roleName);
+            addRolePreparedStatement.setString("role_unique_id", roleUniqueId);
+            addRolePreparedStatement.getPreparedStatement().executeUpdate();
+            ResultSet resultSet = addRolePreparedStatement.getPreparedStatement().getGeneratedKeys();
+
+            if (!resultSet.next()) {
+                throw new AuthorizationStoreException("Failed to add the role.");
+            }
+
+            long roleId = resultSet.getLong(1);
+
+            NamedPreparedStatement addRolePermissionPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE_PERMISSION));
+
+            for (long permissionId : permissionIds) {
+                addRolePermissionPreparedStatement.setLong("role_id", roleId);
+                addRolePermissionPreparedStatement.setLong("permission_id", permissionId);
+                addRolePermissionPreparedStatement.getPreparedStatement().addBatch();
+            }
+
+            addRolePermissionPreparedStatement.getPreparedStatement().executeBatch();
+
+            return new Role.RoleBuilder().setAuthorizationStoreId(authorizationStoreId).setRoleName(roleName)
+                    .setRoleId(roleUniqueId);
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while adding the role.", e);
+        }
     }
 
     @Override
@@ -215,12 +286,12 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public boolean isUserInRole(String s, String s1) {
+    public boolean isUserInRole(String userId, String identityStoreId, String roleName) {
         return false;
     }
 
     @Override
-    public boolean isGroupInRole(String s, String s1) {
+    public boolean isGroupInRole(String groupId, String identityStoreId, String roleName) {
         return false;
     }
 
@@ -236,11 +307,13 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
     @Override
     public void deleteRole(String s) {
-
     }
 
     @Override
     public void deletePermission(String s) {
+    }
 
+    @Override
+    public void updateRolesInUser(String userId, String identityStoreId, List<Role> list) {
     }
 }
