@@ -10,7 +10,7 @@
 
     <artifactId>userstore-jdbc-tests</artifactId>
     <packaging>pom</packaging>
-    <name>userstore-jdbc-tests</name>
+    <name>WSO2 Carbon Security JDBC User Store - Tests</name>
     <url>http://maven.apache.org</url>
 
     <modules>
