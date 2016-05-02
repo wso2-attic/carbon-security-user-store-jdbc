@@ -70,5 +70,13 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_PERMISSION_IDS = "sql_query_get_permission_ids";
         public static final String SQL_QUERY_ADD_ROLE = "sql_query_add_role";
         public static final String SQL_QUERY_ADD_ROLE_PERMISSION = "sql_query_add_role_permission";
+        public static final String SQL_QUERY_GET_USERS_OF_ROLE = "sql_query_get_users_of_role";
+        public static final String SQL_QUERY_GET_GROUPS_OF_ROLE = "sql_query_get_groups_of_role";
+        public static final String SQL_QUERY_DELETE_ROLE = "sql_query_delete_role";
+        public static final String SQL_QUERY_DELETE_PERMISSION = "sql_query_delete_permission";
+        public static final String SQL_QUERY_IS_USER_IN_ROLE = "SQL_QUERY_IS_USER_IN_ROLE";
+        public static final String SQL_QUERY_IS_GROUP_IN_ROLE = "sql_query_is_group_in_role";
+        public static final String SQL_QUERY_DELETE_ROLES_OF_USER = "sql_query_delete_roles_of_user";
+        public static final String SQL_QUERY_ADD_ROLES_TO_USER = "sql_query_add_roles_to_user";
     }
 }
