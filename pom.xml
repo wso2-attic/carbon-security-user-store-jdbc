@@ -181,8 +181,8 @@
     </dependencyManagement>
 
     <properties>
-        <carbon.jndi.version>1.0.0-m1</carbon.jndi.version>
-        <carbon.datasources.version>1.0.0-m1</carbon.datasources.version>
+        <carbon.jndi.version>1.0.0-alpha</carbon.jndi.version>
+        <carbon.datasources.version>1.0.0-alpha</carbon.datasources.version>
         <carbon.security.caas.version>1.0.0-m1</carbon.security.caas.version>
         <carbon.security.userstore.jdbc.version>1.0.0-SNAPSHOT</carbon.security.userstore.jdbc.version>
 
