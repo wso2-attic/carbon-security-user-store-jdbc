@@ -9,8 +9,8 @@ Authorization Store.
 Use Maven snippet:
 ````xml
 <dependency>
-    <groupId>org.wso2.carbon.security</groupId>
-    <artifactId>org.wso2.carbon.security</artifactId>
+    <groupId>org.wso2.carbon.security.userstore</groupId>
+    <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
     <version>${carbon.security.version}</version>
 </dependency>
 ````

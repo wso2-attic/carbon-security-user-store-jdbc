@@ -205,6 +205,59 @@ public class JDBCConnectorTests {
         assertNotNull(permission.getPermissionId());
     }
 
+    @Test
+    public void testIsUserInRoleValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        assertTrue(authorizationStore.isUserInRole(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, DEFAULT_ROLE));
+    }
+
+    @Test
+    public void testIsGroupInRoleValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        assertTrue(authorizationStore.isGroupInRole(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE, DEFAULT_ROLE));
+    }
+
+    @Test
+    public void testGetUsersOfRole() throws AuthorizationStoreException, IdentityStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        assertNotNull(authorizationStore.getUsersOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE));
+    }
+
+    @Test
+    public void testGetGroupsOfRole() throws AuthorizationStoreException, IdentityStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        assertNotNull(authorizationStore.getGroupsOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE));
+    }
+
+    @Test
+    public void testUpdateRolesInUserValid() throws AuthorizationStoreException, IdentityStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("df813f5e105e11e6a1483e1d05defe78")
+                .setRoleName("guest")
+                .build());
+
+        authorizationStore.updateRolesInUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, roles);
+    }
+
+    @Test
+    public void testDeletePermission() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        authorizationStore.deletePermission(new Permission
+                .PermissionBuilder("root/resource/id", "delete", "64335ff4106211e6a1483e1d05defe78",
+                DEFAULT_AUTHORIZATION_STORE).build());
+    }
+
     /* Identity management flow */
 
     @Test

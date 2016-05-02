@@ -93,4 +93,25 @@ public class DatabaseColumnNames {
     public static final class Tenant {
         public static final String DOMAIN_NAME = "DOMAIN_NAME";
     }
+
+    /**
+     * Names of the UserRole table columns.
+     */
+    public static final class UserRole {
+
+        public static final String ROLE_ID = "ROLE_ID";
+        public static final String USER_UNIQUE_ID = "USER_UNIQUE_ID";
+        public static final String IDENTITY_STORE_ID = "IDENTITY_STORE_ID";
+
+    }
+
+    /**
+     * Names of the GroupRole table columns.
+     */
+    public static final class GroupRole {
+
+        public static final String ROLE_ID = "ROLE_ID";
+        public static final String GROUP_UNIQUE_ID = "GROUP_UNIQUE_ID";
+        public static final String IDENTITY_STORE_ID = "IDENTITY_STORE_ID";
+    }
 }

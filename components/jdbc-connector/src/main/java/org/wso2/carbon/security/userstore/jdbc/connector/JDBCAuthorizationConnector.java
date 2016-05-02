@@ -32,6 +32,7 @@ import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
 import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -220,7 +221,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             List<Long> permissionIds = new ArrayList<>();
             if (!permissions.isEmpty()) {
                 NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION_IDS));
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION_IDS), permissions.size());
                 namedPreparedStatement.setString("actions", permissions
                         .stream()
                         .map(Permission::getAction)
@@ -274,46 +275,172 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
     @Override
     public void assignUserRole(String userId, String roleName) throws AuthorizationStoreException {
+        throw new NotImplementedException();
     }
 
     @Override
     public void addRolePermission(String roleName, String permissionName) throws AuthorizationStoreException {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public boolean isUserInRole(String userId, String identityStoreId, String roleName)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_ROLE));
+            namedPreparedStatement.setString("user_id", userId);
+            namedPreparedStatement.setString("identity_store_id", identityStoreId);
+            namedPreparedStatement.setString("role_name", roleName);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                return resultSet.next();
+            }
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while checking is user in role.", e);
+        }
+    }
+
+    @Override
+    public boolean isGroupInRole(String groupId, String identityStoreId, String roleName)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_IS_GROUP_IN_ROLE));
+            namedPreparedStatement.setString("group_id", groupId);
+            namedPreparedStatement.setString("identity_store_id", identityStoreId);
+            namedPreparedStatement.setString("role_name", roleName);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                return resultSet.next();
+            }
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while checking is user in role.", e);
+        }
+    }
+
+    @Override
+    public List<User.UserBuilder> getUsersOfRole(String roleId) throws AuthorizationStoreException {
+
+        List<User.UserBuilder> userBuilders = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_ROLE));
+            namedPreparedStatement.setString("role_id", roleId);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                while (resultSet.next()) {
+                    User.UserBuilder userBuilder = new User.UserBuilder();
+                    userBuilder.setUserId(resultSet.getString(DatabaseColumnNames.UserRole.USER_UNIQUE_ID))
+                            .setIdentityStoreId(resultSet.getString(DatabaseColumnNames.UserRole.IDENTITY_STORE_ID));
+                    userBuilders.add(userBuilder);
+                }
+            }
+            return userBuilders;
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while retrieving users of the role.", e);
+        }
+    }
+
+    @Override
+    public List<Group.GroupBuilder> getGroupsOfRole(String roleId) throws AuthorizationStoreException {
+
+        List<Group.GroupBuilder> groupBuilders = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_ROLE));
+            namedPreparedStatement.setString("role_id", roleId);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                while (resultSet.next()) {
+                    Group.GroupBuilder groupBuilder = new Group.GroupBuilder();
+                    groupBuilder.setGroupId(resultSet.getString(DatabaseColumnNames.GroupRole.GROUP_UNIQUE_ID))
+                            .setIdentityStoreId(resultSet.getString(DatabaseColumnNames.GroupRole.IDENTITY_STORE_ID));
+                    groupBuilders.add(groupBuilder);
+                }
+            }
+            return groupBuilders;
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while retrieving groups of the role.", e);
+        }
+    }
+
+    @Override
+    public void deleteRole(String roleId) throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLE));
+
+            namedPreparedStatement.setString("role_id", roleId);
+            namedPreparedStatement.getPreparedStatement().executeUpdate();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while deleting the role.", e);
+        }
+    }
+
+    @Override
+    public void deletePermission(String permissionId) throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_PERMISSION));
+
+            namedPreparedStatement.setString("permission_id", permissionId);
+            namedPreparedStatement.getPreparedStatement().executeUpdate();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while deleting the permission.", e);
+        }
+    }
+
+    @Override
+    public void updateRolesInUser(String userId, String identityStoreId, List<Role> roles)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement deleteRolesOfUserPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_OF_USER));
+
+            deleteRolesOfUserPreparedStatement.setString("user_id", userId);
+            deleteRolesOfUserPreparedStatement.setString("identity_store_id", identityStoreId);
+            deleteRolesOfUserPreparedStatement.getPreparedStatement().executeUpdate();
+
+            NamedPreparedStatement addRolesToUserPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
+
+            for (Role role : roles) {
+                addRolesToUserPreparedStatement.setString("user_id", userId);
+                addRolesToUserPreparedStatement.setString("identity_store_id", identityStoreId);
+                addRolesToUserPreparedStatement.setString("role_id", role.getRoleId());
+                addRolesToUserPreparedStatement.getPreparedStatement().addBatch();
+            }
+
+            addRolesToUserPreparedStatement.getPreparedStatement().executeBatch();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating roles in user.", e);
+        }
     }
 
     @Override
     public AuthorizationStoreConfig getAuthorizationStoreConfig() {
         return authorizationStoreConfig;
-    }
-
-    @Override
-    public boolean isUserInRole(String userId, String identityStoreId, String roleName) {
-        return false;
-    }
-
-    @Override
-    public boolean isGroupInRole(String groupId, String identityStoreId, String roleName) {
-        return false;
-    }
-
-    @Override
-    public List<User.UserBuilder> getUsersOfRole(String s) {
-        return null;
-    }
-
-    @Override
-    public List<Group.GroupBuilder> getGroupsOfRole(String s) {
-        return null;
-    }
-
-    @Override
-    public void deleteRole(String s) {
-    }
-
-    @Override
-    public void deletePermission(String s) {
-    }
-
-    @Override
-    public void updateRolesInUser(String userId, String identityStoreId, List<Role> list) {
     }
 }
