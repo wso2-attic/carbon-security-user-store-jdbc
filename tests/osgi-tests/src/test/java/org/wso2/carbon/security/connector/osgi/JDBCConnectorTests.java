@@ -118,7 +118,7 @@ public class JDBCConnectorTests {
         optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.security.userstore")
                 .artifactId("org.wso2.carbon.security.userstore.jdbc")
-                .version("1.0.0-SNAPSHOT"));
+                .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("commons-io.wso2")
                 .artifactId("commons-io")
