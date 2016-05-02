@@ -50,7 +50,7 @@ public class ConnectorComponent {
 
     /**
      * Register user store connectors as OSGi services.
-     * @param bundleContext @see BundleContext
+     * @param bundleContext Bundle Context.
      */
     @Activate
     public void registerCarbonSecurityConnectors(BundleContext bundleContext) {
