@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>userstore-jdbc-tests</artifactId>
+        <artifactId>org.wso2.carbon.security.userstore.jdbc.test</artifactId>
         <groupId>org.wso2.carbon.security.userstore</groupId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -26,7 +26,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>osgi-tests</artifactId>
+    <artifactId>org.wso2.carbon.security.userstore.jdbc.test.osgi</artifactId>
     <packaging>bundle</packaging>
 
     <name>WSO2 Carbon Security JDBC User Store - OSGi Tests</name>

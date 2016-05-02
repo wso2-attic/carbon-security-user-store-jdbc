@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>userstore-jdbc-tests</artifactId>
+    <artifactId>org.wso2.carbon.security.userstore.jdbc.test</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Security JDBC User Store - Tests</name>
     <url>http://maven.apache.org</url>
