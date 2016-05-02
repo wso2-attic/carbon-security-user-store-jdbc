@@ -35,7 +35,7 @@ public class NamedPreparedStatement {
      * @param connection Database connection to be used.
      * @param sqlQuery Underlying SQL query.
      * @param repetition Repetition of each index.
-     * @throws SQLException
+     * @throws SQLException SQL Exception.
      */
     public NamedPreparedStatement(Connection connection, String sqlQuery, int repetition) throws SQLException {
 
@@ -65,7 +65,7 @@ public class NamedPreparedStatement {
      * Create a named prepared statement.
      * @param connection Database connection to be used.
      * @param sqlQuery Underlying SQL query.
-     * @throws SQLException
+     * @throws SQLException SQL Exception.
      */
     public NamedPreparedStatement(Connection connection, String sqlQuery) throws SQLException {
         this(connection, sqlQuery, 0);
@@ -73,7 +73,7 @@ public class NamedPreparedStatement {
 
     /**
      * Get underlying prepared statement.
-     * @return @see PreparedStatement.
+     * @return Prepared Statement.
      */
     public PreparedStatement getPreparedStatement() {
         return preparedStatement;
@@ -83,7 +83,7 @@ public class NamedPreparedStatement {
      * Set <code>long</code> value for the named index.
      * @param name Name of the index.
      * @param value Value to be replaced.
-     * @throws SQLException
+     * @throws SQLException SQL Exception.
      */
     public void setLong(String name, long value) throws SQLException {
         preparedStatement.setLong(getIndex(name), value);
@@ -93,7 +93,7 @@ public class NamedPreparedStatement {
      * Set <code>int</code> value for the named index.
      * @param name Name of the index.
      * @param value Value to be replaced.
-     * @throws SQLException
+     * @throws SQLException SQL Exception.
      */
     public void setInt(String name, int value) throws SQLException {
         preparedStatement.setInt(getIndex(name), value);
@@ -103,7 +103,7 @@ public class NamedPreparedStatement {
      * Set <code>String</code> value for the named index.
      * @param name Name of the index.
      * @param value Value to be replaced.
-     * @throws SQLException
+     * @throws SQLException SQL Exception
      */
     public void setString(String name, String value) throws SQLException {
         preparedStatement.setString(getIndex(name), value);
@@ -113,7 +113,7 @@ public class NamedPreparedStatement {
      * Replace repeated indexes with the list of values.
      * @param name Name of the index.
      * @param values Values to be replaced.
-     * @throws SQLException
+     * @throws SQLException SQL Exception.
      */
     public void setString(String name, List<String> values) throws SQLException {
 
