@@ -253,7 +253,7 @@
     <properties>
         <carbon.jndi.version>1.0.0-alpha</carbon.jndi.version>
         <carbon.datasources.version>1.0.0-alpha</carbon.datasources.version>
-        <carbon.security.caas.version>1.0.0-m1</carbon.security.caas.version>
+        <carbon.security.caas.version>1.0.0-SNAPSHOT</carbon.security.caas.version>
         <carbon.security.userstore.jdbc.version>1.0.0-SNAPSHOT</carbon.security.userstore.jdbc.version>
 
         <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
