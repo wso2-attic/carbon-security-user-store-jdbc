@@ -107,7 +107,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "SELECT UM_GROUP.GROUP_NAME, UM_GROUP.GROUP_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_GROUP LEFT JOIN UM_TENANT " +
             "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
-            "WHERE UM_GROUP.ID = (SELECT GROUP_ID " +
+            "WHERE UM_GROUP.ID IN (SELECT GROUP_ID " +
                         "FROM UM_USER_GROUP " +
                         "WHERE USER_ID = (SELECT ID " +
                                          "FROM UM_USER " +
@@ -117,7 +117,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
-            "WHERE UM_USER.ID = (SELECT USER_ID " +
+            "WHERE UM_USER.ID IN (SELECT USER_ID " +
                         "FROM UM_USER_GROUP " +
                         "WHERE GROUP_ID = (SELECT ID " +
                                           "FROM UM_GROUP " +
@@ -180,14 +180,14 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String GET_ROLES_FOR_USER =
             "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
             "FROM UM_ROLE " +
-            "WHERE ID = (SELECT ROLE_ID " +
+            "WHERE ID IN (SELECT ROLE_ID " +
                         "FROM UM_USER_ROLE " +
                         "WHERE USER_UNIQUE_ID = :user_id;)";
 
     private static final String GET_PERMISSIONS_FOR_ROLE =
             "SELECT RESOURCE_ID, ACTION, PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
-            "WHERE ID = (SELECT PERMISSION_ID " +
+            "WHERE ID IN (SELECT PERMISSION_ID " +
                         "FROM UM_ROLE_PERMISSION " +
                         "WHERE ROLE_ID = (SELECT ID " +
                                          "FROM UM_ROLE " +
@@ -196,7 +196,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String GET_ROLES_FOR_GROUP =
             "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
             "FROM UM_ROLE " +
-            "WHERE ID = (SELECT ROLE_ID " +
+            "WHERE ID IN (SELECT ROLE_ID " +
                         "FROM UM_GROUP_ROLE " +
                         "WHERE GROUP_UNIQUE_ID = :group_id;)";
 
@@ -274,6 +274,39 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "INSERT INTO UM_USER_ROLE(USER_UNIQUE_ID, IDENTITY_STORE_ID, ROLE_ID) " +
             "VALUES (:user_id;, :identity_store_id;, (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;))";
 
+    private static final String ADD_ROLES_TO_GROUP =
+            "INSERT INTO UM_GROUP_ROLE(GROUP_UNIQUE_ID, IDENTITY_STORE_ID, ROLE_ID) " +
+            "VALUES (:group_id;, :identity_store_id;, (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;))";
+
+    private static final String DELETE_ROLES_FROM_GROUP =
+            "DELETE FROM UM_GROUP_ROLE WHERE GROUP_UNIQUE_ID = :group_id; AND :identity_store_id;";
+
+    private static final String DELETE_GROUPS_FROM_ROLE =
+            "DELETE FROM UM_GROUP_ROLE WHERE ROLE_ID = :role_id;";
+
+    private static final String DELETE_USERS_OF_ROLE =
+            "DELETE FROM UM_USER_ROLE WHERE ROLE_ID = :role_id;";
+
+    private static final String DELETE_PERMISSIONS_FROM_ROLE =
+            "DELETE FROM UM_ROLE_PERMISSION WHERE ROLE_ID = :role_id;";
+
+    private static final String DELETE_GIVEN_ROLES_FROM_USER =
+            "DELETE FROM UM_USER_ROLE " +
+            "WHERE USER_UNIQUE_ID = :user_id; " +
+            "AND IDENTITY_STORE_ID = :identity_store_id; " +
+            "AND ROLE_ID = (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_Id;)";
+
+    private static final String DELETE_GIVEN_ROLES_FROM_GROUP =
+            "DELETE FROM UM_GROUP_ROLE " +
+            "WHERE USER_UNIQUE_ID = :user_id; " +
+            "AND IDENTITY_STORE_ID = :identity_store_id; " +
+            "AND ROLE_ID = (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;)";
+
+    private static final String DELETE_GIVEN_PERMISSIONS_FROM_ROLE =
+            "DELETE FROM UM_ROLE_PERMISSION " +
+            "WHERE ROLE_ID = (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;) " +
+            "AND PERMISSION_ID = (SELECT ID FROM UM_PERMISSION WHERE PERMISSION_UNIQUE_ID = :permission_id;)";
+
     public MySQLFamilySQLQueryFactory() {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH, COMPARE_PASSWORD_HASH);
@@ -311,14 +344,26 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSION, ADD_PERMISSION);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION_IDS, GET_PERMISSION_IDS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE, ADD_ROLE);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE_PERMISSION, ADD_ROLE_PERMISSION);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE, ADD_ROLE_PERMISSION);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_ROLE, GET_USERS_OF_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_ROLE, GET_GROUPS_OF_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLE, DELETE_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_PERMISSION, DELETE_PERMISSION);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_ROLE, IS_USER_IN_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_IS_GROUP_IN_ROLE, IS_GROUP_IN_ROLE);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_OF_USER, DELETE_ROLES_OF_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_FROM_USER, DELETE_ROLES_OF_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER, ADD_ROLES_TO_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP, ADD_ROLES_TO_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_FROM_GROUP, DELETE_ROLES_FROM_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUPS_FROM_ROLE, DELETE_GROUPS_FROM_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USERS_FROM_ROLE, DELETE_USERS_OF_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_PERMISSIONS_FROM_ROLE,
+                DELETE_PERMISSIONS_FROM_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER,
+                DELETE_GIVEN_ROLES_FROM_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP,
+                DELETE_GIVEN_ROLES_FROM_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE,
+                DELETE_GIVEN_PERMISSIONS_FROM_ROLE);
     }
 }

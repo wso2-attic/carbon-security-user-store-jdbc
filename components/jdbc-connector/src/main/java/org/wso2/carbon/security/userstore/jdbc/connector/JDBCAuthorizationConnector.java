@@ -32,7 +32,6 @@ import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
 import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -216,7 +215,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public Role.RoleBuilder addRole(String roleName, List<Permission> permissions) throws AuthorizationStoreException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             List<Long> permissionIds = new ArrayList<>();
             if (!permissions.isEmpty()) {
@@ -255,7 +254,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement addRolePermissionPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE_PERMISSION));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
 
             for (long permissionId : permissionIds) {
                 addRolePermissionPreparedStatement.setLong("role_id", roleId);
@@ -265,22 +264,13 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             addRolePermissionPreparedStatement.getPreparedStatement().executeBatch();
 
+            unitOfWork.endTransaction();
             return new Role.RoleBuilder().setAuthorizationStoreId(authorizationStoreId).setRoleName(roleName)
                     .setRoleId(roleUniqueId);
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while adding the role.", e);
         }
-    }
-
-    @Override
-    public void assignUserRole(String userId, String roleName) throws AuthorizationStoreException {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public void addRolePermission(String roleName, String permissionName) throws AuthorizationStoreException {
-        throw new NotImplementedException();
     }
 
     @Override
@@ -411,11 +401,11 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public void updateRolesInUser(String userId, String identityStoreId, List<Role> roles)
             throws AuthorizationStoreException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             NamedPreparedStatement deleteRolesOfUserPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_OF_USER));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_FROM_USER));
 
             deleteRolesOfUserPreparedStatement.setString("user_id", userId);
             deleteRolesOfUserPreparedStatement.setString("identity_store_id", identityStoreId);
@@ -433,9 +423,304 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             }
 
             addRolesToUserPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while updating roles in user.", e);
+        }
+    }
+
+    @Override
+    public void updateRolesInUser(String userId, String identityStoreId, List<Role> addList, List<Role> removeList)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
+
+            for (Role role : removeList) {
+                unAssingPreparedStatement.setString("user_id", userId);
+                unAssingPreparedStatement.setString("identity_store_id", identityStoreId);
+                unAssingPreparedStatement.setString("role_id", role.getRoleId());
+                unAssingPreparedStatement.getPreparedStatement().addBatch();
+            }
+            unAssingPreparedStatement.getPreparedStatement().executeBatch();
+
+            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
+
+            for (Role role : addList) {
+                assignPreparedStatement.setString("user_id", userId);
+                assignPreparedStatement.setString("identity_storeId", identityStoreId);
+                assignPreparedStatement.setString("role_id", role.getRoleId());
+                assignPreparedStatement.getPreparedStatement().addBatch();
+            }
+            assignPreparedStatement.getPreparedStatement().executeBatch();
+
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating roles in the user.", e);
+        }
+    }
+
+    @Override
+    public void updateUsersInRole(String roleId, List<User> users) throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement deleteUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USERS_FROM_ROLE));
+
+            deleteUsersPreparedStatement.setString("role_id", roleId);
+
+            NamedPreparedStatement addUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
+
+            for (User user : users) {
+                addUsersPreparedStatement.setString("user_id", user.getUserId());
+                addUsersPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
+                addUsersPreparedStatement.setString("role_id", roleId);
+                addUsersPreparedStatement.getPreparedStatement().addBatch();
+            }
+
+            addUsersPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating users in the role.", e);
+        }
+    }
+
+    @Override
+    public void updateUsersInRole(String roleId, List<User> addList, List<User> removeList)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
+
+            for (User user : removeList) {
+                unAssingPreparedStatement.setString("role_id", roleId);
+                unAssingPreparedStatement.setString("user_id", user.getUserId());
+                unAssingPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
+                unAssingPreparedStatement.getPreparedStatement().addBatch();
+            }
+            unAssingPreparedStatement.getPreparedStatement().executeBatch();
+
+            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
+
+            for (User user : addList) {
+                assignPreparedStatement.setString("role_id", roleId);
+                assignPreparedStatement.setString("user_id", user.getUserId());
+                assignPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
+                assignPreparedStatement.getPreparedStatement().addBatch();
+            }
+            assignPreparedStatement.getPreparedStatement().executeBatch();
+
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating users in the role.", e);
+        }
+    }
+
+    @Override
+    public void updateRolesInGroup(String groupId, String identityStoreId, List<Role> roles)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement deleteRolesOfGroupPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_FROM_GROUP));
+
+            deleteRolesOfGroupPreparedStatement.setString("group_id", groupId);
+            deleteRolesOfGroupPreparedStatement.setString("identity_store_id", identityStoreId);
+            deleteRolesOfGroupPreparedStatement.getPreparedStatement().executeUpdate();
+
+            NamedPreparedStatement addRolesToGroupPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+
+            for (Role role : roles) {
+                addRolesToGroupPreparedStatement.setString("group_id", groupId);
+                addRolesToGroupPreparedStatement.setString("identity_store_id", identityStoreId);
+                addRolesToGroupPreparedStatement.setString("role_id", role.getRoleId());
+                addRolesToGroupPreparedStatement.getPreparedStatement().addBatch();
+            }
+
+            addRolesToGroupPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating roles in group.", e);
+        }
+    }
+
+    @Override
+    public void updateRolesInGroup(String groupId, String identityStoreId, List<Role> addList, List<Role> removeList)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
+
+            for (Role role : removeList) {
+                unAssingPreparedStatement.setString("group_id", groupId);
+                unAssingPreparedStatement.setString("identity_store_id", identityStoreId);
+                unAssingPreparedStatement.setString("role_id", role.getRoleId());
+                unAssingPreparedStatement.getPreparedStatement().addBatch();
+            }
+            unAssingPreparedStatement.getPreparedStatement().executeBatch();
+
+            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+
+            for (Role role : addList) {
+                assignPreparedStatement.setString("group_id", groupId);
+                assignPreparedStatement.setString("identity_storeId", identityStoreId);
+                assignPreparedStatement.setString("role_id", role.getRoleId());
+                assignPreparedStatement.getPreparedStatement().addBatch();
+            }
+            assignPreparedStatement.getPreparedStatement().executeBatch();
+
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating roles in the group.", e);
+        }
+    }
+
+    @Override
+    public void updateGroupsInRole(String roleId, List<Group> groups) throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement deleteGroupsPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUPS_FROM_ROLE));
+
+            deleteGroupsPreparedStatement.setString("role_id", roleId);
+
+            NamedPreparedStatement addGroupsPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+
+            for (Group group : groups) {
+                addGroupsPreparedStatement.setString("group_id", group.getGroupId());
+                addGroupsPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
+                addGroupsPreparedStatement.setString("role_id", roleId);
+                addGroupsPreparedStatement.getPreparedStatement().addBatch();
+            }
+
+            addGroupsPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating groups in the role.", e);
+        }
+    }
+
+    @Override
+    public void updateGroupsInRole(String roleId, List<Group> addList, List<Group> removeList)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
+
+            for (Group group : removeList) {
+                unAssingPreparedStatement.setString("role_id", roleId);
+                unAssingPreparedStatement.setString("group_id", group.getGroupId());
+                unAssingPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
+                unAssingPreparedStatement.getPreparedStatement().addBatch();
+            }
+            unAssingPreparedStatement.getPreparedStatement().executeBatch();
+
+            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+
+            for (Group group : addList) {
+                assignPreparedStatement.setString("role_id", roleId);
+                assignPreparedStatement.setString("group_id", group.getGroupId());
+                assignPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
+                assignPreparedStatement.getPreparedStatement().addBatch();
+            }
+            assignPreparedStatement.getPreparedStatement().executeBatch();
+
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating groups in the role.", e);
+        }
+    }
+
+    @Override
+    public void updatePermissionsInRole(String roleId, List<Permission> permissions)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement deletePermissionPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_PERMISSIONS_FROM_ROLE));
+
+            deletePermissionPreparedStatement.setString("role_id", roleId);
+            deletePermissionPreparedStatement.getPreparedStatement().executeUpdate();
+
+            NamedPreparedStatement addPermissionsPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
+
+            for (Permission permission : permissions) {
+                addPermissionsPreparedStatement.setString("permission_id", permission.getPermissionId());
+                addPermissionsPreparedStatement.setString("role_id", roleId);
+                addPermissionsPreparedStatement.getPreparedStatement().addBatch();
+            }
+
+            addPermissionsPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating permissions in the role.", e);
+        }
+    }
+
+    @Override
+    public void updatePermissionsInRole(String roleId, List<Permission> addList, List<Permission> removeList)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE));
+
+            for (Permission permission : removeList) {
+                unAssingPreparedStatement.setString("role_id", roleId);
+                unAssingPreparedStatement.setString("permission_id", permission.getPermissionId());
+                unAssingPreparedStatement.getPreparedStatement().addBatch();
+            }
+            unAssingPreparedStatement.getPreparedStatement().executeBatch();
+
+            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
+
+            for (Permission permission : addList) {
+                assignPreparedStatement.setString("role_id", roleId);
+                assignPreparedStatement.setString("permission_id", permission.getPermissionId());
+                assignPreparedStatement.getPreparedStatement().addBatch();
+            }
+            assignPreparedStatement.getPreparedStatement().executeBatch();
+
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while updating permissions in the role.", e);
         }
     }
 
