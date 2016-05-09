@@ -38,7 +38,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 /**
@@ -217,25 +216,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-            List<Long> permissionIds = new ArrayList<>();
-            if (!permissions.isEmpty()) {
-                NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION_IDS), permissions.size());
-                namedPreparedStatement.setString("actions", permissions
-                        .stream()
-                        .map(Permission::getAction)
-                        .collect(Collectors.toList()));
-                namedPreparedStatement.setString("resource_ids", permissions
-                        .stream()
-                        .map(Permission::getResourceId)
-                        .collect(Collectors.toList()));
-                try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-                    while (resultSet.next()) {
-                        permissionIds.add(resultSet.getLong(DatabaseColumnNames.Permission.ID));
-                    }
-                }
-            }
-
             NamedPreparedStatement addRolePreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE));
 
@@ -256,9 +236,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
 
-            for (long permissionId : permissionIds) {
+            for (Permission permission : permissions) {
                 addRolePermissionPreparedStatement.setLong("role_id", roleId);
-                addRolePermissionPreparedStatement.setLong("permission_id", permissionId);
+                addRolePermissionPreparedStatement.setString("permission_id", permission.getPermissionId());
                 addRolePermissionPreparedStatement.getPreparedStatement().addBatch();
             }
 
@@ -448,16 +428,16 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
             NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
 
             for (Role role : addList) {
                 assignPreparedStatement.setString("user_id", userId);
-                assignPreparedStatement.setString("identity_storeId", identityStoreId);
+                assignPreparedStatement.setString("identity_store_id", identityStoreId);
                 assignPreparedStatement.setString("role_id", role.getRoleId());
                 assignPreparedStatement.getPreparedStatement().addBatch();
             }
-            assignPreparedStatement.getPreparedStatement().executeBatch();
 
+            assignPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
 
         } catch (SQLException e) {
@@ -583,7 +563,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             for (Role role : addList) {
                 assignPreparedStatement.setString("group_id", groupId);
-                assignPreparedStatement.setString("identity_storeId", identityStoreId);
+                assignPreparedStatement.setString("identity_store_id", identityStoreId);
                 assignPreparedStatement.setString("role_id", role.getRoleId());
                 assignPreparedStatement.getPreparedStatement().addBatch();
             }
@@ -675,7 +655,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement addPermissionsPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE_BY_UNIQUE_ID));
 
             for (Permission permission : permissions) {
                 addPermissionsPreparedStatement.setString("permission_id", permission.getPermissionId());
@@ -708,15 +688,15 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
             NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE_BY_UNIQUE_ID));
 
             for (Permission permission : addList) {
                 assignPreparedStatement.setString("role_id", roleId);
                 assignPreparedStatement.setString("permission_id", permission.getPermissionId());
                 assignPreparedStatement.getPreparedStatement().addBatch();
             }
-            assignPreparedStatement.getPreparedStatement().executeBatch();
 
+            assignPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
 
         } catch (SQLException e) {

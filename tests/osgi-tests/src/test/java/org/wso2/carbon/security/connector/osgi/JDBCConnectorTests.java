@@ -187,7 +187,8 @@ public class JDBCConnectorTests {
     public void testAddNewRoleValid() throws AuthorizationStoreException {
 
         List<Permission> permissions = new ArrayList<>();
-        permissions.add(new Permission("root/resource/id", "add"));
+        permissions.add(new Permission.PermissionBuilder("root/resource/id", "add", DEFAULT_PERMISSION_ID,
+                DEFAULT_AUTHORIZATION_STORE).build());
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         Role role = authorizationStore.addRole("test", permissions, DEFAULT_AUTHORIZATION_STORE);
@@ -234,7 +235,28 @@ public class JDBCConnectorTests {
     }
 
     @Test
-    public void testUpdateRolesInUserValid() throws AuthorizationStoreException, IdentityStoreException {
+    public void testDeletePermission() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        authorizationStore.deletePermission(new Permission
+                .PermissionBuilder("root/resource/id", "action2", "e890c688135011e6a1483e1d05defe78",
+                DEFAULT_AUTHORIZATION_STORE).build());
+    }
+
+    @Test
+    public void testDeleteRoleValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        authorizationStore.deleteRole(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("7f8adbe6134c11e6a1483e1d05defe78")
+                .setRoleName("role1")
+                .build());
+    }
+
+    @Test
+    public void testUpdateRolesInUserPutValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
 
@@ -242,20 +264,250 @@ public class JDBCConnectorTests {
         roles.add(new Role.RoleBuilder()
                 .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
                 .setAuthorizationStore(authorizationStore)
+                .setRoleId("985b79ecfcdf11e586aa5e5517507c66")
+                .setRoleName("admin")
+                .build());
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
                 .setRoleId("df813f5e105e11e6a1483e1d05defe78")
                 .setRoleName("guest")
+                .build());
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("70e2e088105f11e6a1483e1d05defe78")
+                .setRoleName("general")
                 .build());
 
         authorizationStore.updateRolesInUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, roles);
     }
 
     @Test
-    public void testDeletePermission() throws AuthorizationStoreException {
+    public void testUpdateRolesInUserPatchValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        authorizationStore.deletePermission(new Permission
-                .PermissionBuilder("root/resource/id", "delete", "64335ff4106211e6a1483e1d05defe78",
-                DEFAULT_AUTHORIZATION_STORE).build());
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("985b79ecfcdf11e586aa5e5517507c66")
+                .setRoleName("admin")
+                .build());
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("df813f5e105e11e6a1483e1d05defe78")
+                .setRoleName("guest")
+                .build());
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("70e2e088105f11e6a1483e1d05defe78")
+                .setRoleName("general")
+                .build());
+
+        authorizationStore.updateRolesInUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, roles, roles);
+    }
+
+    @Test
+    public void testUpdateUsersInRolePutValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<User> users = new ArrayList<>();
+        users.add(new User.UserBuilder()
+                .setUserName("user1")
+                .setUserId("b5572242139d11e6a1483e1d05defe78")
+                .setTenantDomain("wso2.com")
+                .setCredentialStoreId(DEFAULT_CREDENTIAL_STORE)
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .setIdentityStore(realmService.getIdentityStore())
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .build());
+
+        users.add(new User.UserBuilder()
+                .setUserName("user2")
+                .setUserId("b5572580139d11e6a1483e1d05defe78")
+                .setTenantDomain("wso2.com")
+                .setCredentialStoreId(DEFAULT_CREDENTIAL_STORE)
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .setIdentityStore(realmService.getIdentityStore())
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .build());
+
+        authorizationStore.updateUsersInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, users);
+    }
+
+    @Test
+    public void testUpdateUsersInRolePatchValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<User> users = new ArrayList<>();
+        users.add(new User.UserBuilder()
+                .setUserName("user1")
+                .setUserId("b5572242139d11e6a1483e1d05defe78")
+                .setTenantDomain("wso2.com")
+                .setCredentialStoreId(DEFAULT_CREDENTIAL_STORE)
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .setIdentityStore(realmService.getIdentityStore())
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .build());
+
+        users.add(new User.UserBuilder()
+                .setUserName("user2")
+                .setUserId("b5572580139d11e6a1483e1d05defe78")
+                .setTenantDomain("wso2.com")
+                .setCredentialStoreId(DEFAULT_CREDENTIAL_STORE)
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .setIdentityStore(realmService.getIdentityStore())
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .build());
+
+        authorizationStore.updateUsersInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, users);
+    }
+
+    @Test
+    public void testUpdateRolesInGroupPutValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("985b79ecfcdf11e586aa5e5517507c66")
+                .setRoleName("admin")
+                .build());
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("df813f5e105e11e6a1483e1d05defe78")
+                .setRoleName("guest")
+                .build());
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("70e2e088105f11e6a1483e1d05defe78")
+                .setRoleName("general")
+                .build());
+
+        authorizationStore.updateRolesInGroup(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, roles);
+    }
+
+    @Test
+    public void testUpdateRolesInGroupPatchValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("985b79ecfcdf11e586aa5e5517507c66")
+                .setRoleName("admin")
+                .build());
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("df813f5e105e11e6a1483e1d05defe78")
+                .setRoleName("guest")
+                .build());
+        roles.add(new Role.RoleBuilder()
+                .setAuthorizationStoreId(DEFAULT_AUTHORIZATION_STORE)
+                .setAuthorizationStore(authorizationStore)
+                .setRoleId("70e2e088105f11e6a1483e1d05defe78")
+                .setRoleName("general")
+                .build());
+
+        authorizationStore.updateRolesInGroup(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, roles, roles);
+    }
+
+    @Test
+    public void testUpdateGroupsInRolePutValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<Group> groups = new ArrayList<>();
+        groups.add(new Group.GroupBuilder()
+                .setGroupName("is")
+                .setGroupId("a422aa98ecf411e59ce95e5517507c66")
+                .setTenantDomain("wso2.com")
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .setIdentityStore(realmService.getIdentityStore())
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .build());
+        groups.add(new Group.GroupBuilder()
+                .setGroupName("security")
+                .setGroupId("16231aee15a711e6a1483e1d05defe78")
+                .setTenantDomain("wso2.com")
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .setIdentityStore(realmService.getIdentityStore())
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .build());
+
+        authorizationStore.updateGroupsInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, groups);
+    }
+
+    @Test
+    public void testUpdateGroupsInRolePatchValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<Group> groups = new ArrayList<>();
+        groups.add(new Group.GroupBuilder()
+                .setGroupName("is")
+                .setGroupId("a422aa98ecf411e59ce95e5517507c66")
+                .setTenantDomain("wso2.com")
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .setIdentityStore(realmService.getIdentityStore())
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .build());
+        groups.add(new Group.GroupBuilder()
+                .setGroupName("security")
+                .setGroupId("16231aee15a711e6a1483e1d05defe78")
+                .setTenantDomain("wso2.com")
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .setIdentityStore(realmService.getIdentityStore())
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .build());
+
+        authorizationStore.updateGroupsInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, groups, groups);
+    }
+
+    @Test
+    public void testUpdatePermissionsInRolePutValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<Permission> permissions = new ArrayList<>();
+        permissions.add(new Permission.PermissionBuilder("root/resource/id", "add", "f61a1c240df011e6a1483e1d05defe78",
+                DEFAULT_AUTHORIZATION_STORE)
+                .build());
+        permissions.add(new Permission.PermissionBuilder("root/resource/id", "delete",
+                "64335ff4106211e6a1483e1d05defe78", DEFAULT_AUTHORIZATION_STORE)
+                .build());
+
+        authorizationStore.updatePermissionsInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, permissions);
+    }
+
+    @Test
+    public void testUpdatePermissionsInRolePatchValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<Permission> permissions = new ArrayList<>();
+        permissions.add(new Permission.PermissionBuilder("root/resource/id", "add", "f61a1c240df011e6a1483e1d05defe78",
+                DEFAULT_AUTHORIZATION_STORE)
+                .build());
+        permissions.add(new Permission.PermissionBuilder("root/resource/id", "delete",
+                "64335ff4106211e6a1483e1d05defe78", DEFAULT_AUTHORIZATION_STORE)
+                .build());
+
+        authorizationStore.updatePermissionsInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, permissions,
+                permissions);
     }
 
     /* Identity management flow */

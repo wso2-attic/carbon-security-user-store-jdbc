@@ -50,8 +50,6 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_USER_IDS = "sql_query_get_user_ids";
         public static final String SQL_QUERY_ADD_GROUP = "sql_query_add_group";
         public static final String SQL_QUERY_LIST_USERS = "sql_query_list_users";
-        public static final String SQL_QUERY_GET_GROUP_ID_FROM_UNIQUE_ID = "sql_query_get_group_id_from_unique_id";
-        public static final String SQL_QUERY_GET_USER_ID_FROM_UNIQUE_ID = "sql_query_get_user_id_from_unique_id";
         public static final String SQL_QUERY_GET_PASSWORD_INFO = "sql_query_get_password_info";
         public static final String SQL_QUERY_ADD_PASSWORD_INFO = "sql_query_add_password_info";
         public static final String SQL_QUERY_UPDATE_CREDENTIAL = "sql_query_update_credential";
@@ -67,9 +65,10 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_ROLES_FOR_GROUP = "sql_query_get_roles_for_group";
         public static final String SQL_QUERY_LIST_GROUP = "sql_query_list_group";
         public static final String SQL_QUERY_ADD_PERMISSION = "sql_query_add_permission";
-        public static final String SQL_QUERY_GET_PERMISSION_IDS = "sql_query_get_permission_ids";
         public static final String SQL_QUERY_ADD_ROLE = "sql_query_add_role";
         public static final String SQL_QUERY_ADD_PERMISSIONS_TO_ROLE = "sql_query_add_role_permission";
+        public static final String SQL_QUERY_ADD_PERMISSIONS_TO_ROLE_BY_UNIQUE_ID =
+                "sql_query_add_permissions_to_role_by_unique_id";
         public static final String SQL_QUERY_GET_USERS_OF_ROLE = "sql_query_get_users_of_role";
         public static final String SQL_QUERY_GET_GROUPS_OF_ROLE = "sql_query_get_groups_of_role";
         public static final String SQL_QUERY_DELETE_ROLE = "sql_query_delete_role";
