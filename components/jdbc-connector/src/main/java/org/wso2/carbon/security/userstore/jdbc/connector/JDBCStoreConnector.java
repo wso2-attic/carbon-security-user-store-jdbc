@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.security.userstore.jdbc.connector;
 
+import org.wso2.carbon.security.caas.user.core.exception.StoreException;
 import org.wso2.carbon.security.userstore.jdbc.queries.MySQLFamilySQLQueryFactory;
 
 import java.util.Map;
@@ -30,8 +31,10 @@ public abstract class JDBCStoreConnector {
 
     protected void loadQueries(String databaseType) {
 
-        if (databaseType != null && databaseType.equals("MySQL")) {
+        if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") || databaseType.equalsIgnoreCase("H2"))) {
             sqlQueries = new MySQLFamilySQLQueryFactory().getQueries();
+        } else {
+            throw new StoreException("Invalid or unsupported database type specified in the configuration.");
         }
     }
 }

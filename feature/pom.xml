@@ -76,6 +76,7 @@
                                     <directory>resources</directory>
                                     <includes>
                                         <include>conf/jdbc-connector.yml</include>
+                                        <include>database/WSO2CARBON_DB.sql</include>
                                     </includes>
                                 </resource>
                             </resources>
