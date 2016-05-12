@@ -94,7 +94,7 @@ public class JDBCConnectorTests {
         optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.messaging")
                 .artifactId("org.wso2.carbon.messaging")
-                .version("1.0.2"));
+                .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.security.caas")
                 .artifactId("org.wso2.carbon.security.caas")
@@ -106,15 +106,15 @@ public class JDBCConnectorTests {
         optionList.add(mavenBundle()
                 .groupId("commons-io.wso2")
                 .artifactId("commons-io")
-                .version("2.4.0.wso2v1"));
+                .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("com.zaxxer")
                 .artifactId("HikariCP")
-                .version("2.4.1"));
+                .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("com.h2database")
                 .artifactId("h2")
-                .version("1.4.191"));
+                .versionAsInProject());
 
         String currentDir = Paths.get("").toAbsolutePath().toString();
         Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
