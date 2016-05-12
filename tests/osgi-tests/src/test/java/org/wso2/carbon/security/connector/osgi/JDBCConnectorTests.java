@@ -510,6 +510,59 @@ public class JDBCConnectorTests {
                 permissions);
     }
 
+    @Test
+    public void testCompleteAuthorizationFlowValid() throws AuthorizationStoreException, IdentityStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        IdentityStore identityStore = realmService.getIdentityStore();
+
+        // Add permissions.
+        Permission permission1 = authorizationStore.addPermission("root/resource/id", "test-permission1",
+                DEFAULT_AUTHORIZATION_STORE);
+        Permission permission2 = authorizationStore.addPermission("root/resource/id", "test-permission2",
+                DEFAULT_AUTHORIZATION_STORE);
+
+        List<Permission> permissions = new ArrayList<>();
+        permissions.add(permission1);
+        permissions.add(permission2);
+
+        // Add roles to user.
+        Role role1 = authorizationStore.addRole("test-user-role1", permissions, DEFAULT_AUTHORIZATION_STORE);
+        Role role2 = authorizationStore.addRole("test-user-role2", permissions, DEFAULT_AUTHORIZATION_STORE);
+
+        List<Role> userRoles = new ArrayList<>();
+        userRoles.add(role1);
+        userRoles.add(role2);
+
+        // Get the user.
+        User user = identityStore.getUser("admin");
+        user.updateRoles(userRoles, null);
+
+        // Add roles to group.
+        Role role3 = authorizationStore.addRole("test-group-role1", permissions, DEFAULT_AUTHORIZATION_STORE);
+        Role role4 = authorizationStore.addRole("test-group-role2", permissions, DEFAULT_AUTHORIZATION_STORE);
+
+        List<Role> groupRoles = new ArrayList<>();
+        groupRoles.add(role3);
+        groupRoles.add(role4);
+
+        Group group = identityStore.getGroup("is");
+
+        group.updateRoles(groupRoles, null);
+
+        assertTrue(user.isInRole(role1.getName()));
+        assertTrue(user.isInRole(role2.getName()));
+
+        assertTrue(user.isAuthorized(permission1));
+        assertTrue(user.isAuthorized(permission2));
+
+        assertTrue(group.hasRole(role3.getName()));
+        assertTrue(group.hasRole(role4.getName()));
+
+        assertTrue(group.isAuthorized(permission1));
+        assertTrue(group.isAuthorized(permission2));
+    }
+
     /* Identity management flow */
 
     @Test
