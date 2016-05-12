@@ -22,7 +22,9 @@ import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.config.IdentityStoreConfig;
+import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
 import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnector;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
@@ -78,7 +80,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public User.UserBuilder getUser(String username) throws IdentityStoreException {
+    public User.UserBuilder getUser(String username) throws IdentityStoreException, UserNotFoundException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -89,7 +91,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 if (!resultSet.next()) {
-                    return null;
+                    throw new UserNotFoundException("User not found for the given user name in " + identityStoreId);
                 }
 
                 String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
@@ -220,7 +222,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public Group.GroupBuilder getGroup(String groupName) throws IdentityStoreException {
+    public Group.GroupBuilder getGroup(String groupName) throws IdentityStoreException, GroupNotFoundException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -230,7 +232,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 if (!resultSet.next()) {
-                    throw new IdentityStoreException("No group for given name.");
+                    throw new GroupNotFoundException("No group found for the given group name in " + identityStoreId);
                 }
 
                 String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);

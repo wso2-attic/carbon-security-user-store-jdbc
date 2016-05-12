@@ -25,6 +25,8 @@ import org.wso2.carbon.security.caas.user.core.bean.Role;
 import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConfig;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
+import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
 import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;
 import org.wso2.carbon.security.caas.user.core.util.UserCoreUtil;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
@@ -79,7 +81,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public Role.RoleBuilder getRole(String roleName) throws AuthorizationStoreException {
+    public Role.RoleBuilder getRole(String roleName) throws AuthorizationStoreException, RoleNotFoundException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -90,7 +92,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 if (!resultSet.next()) {
-                    throw new AuthorizationStoreException("No role found for the given name.");
+                    throw new RoleNotFoundException("No role found for the given name in " + authorizationStoreId);
                 }
 
                 String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
@@ -103,8 +105,29 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public Permission.PermissionBuilder getPermission(String permissionId) throws AuthorizationStoreException {
-        return null;
+    public Permission.PermissionBuilder getPermission(String resourceId, String action)
+            throws AuthorizationStoreException, PermissionNotFoundException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION));
+            namedPreparedStatement.setString("resource_id", resourceId);
+            namedPreparedStatement.setString("action", action);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                if (!resultSet.next()) {
+                    throw new PermissionNotFoundException("No permission found for the given name in "
+                            + authorizationStoreId);
+                }
+
+                String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
+                return new Permission.PermissionBuilder(resourceId, action, permissionId, authorizationStoreId);
+            }
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
+        }
     }
 
     @Override
