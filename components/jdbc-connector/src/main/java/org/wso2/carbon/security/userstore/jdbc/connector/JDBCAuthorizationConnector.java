@@ -25,6 +25,8 @@ import org.wso2.carbon.security.caas.user.core.bean.Role;
 import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConfig;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
+import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
 import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;
 import org.wso2.carbon.security.caas.user.core.util.UserCoreUtil;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
@@ -79,7 +81,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public Role.RoleBuilder getRole(String roleName) throws AuthorizationStoreException {
+    public Role.RoleBuilder getRole(String roleName) throws AuthorizationStoreException, RoleNotFoundException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -90,7 +92,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 if (!resultSet.next()) {
-                    throw new AuthorizationStoreException("No role found for the given name.");
+                    throw new RoleNotFoundException("No role found for the given name in " + authorizationStoreId);
                 }
 
                 String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
@@ -103,8 +105,29 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public Permission.PermissionBuilder getPermission(String permissionId) throws AuthorizationStoreException {
-        return null;
+    public Permission.PermissionBuilder getPermission(String resourceId, String action)
+            throws AuthorizationStoreException, PermissionNotFoundException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION));
+            namedPreparedStatement.setString("resource_id", resourceId);
+            namedPreparedStatement.setString("action", action);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                if (!resultSet.next()) {
+                    throw new PermissionNotFoundException("No permission found for the given name in "
+                            + authorizationStoreId);
+                }
+
+                String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
+                return new Permission.PermissionBuilder(resourceId, action, permissionId, authorizationStoreId);
+            }
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
+        }
     }
 
     @Override
@@ -416,30 +439,35 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
+            if (removeList != null && !removeList.isEmpty()) {
 
-            for (Role role : removeList) {
-                unAssingPreparedStatement.setString("user_id", userId);
-                unAssingPreparedStatement.setString("identity_store_id", identityStoreId);
-                unAssingPreparedStatement.setString("role_id", role.getRoleId());
-                unAssingPreparedStatement.getPreparedStatement().addBatch();
-            }
-            unAssingPreparedStatement.getPreparedStatement().executeBatch();
+                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
 
-            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
-
-            for (Role role : addList) {
-                assignPreparedStatement.setString("user_id", userId);
-                assignPreparedStatement.setString("identity_store_id", identityStoreId);
-                assignPreparedStatement.setString("role_id", role.getRoleId());
-                assignPreparedStatement.getPreparedStatement().addBatch();
+                for (Role role : removeList) {
+                    unAssingPreparedStatement.setString("user_id", userId);
+                    unAssingPreparedStatement.setString("identity_store_id", identityStoreId);
+                    unAssingPreparedStatement.setString("role_id", role.getRoleId());
+                    unAssingPreparedStatement.getPreparedStatement().addBatch();
+                }
+                unAssingPreparedStatement.getPreparedStatement().executeBatch();
             }
 
-            assignPreparedStatement.getPreparedStatement().executeBatch();
+            if (addList != null && !addList.isEmpty()) {
+
+                NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
+
+                for (Role role : addList) {
+                    assignPreparedStatement.setString("user_id", userId);
+                    assignPreparedStatement.setString("identity_store_id", identityStoreId);
+                    assignPreparedStatement.setString("role_id", role.getRoleId());
+                    assignPreparedStatement.getPreparedStatement().addBatch();
+                }
+                assignPreparedStatement.getPreparedStatement().executeBatch();
+            }
             unitOfWork.endTransaction();
-
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while updating roles in the user.", e);
         }
@@ -479,27 +507,34 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
+            if (removeList != null && !removeList.isEmpty()) {
 
-            for (User user : removeList) {
-                unAssingPreparedStatement.setString("role_id", roleId);
-                unAssingPreparedStatement.setString("user_id", user.getUserId());
-                unAssingPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
-                unAssingPreparedStatement.getPreparedStatement().addBatch();
+                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
+
+                for (User user : removeList) {
+                    unAssingPreparedStatement.setString("role_id", roleId);
+                    unAssingPreparedStatement.setString("user_id", user.getUserId());
+                    unAssingPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
+                    unAssingPreparedStatement.getPreparedStatement().addBatch();
+                }
+                unAssingPreparedStatement.getPreparedStatement().executeBatch();
             }
-            unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
-            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
+            if (addList != null && !addList.isEmpty()) {
 
-            for (User user : addList) {
-                assignPreparedStatement.setString("role_id", roleId);
-                assignPreparedStatement.setString("user_id", user.getUserId());
-                assignPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
-                assignPreparedStatement.getPreparedStatement().addBatch();
+                NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
+
+                for (User user : addList) {
+                    assignPreparedStatement.setString("role_id", roleId);
+                    assignPreparedStatement.setString("user_id", user.getUserId());
+                    assignPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
+                    assignPreparedStatement.getPreparedStatement().addBatch();
+                }
+                assignPreparedStatement.getPreparedStatement().executeBatch();
             }
-            assignPreparedStatement.getPreparedStatement().executeBatch();
 
             unitOfWork.endTransaction();
 
@@ -547,27 +582,34 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
+            if (removeList != null && !removeList.isEmpty()) {
 
-            for (Role role : removeList) {
-                unAssingPreparedStatement.setString("group_id", groupId);
-                unAssingPreparedStatement.setString("identity_store_id", identityStoreId);
-                unAssingPreparedStatement.setString("role_id", role.getRoleId());
-                unAssingPreparedStatement.getPreparedStatement().addBatch();
+                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
+
+                for (Role role : removeList) {
+                    unAssingPreparedStatement.setString("group_id", groupId);
+                    unAssingPreparedStatement.setString("identity_store_id", identityStoreId);
+                    unAssingPreparedStatement.setString("role_id", role.getRoleId());
+                    unAssingPreparedStatement.getPreparedStatement().addBatch();
+                }
+                unAssingPreparedStatement.getPreparedStatement().executeBatch();
             }
-            unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
-            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+            if (addList != null && !addList.isEmpty()) {
 
-            for (Role role : addList) {
-                assignPreparedStatement.setString("group_id", groupId);
-                assignPreparedStatement.setString("identity_store_id", identityStoreId);
-                assignPreparedStatement.setString("role_id", role.getRoleId());
-                assignPreparedStatement.getPreparedStatement().addBatch();
+                NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+
+                for (Role role : addList) {
+                    assignPreparedStatement.setString("group_id", groupId);
+                    assignPreparedStatement.setString("identity_store_id", identityStoreId);
+                    assignPreparedStatement.setString("role_id", role.getRoleId());
+                    assignPreparedStatement.getPreparedStatement().addBatch();
+                }
+                assignPreparedStatement.getPreparedStatement().executeBatch();
             }
-            assignPreparedStatement.getPreparedStatement().executeBatch();
 
             unitOfWork.endTransaction();
 
@@ -611,27 +653,34 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
+            if (removeList != null && !removeList.isEmpty()) {
 
-            for (Group group : removeList) {
-                unAssingPreparedStatement.setString("role_id", roleId);
-                unAssingPreparedStatement.setString("group_id", group.getGroupId());
-                unAssingPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
-                unAssingPreparedStatement.getPreparedStatement().addBatch();
+                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
+
+                for (Group group : removeList) {
+                    unAssingPreparedStatement.setString("role_id", roleId);
+                    unAssingPreparedStatement.setString("group_id", group.getGroupId());
+                    unAssingPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
+                    unAssingPreparedStatement.getPreparedStatement().addBatch();
+                }
+                unAssingPreparedStatement.getPreparedStatement().executeBatch();
             }
-            unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
-            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+            if (addList != null && !addList.isEmpty()) {
 
-            for (Group group : addList) {
-                assignPreparedStatement.setString("role_id", roleId);
-                assignPreparedStatement.setString("group_id", group.getGroupId());
-                assignPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
-                assignPreparedStatement.getPreparedStatement().addBatch();
+                NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+
+                for (Group group : addList) {
+                    assignPreparedStatement.setString("role_id", roleId);
+                    assignPreparedStatement.setString("group_id", group.getGroupId());
+                    assignPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
+                    assignPreparedStatement.getPreparedStatement().addBatch();
+                }
+                assignPreparedStatement.getPreparedStatement().executeBatch();
             }
-            assignPreparedStatement.getPreparedStatement().executeBatch();
 
             unitOfWork.endTransaction();
 
@@ -677,26 +726,34 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-            NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE));
+            if (removeList != null && !removeList.isEmpty()) {
 
-            for (Permission permission : removeList) {
-                unAssingPreparedStatement.setString("role_id", roleId);
-                unAssingPreparedStatement.setString("permission_id", permission.getPermissionId());
-                unAssingPreparedStatement.getPreparedStatement().addBatch();
-            }
-            unAssingPreparedStatement.getPreparedStatement().executeBatch();
+                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE));
 
-            NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE_BY_UNIQUE_ID));
-
-            for (Permission permission : addList) {
-                assignPreparedStatement.setString("role_id", roleId);
-                assignPreparedStatement.setString("permission_id", permission.getPermissionId());
-                assignPreparedStatement.getPreparedStatement().addBatch();
+                for (Permission permission : removeList) {
+                    unAssingPreparedStatement.setString("role_id", roleId);
+                    unAssingPreparedStatement.setString("permission_id", permission.getPermissionId());
+                    unAssingPreparedStatement.getPreparedStatement().addBatch();
+                }
+                unAssingPreparedStatement.getPreparedStatement().executeBatch();
             }
 
-            assignPreparedStatement.getPreparedStatement().executeBatch();
+            if (addList != null && !addList.isEmpty()) {
+
+                NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE_BY_UNIQUE_ID));
+
+                for (Permission permission : addList) {
+                    assignPreparedStatement.setString("role_id", roleId);
+                    assignPreparedStatement.setString("permission_id", permission.getPermissionId());
+                    assignPreparedStatement.getPreparedStatement().addBatch();
+                }
+
+                assignPreparedStatement.getPreparedStatement().executeBatch();
+            }
+
             unitOfWork.endTransaction();
 
         } catch (SQLException e) {

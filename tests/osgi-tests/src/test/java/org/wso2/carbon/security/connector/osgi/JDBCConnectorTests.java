@@ -18,7 +18,11 @@ import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
+import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
+import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
 import org.wso2.carbon.security.caas.user.core.service.RealmService;
 import org.wso2.carbon.security.caas.user.core.store.AuthorizationStore;
 import org.wso2.carbon.security.caas.user.core.store.CredentialStore;
@@ -88,9 +92,9 @@ public class JDBCConnectorTests {
                 .artifactId("org.wso2.carbon.jndi")
                 .versionAsInProject());
         optionList.add(mavenBundle()
-                               .groupId("org.wso2.carbon.messaging")
-                               .artifactId("org.wso2.carbon.messaging")
-                               .version("1.0.2"));
+                .groupId("org.wso2.carbon.messaging")
+                .artifactId("org.wso2.carbon.messaging")
+                .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.security.caas")
                 .artifactId("org.wso2.carbon.security.caas")
@@ -102,15 +106,15 @@ public class JDBCConnectorTests {
         optionList.add(mavenBundle()
                 .groupId("commons-io.wso2")
                 .artifactId("commons-io")
-                .version("2.4.0.wso2v1"));
+                .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("com.zaxxer")
                 .artifactId("HikariCP")
-                .version("2.4.1"));
+                .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("com.h2database")
                 .artifactId("h2")
-                .version("1.4.191"));
+                .versionAsInProject());
 
         String currentDir = Paths.get("").toAbsolutePath().toString();
         Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
@@ -198,6 +202,21 @@ public class JDBCConnectorTests {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertTrue(authorizationStore.isGroupInRole(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE, DEFAULT_ROLE));
+    }
+
+    @Test
+    public void testGetRoleValid() throws RoleNotFoundException, AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        assertNotNull(authorizationStore.getRole(DEFAULT_ROLE));
+    }
+
+    @Test
+    public void testGetPermissionValid() throws PermissionNotFoundException, AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        assertNotNull(authorizationStore
+                .getPermission(DEFAULT_PERMISSION.getResourceId(), DEFAULT_PERMISSION.getAction()));
     }
 
     @Test
@@ -490,6 +509,60 @@ public class JDBCConnectorTests {
                 permissions);
     }
 
+    @Test
+    public void testCompleteAuthorizationFlowValid() throws AuthorizationStoreException, IdentityStoreException,
+            UserNotFoundException, GroupNotFoundException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        IdentityStore identityStore = realmService.getIdentityStore();
+
+        // Add permissions.
+        Permission permission1 = authorizationStore.addPermission("root/resource/id", "test-permission1",
+                DEFAULT_AUTHORIZATION_STORE);
+        Permission permission2 = authorizationStore.addPermission("root/resource/id", "test-permission2",
+                DEFAULT_AUTHORIZATION_STORE);
+
+        List<Permission> permissions = new ArrayList<>();
+        permissions.add(permission1);
+        permissions.add(permission2);
+
+        // Add roles to user.
+        Role role1 = authorizationStore.addRole("test-user-role1", permissions, DEFAULT_AUTHORIZATION_STORE);
+        Role role2 = authorizationStore.addRole("test-user-role2", permissions, DEFAULT_AUTHORIZATION_STORE);
+
+        List<Role> userRoles = new ArrayList<>();
+        userRoles.add(role1);
+        userRoles.add(role2);
+
+        // Get the user.
+        User user = identityStore.getUser("admin");
+        user.updateRoles(userRoles, null);
+
+        // Add roles to group.
+        Role role3 = authorizationStore.addRole("test-group-role1", permissions, DEFAULT_AUTHORIZATION_STORE);
+        Role role4 = authorizationStore.addRole("test-group-role2", permissions, DEFAULT_AUTHORIZATION_STORE);
+
+        List<Role> groupRoles = new ArrayList<>();
+        groupRoles.add(role3);
+        groupRoles.add(role4);
+
+        Group group = identityStore.getGroup("is");
+
+        group.updateRoles(groupRoles, null);
+
+        assertTrue(user.isInRole(role1.getName()));
+        assertTrue(user.isInRole(role2.getName()));
+
+        assertTrue(user.isAuthorized(permission1));
+        assertTrue(user.isAuthorized(permission2));
+
+        assertTrue(group.hasRole(role3.getName()));
+        assertTrue(group.hasRole(role4.getName()));
+
+        assertTrue(group.isAuthorized(permission1));
+        assertTrue(group.isAuthorized(permission2));
+    }
+
     /* Identity management flow */
 
     @Test
@@ -500,7 +573,7 @@ public class JDBCConnectorTests {
     }
 
     @Test
-    public void testGetUserFromUsername() throws IdentityStoreException {
+    public void testGetUserFromUsername() throws IdentityStoreException, UserNotFoundException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
         User user  = identityStore.getUser(DEFAULT_USERNAME);
@@ -549,7 +622,7 @@ public class JDBCConnectorTests {
     }
 
     @Test
-    public void testGetGroup() throws IdentityStoreException {
+    public void testGetGroup() throws IdentityStoreException, GroupNotFoundException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
         Group group = identityStore.getGroup(DEFAULT_GROUP);

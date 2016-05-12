@@ -120,11 +120,6 @@
                 <artifactId>org.wso2.carbon.datasource.core</artifactId>
                 <version>${carbon.datasources.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.messaging</groupId>
-                <artifactId>org.wso2.carbon.messaging</artifactId>
-                <version>${org.wso2.carbon.messaging.version}</version>
-            </dependency>
 
             <!-- OSGI Tests-->
             <dependency>
@@ -222,6 +217,26 @@
                 <artifactId>asm</artifactId>
                 <version>${net.minidev.asm.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.messaging</groupId>
+                <artifactId>org.wso2.carbon.messaging</artifactId>
+                <version>${org.wso2.carbon.messaging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io.wso2</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${com.zaxxer.hikaricp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${com.h2database.h2.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -257,6 +272,9 @@
         <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
         <javax.inject.version>1</javax.inject.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <commons.io.wso2.version>2.4.0.wso2v1</commons.io.wso2.version>
+        <com.zaxxer.hikaricp.version>2.4.1</com.zaxxer.hikaricp.version>
+        <com.h2database.h2.version>1.4.191</com.h2database.h2.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>

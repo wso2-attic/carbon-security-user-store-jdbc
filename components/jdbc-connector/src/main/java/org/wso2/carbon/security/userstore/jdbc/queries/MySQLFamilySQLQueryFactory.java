@@ -319,6 +319,11 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "WHERE ROLE_ID = (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;) " +
             "AND PERMISSION_ID = (SELECT ID FROM UM_PERMISSION WHERE PERMISSION_UNIQUE_ID = :permission_id;)";
 
+    private static final String GET_PERMISSION =
+            "SELECT PERMISSION_UNIQUE_ID " +
+            "FROM UM_PERMISSION " +
+            "WHERE RESOURCE_ID = :resource_id; AND ACTION = :action;";
+
     public MySQLFamilySQLQueryFactory() {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH, COMPARE_PASSWORD_HASH);
@@ -378,5 +383,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                 DELETE_GIVEN_ROLES_FROM_GROUP);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE,
                 DELETE_GIVEN_PERMISSIONS_FROM_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION, GET_PERMISSION);
     }
 }

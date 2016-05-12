@@ -86,5 +86,6 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP = "sql_query_delete_given_roles_from_group";
         public static final String SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE =
                 "sql_query_delete_given_permissions_from_role";
+        public static final String SQL_QUERY_GET_PERMISSION = "sql_query_get_permission";
     }
 }
