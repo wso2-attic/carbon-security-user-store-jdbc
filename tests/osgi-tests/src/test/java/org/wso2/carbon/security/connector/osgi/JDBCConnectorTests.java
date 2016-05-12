@@ -72,30 +72,6 @@ public class JDBCConnectorTests {
 
         List<Option> optionList = new ArrayList<>();
         optionList.add(mavenBundle()
-                .groupId("io.netty")
-                .artifactId("netty-codec")
-                .versionAsInProject());
-        optionList.add(mavenBundle()
-                .groupId("io.netty")
-                .artifactId("netty-buffer")
-                .versionAsInProject());
-        optionList.add(mavenBundle()
-                .groupId("io.netty")
-                .artifactId("netty-codec-http")
-                .versionAsInProject());
-        optionList.add(mavenBundle()
-                .groupId("io.netty")
-                .artifactId("netty-common")
-                .versionAsInProject());
-        optionList.add(mavenBundle()
-                .groupId("io.netty")
-                .artifactId("netty-handler")
-                .versionAsInProject());
-        optionList.add(mavenBundle()
-                .groupId("io.netty")
-                .artifactId("netty-transport")
-                .versionAsInProject());
-        optionList.add(mavenBundle()
                 .groupId("org.wso2.orbit.com.nimbusds")
                 .artifactId("nimbus-jose-jwt")
                 .versionAsInProject());
@@ -111,6 +87,10 @@ public class JDBCConnectorTests {
                 .groupId("org.wso2.carbon.jndi")
                 .artifactId("org.wso2.carbon.jndi")
                 .versionAsInProject());
+        optionList.add(mavenBundle()
+                               .groupId("org.wso2.carbon.messaging")
+                               .artifactId("org.wso2.carbon.messaging")
+                               .version("1.0.2"));
         optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.security.caas")
                 .artifactId("org.wso2.carbon.security.caas")
