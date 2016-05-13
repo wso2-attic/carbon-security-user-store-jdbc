@@ -68,7 +68,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
 
         if (log.isDebugEnabled()) {
-            log.debug("JDBC credential store connector initialized.");
+            log.debug(String.format("JDBC credential store with id %s initialized successfully.", credentialStoreId));
         }
     }
 

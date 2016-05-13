@@ -120,6 +120,11 @@
                 <artifactId>org.wso2.carbon.datasource.core</artifactId>
                 <version>${carbon.datasources.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.api.version}</version>
+            </dependency>
 
             <!-- OSGI Tests-->
             <dependency>
@@ -143,16 +148,6 @@
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ops4j.pax.logging</groupId>
-                <artifactId>pax-logging-api</artifactId>
-                <version>${pax.logging.api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ops4j.pax.logging</groupId>
-                <artifactId>pax-logging-log4j2</artifactId>
-                <version>${pax.logging.log4j2.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.exam</groupId>
@@ -247,6 +242,7 @@
         <carbon.security.userstore.jdbc.version>1.0.0-SNAPSHOT</carbon.security.userstore.jdbc.version>
         <org.wso2.carbon.messaging.version>1.0.2</org.wso2.carbon.messaging.version>
         <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
+        <slf4j.api.version>1.7.12</slf4j.api.version>
 
         <!-- OSGI Test related -->
 
@@ -260,8 +256,6 @@
         <carbon.kernel.version>5.1.0-m3</carbon.kernel.version>
 
         <testng.version>6.9.4</testng.version>
-        <pax.logging.api.version>1.8.4</pax.logging.api.version>
-        <pax.logging.log4j2.version>1.8.4</pax.logging.log4j2.version>
         <pax.exam.version>4.6.0</pax.exam.version>
         <pax.exam.container.native.version>4.6.0</pax.exam.container.native.version>
         <pax.exam.testng.version>4.6.0</pax.exam.testng.version>

@@ -102,7 +102,6 @@ public class DatabaseColumnNames {
         public static final String ROLE_ID = "ROLE_ID";
         public static final String USER_UNIQUE_ID = "USER_UNIQUE_ID";
         public static final String IDENTITY_STORE_ID = "IDENTITY_STORE_ID";
-
     }
 
     /**
