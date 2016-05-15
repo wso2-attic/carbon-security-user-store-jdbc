@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.security.userstore.jdbc.connector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.security.caas.user.core.exception.StoreException;
 import org.wso2.carbon.security.userstore.jdbc.queries.MySQLFamilySQLQueryFactory;
 
@@ -27,12 +29,19 @@ import java.util.Map;
  */
 public abstract class JDBCStoreConnector {
 
+    private static Logger log = LoggerFactory.getLogger(JDBCStoreConnector.class);
+    protected static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
+
     protected Map<String, String> sqlQueries;
 
     protected void loadQueries(String databaseType) {
 
         if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") || databaseType.equalsIgnoreCase("H2"))) {
             sqlQueries = new MySQLFamilySQLQueryFactory().getQueries();
+            if (IS_DEBUG_ENABLED) {
+                log.debug(String.format("%s sql queries loaded for database type: %s", sqlQueries.size(),
+                        databaseType));
+            }
         } else {
             throw new StoreException("Invalid or unsupported database type specified in the configuration.");
         }

@@ -49,7 +49,6 @@ import javax.sql.DataSource;
 public class JDBCAuthorizationConnector extends JDBCStoreConnector implements AuthorizationStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCAuthorizationConnector.class);
-    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private String authorizationStoreId;
     private AuthorizationStoreConfig authorizationStoreConfig;
@@ -99,8 +98,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("Role with role name: %s and role id: %s retrieved from %s.", roleName,
-                            roleId, authorizationStoreId));
+                    log.debug(String.format("Role with role name: %s and role id: %s retrieved from authorization " +
+                                    "store: %s.", roleName, roleId, authorizationStoreId));
                 }
 
                 return new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId)
@@ -132,8 +131,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("Permission with permission id: %s retrieved from %s.", permissionId,
-                            authorizationStoreId));
+                    log.debug(String.format("Permission with permission id: %s retrieved from authorization " +
+                                    "store: %s.", permissionId, authorizationStoreId));
                 }
 
                 return new Permission.PermissionBuilder(resourceId, action, permissionId, authorizationStoreId);
@@ -164,8 +163,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 }
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s roles retrieved successfully for user: %s from %s.", roles.size(),
-                            userId, authorizationStoreId));
+                    log.debug(String.format("%s roles retrieved successfully for user: %s from authorization store: " +
+                                    "%s.", roles.size(), userId, authorizationStoreId));
                 }
 
                 return roles;
@@ -197,14 +196,14 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 }
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s roles retrieved successfully for group: %s from %s.", roles.size(),
-                            groupId, authorizationStoreId));
+                    log.debug(String.format("%s roles retrieved successfully for group: %s from from authorization " +
+                                    "store: %s.", roles.size(), groupId, authorizationStoreId));
                 }
 
                 return roles;
             }
         } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving the roles of group", e);
+            throw new AuthorizationStoreException("An error occurred while retrieving the roles of group.", e);
         }
     }
 
@@ -229,14 +228,15 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 }
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s permissions retrieved successfully for role: %s from %s.",
-                            permissionBuilders.size(), roleId, authorizationStoreId));
+                    log.debug(String.format("%s permissions retrieved successfully for role: %s from from " +
+                                    "authorization store: %s.", permissionBuilders.size(), roleId,
+                            authorizationStoreId));
                 }
 
                 return permissionBuilders;
             }
         } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving permissions for role", e);
+            throw new AuthorizationStoreException("An error occurred while retrieving permissions for role.", e);
         }
     }
 
@@ -258,8 +258,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             namedPreparedStatement.getPreparedStatement().execute();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("Permission with resource id: %s, action: %s, permission id: %s is added to %s",
-                        resourceId, action, permissionId, authorizationStoreId));
+                log.debug(String.format("Permission with resource id: %s, action: %s, permission id: %s is added to " +
+                                "from authorization store: %s.", resourceId, action, permissionId,
+                        authorizationStoreId));
             }
 
             return new Permission.PermissionBuilder(resourceId, action,
@@ -291,7 +292,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             long roleId = resultSet.getLong(1);
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("Role with role id: %s added to %s", roleUniqueId, authorizationStoreId));
+                log.debug(String.format("Role with role id: %s added to %s.", roleUniqueId, authorizationStoreId));
             }
 
             NamedPreparedStatement addRolePermissionPreparedStatement = new NamedPreparedStatement(
@@ -308,8 +309,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             unitOfWork.endTransaction();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("Role with role id: %s and %s number of permissions added to %s", roleId,
-                        permissions.size(), authorizationStoreId));
+                log.debug(String.format("%s number of permissions added to the role with role id: %s from " +
+                        "authorization store: %s.", permissions.size(), roleId, authorizationStoreId));
             }
 
             return new Role.RoleBuilder().setAuthorizationStoreId(authorizationStoreId).setRoleName(roleName)
@@ -383,8 +384,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             }
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s users of role %s retrieved from %s", userBuilders.size(), roleId,
-                        authorizationStoreId));
+                log.debug(String.format("%s users of role: %s retrieved from from authorization store: %s.",
+                        userBuilders.size(), roleId, authorizationStoreId));
             }
 
             return userBuilders;
@@ -414,8 +415,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             }
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s groups of role %s retrieved from %s", groupBuilders.size(), roleId,
-                        authorizationStoreId));
+                log.debug(String.format("%s groups of role: %s retrieved from from authorization store: %s.",
+                        groupBuilders.size(), roleId, authorizationStoreId));
             }
 
             return groupBuilders;
@@ -436,7 +437,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             namedPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("Role with id: %s deleted from %s", roleId, authorizationStoreId));
+                log.debug(String.format("Role with id: %s deleted from %s.", roleId, authorizationStoreId));
             }
 
         } catch (SQLException e) {
@@ -456,7 +457,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             namedPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("Permission with id: %s deleted from %s", permissionId, authorizationStoreId));
+                log.debug(String.format("Permission with id: %s deleted from from authorization store: %s.",
+                        permissionId, authorizationStoreId));
             }
 
         } catch (SQLException e) {
@@ -479,7 +481,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             deleteRolesOfUserPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("All roles deleted from user id %s from %s", userId, authorizationStoreId));
+                log.debug(String.format("All roles deleted from user id: %s from from authorization store: %s.",
+                        userId, authorizationStoreId));
             }
 
             NamedPreparedStatement addRolesToUserPreparedStatement = new NamedPreparedStatement(
@@ -497,8 +500,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             unitOfWork.endTransaction();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s roles added to the user %s in %s", roles.size(), userId,
-                        authorizationStoreId));
+                log.debug(String.format("%s roles added to the user: %s in authorization store: %s.", roles.size(),
+                        userId, authorizationStoreId));
             }
 
         } catch (SQLException e) {
@@ -527,8 +530,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s roles deleted from user %s in %s", removeList.size(), userId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s roles deleted from user: %s in authorization store: %s.",
+                            removeList.size(), userId, authorizationStoreId));
                 }
             }
 
@@ -546,8 +549,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 assignPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s roles added to the user %s in %s", addList.size(), userId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s roles added to the user: %s in authorization store: %s.",
+                            addList.size(), userId, authorizationStoreId));
                 }
             }
             unitOfWork.endTransaction();
@@ -567,7 +570,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             deleteUsersPreparedStatement.setString("role_id", roleId);
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("All users of the role %s deleted from %s", roleId, authorizationStoreId));
+                log.debug(String.format("All users of the role: %s deleted from from authorization store: %s.", roleId,
+                        authorizationStoreId));
             }
 
             NamedPreparedStatement addUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
@@ -584,8 +588,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             unitOfWork.endTransaction();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s users added to the role %s in %s", users.size(), roleId,
-                        authorizationStoreId));
+                log.debug(String.format("%s users added to the role: %s in authorization store: %s.", users.size(),
+                        roleId, authorizationStoreId));
             }
 
         } catch (SQLException e) {
@@ -614,8 +618,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s users deleted from the role %s in %s", removeList.size(), roleId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s users deleted from the role: %s in authorization store: %s.",
+                            removeList.size(), roleId, authorizationStoreId));
                 }
             }
 
@@ -633,8 +637,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 assignPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s users added to the role %s in %s", addList.size(), roleId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s users added to the role: %s in authorization store: %s.",
+                            addList.size(), roleId, authorizationStoreId));
                 }
             }
 
@@ -660,7 +664,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             deleteRolesOfGroupPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("All roles deleted from the group %s in %s", groupId, authorizationStoreId));
+                log.debug(String.format("All roles deleted from the group: %s in authorization store: %s.",
+                        groupId, authorizationStoreId));
             }
 
             NamedPreparedStatement addRolesToGroupPreparedStatement = new NamedPreparedStatement(
@@ -678,8 +683,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             unitOfWork.endTransaction();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s roles added to the group %s in %s", roles.size(), groupId,
-                        authorizationStoreId));
+                log.debug(String.format("%s roles added to the group: %s in authorization store: %s.",
+                        roles.size(), groupId, authorizationStoreId));
             }
 
         } catch (SQLException e) {
@@ -708,8 +713,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s roles removed from the group %s in %s", removeList.size(), groupId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s roles removed from the group: %s in authorization store: %s.",
+                            removeList.size(), groupId, authorizationStoreId));
                 }
             }
 
@@ -727,8 +732,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 assignPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s roles added to the group %s in %s", addList.size(), groupId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s roles added to the group: %s in authorization store: %s.",
+                            addList.size(), groupId, authorizationStoreId));
                 }
             }
 
@@ -751,7 +756,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             deleteGroupsPreparedStatement.setString("role_id", roleId);
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("All groups deleted from the role %s in %s", roleId, authorizationStoreId));
+                log.debug(String.format("All groups deleted from the role: %s in authorization store: %s.",
+                        roleId, authorizationStoreId));
             }
 
             NamedPreparedStatement addGroupsPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
@@ -768,8 +774,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             unitOfWork.endTransaction();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s groups added to the role %s in %s", groups.size(), roleId,
-                        authorizationStoreId));
+                log.debug(String.format("%s groups added to the role: %s in authorization store: %s.",
+                        groups.size(), roleId, authorizationStoreId));
             }
 
         } catch (SQLException e) {
@@ -798,8 +804,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s groups removed from the role %s in %s", removeList.size(), roleId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s groups removed from the role: %s in authorization store: %s.",
+                            removeList.size(), roleId, authorizationStoreId));
                 }
             }
 
@@ -817,8 +823,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 assignPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s groups added to the role %s in %s", addList.size(), roleId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s groups added to the role %s in authorization store: %s.",
+                            addList.size(), roleId, authorizationStoreId));
                 }
             }
 
@@ -843,7 +849,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             deletePermissionPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("All permissions deleted in the role %s in %s", roleId, authorizationStoreId));
+                log.debug(String.format("All permissions deleted in the role %s in authorization store: %s.",
+                        roleId, authorizationStoreId));
             }
 
             NamedPreparedStatement addPermissionsPreparedStatement = new NamedPreparedStatement(
@@ -860,8 +867,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             unitOfWork.endTransaction();
 
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s permissions added to the role %s in %s", permissions.size(), roleId,
-                        authorizationStoreId));
+                log.debug(String.format("%s permissions added to the role: %s in authorization store: %s.",
+                        permissions.size(), roleId, authorizationStoreId));
             }
 
         } catch (SQLException e) {
@@ -889,8 +896,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s permissions deleted from the role %s in %s", removeList.size(), roleId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s permissions deleted from the role: %s in authorization store: %s.",
+                            removeList.size(), roleId, authorizationStoreId));
                 }
             }
 
@@ -908,8 +915,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 assignPreparedStatement.getPreparedStatement().executeBatch();
 
                 if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s permissions added to the role %s in %s", addList.size(), roleId,
-                            authorizationStoreId));
+                    log.debug(String.format("%s permissions added to the role: %s in authorization store: %s.",
+                            addList.size(), roleId, authorizationStoreId));
                 }
             }
 
