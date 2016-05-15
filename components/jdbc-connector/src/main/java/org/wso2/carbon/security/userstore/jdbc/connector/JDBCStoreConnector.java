@@ -39,7 +39,7 @@ public abstract class JDBCStoreConnector {
         if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") || databaseType.equalsIgnoreCase("H2"))) {
             sqlQueries = new MySQLFamilySQLQueryFactory().getQueries();
             if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s sql queries loaded for database type: %s", sqlQueries.size(),
+                log.debug(String.format("%s sql queries loaded for database type: %s.", sqlQueries.size(),
                         databaseType));
             }
         } else {
