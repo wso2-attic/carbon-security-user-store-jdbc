@@ -18,7 +18,10 @@ package org.wso2.carbon.security.userstore.jdbc.util;
 
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
+import org.wso2.carbon.security.caas.user.core.util.PasswordHandler;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.sql.DataSource;
 
 /**
@@ -26,8 +29,10 @@ import javax.sql.DataSource;
  */
 public class DatabaseUtil {
 
-    private DataSourceService dataSourceService;
     private static final DatabaseUtil instance = new DatabaseUtil();
+
+    private DataSourceService dataSourceService;
+    private Map<String, PasswordHandler> passwordHandlerList = new HashMap<>();
 
     private DatabaseUtil() {
         super();
@@ -47,5 +52,13 @@ public class DatabaseUtil {
             throw new RuntimeException("Datasource service is null. Cannot retrieve data source");
         }
         return (DataSource) dataSourceService.getDataSource(dataSourceName);
+    }
+
+    public void setPasswordHandler(String name, PasswordHandler passwordHandler) {
+        passwordHandlerList.put(name, passwordHandler);
+    }
+
+    public PasswordHandler getPasswordHandler(String handlerName) {
+        return passwordHandlerList.get(handlerName);
     }
 }

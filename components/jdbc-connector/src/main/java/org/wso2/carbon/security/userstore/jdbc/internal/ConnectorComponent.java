@@ -25,9 +25,11 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
+import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory;
 import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnectorFactory;
 import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
+import org.wso2.carbon.security.caas.user.core.util.PasswordHandler;
 import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCAuthorizationStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCCredentialStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCIdentityStoreConnectorFactory;
@@ -35,6 +37,7 @@ import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * OSGi component for carbon security connectors.
@@ -103,5 +106,35 @@ public class ConnectorComponent {
             log.debug("Data source service unregistered.");
         }
         DatabaseUtil.getInstance().setDataSourceService(null);
+    }
+
+    @Reference(
+            name = "org.wso2.carbon.security.caas.user.core.util.PasswordHandler",
+            service = PasswordHandler.class,
+            cardinality = ReferenceCardinality.OPTIONAL,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterPasswordHandler"
+    )
+    protected void registerPasswordHandler(PasswordHandler passwordHandler, Map<String, String> properties) {
+
+        if (passwordHandler != null) {
+
+            DatabaseUtil.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME),
+                    passwordHandler);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Password handler for name %s registered.", properties
+                        .get(UserCoreConstants.PASSWORD_HANDLER_NAME)));
+            }
+        }
+    }
+
+    protected void unregisterPasswordHandler(PasswordHandler passwordHandler, Map<String, String> properties) {
+
+        DatabaseUtil.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME), null);
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Password handler for name %s unregistered.", properties
+                    .get(UserCoreConstants.PASSWORD_HANDLER_NAME)));
+        }
     }
 }
