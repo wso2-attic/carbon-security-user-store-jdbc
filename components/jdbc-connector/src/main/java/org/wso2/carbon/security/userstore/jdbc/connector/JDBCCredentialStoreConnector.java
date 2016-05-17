@@ -49,6 +49,7 @@ import javax.sql.DataSource;
 public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements CredentialStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCCredentialStoreConnector.class);
+    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private String credentialStoreId;
     private CredentialStoreConfig credentialStoreConfig;

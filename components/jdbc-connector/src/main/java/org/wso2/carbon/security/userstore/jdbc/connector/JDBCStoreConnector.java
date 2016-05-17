@@ -30,7 +30,7 @@ import java.util.Map;
 public abstract class JDBCStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCStoreConnector.class);
-    protected static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
+    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     protected Map<String, String> sqlQueries;
 

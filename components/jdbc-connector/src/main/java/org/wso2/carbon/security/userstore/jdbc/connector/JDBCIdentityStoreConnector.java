@@ -48,6 +48,7 @@ import javax.sql.DataSource;
 public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements IdentityStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCIdentityStoreConnector.class);
+    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private DataSource dataSource;
     private IdentityStoreConfig identityStoreConfig;

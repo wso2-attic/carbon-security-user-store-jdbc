@@ -49,6 +49,7 @@ import javax.sql.DataSource;
 public class JDBCAuthorizationConnector extends JDBCStoreConnector implements AuthorizationStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCAuthorizationConnector.class);
+    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private String authorizationStoreId;
     private AuthorizationStoreConfig authorizationStoreConfig;
