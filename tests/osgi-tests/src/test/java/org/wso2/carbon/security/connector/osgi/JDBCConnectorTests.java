@@ -75,6 +75,11 @@ public class JDBCConnectorTests {
     public Option[] createConfiguration() {
 
         List<Option> optionList = new ArrayList<>();
+
+        optionList.add(mavenBundle()
+                .groupId("org.slf4j")
+                .artifactId("slf4j-api")
+                .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("org.wso2.orbit.com.nimbusds")
                 .artifactId("nimbus-jose-jwt")

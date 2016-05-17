@@ -21,13 +21,15 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConfig;
+import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
 import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
 import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnector;
-import org.wso2.carbon.security.caas.user.core.util.UserCoreUtil;
+import org.wso2.carbon.security.caas.user.core.util.PasswordHandler;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
+import org.wso2.carbon.security.userstore.jdbc.util.DefaultPasswordHandler;
 import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
 
@@ -47,6 +49,7 @@ import javax.sql.DataSource;
 public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements CredentialStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCCredentialStoreConnector.class);
+    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private String credentialStoreId;
     private CredentialStoreConfig credentialStoreConfig;
@@ -67,8 +70,8 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
         loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
 
-        if (log.isDebugEnabled()) {
-            log.debug("JDBC credential store connector initialized.");
+        if (IS_DEBUG_ENABLED) {
+            log.debug(String.format("JDBC credential store with id %s initialized successfully.", credentialStoreId));
         }
     }
 
@@ -115,11 +118,23 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                 salt = resultSet.getString(DatabaseColumnNames.PasswordInfo.PASSWORD_SALT);
             }
 
+            // Get a password handler if there is a one. Otherwise use the default one.
+            PasswordHandler passwordHandler = DatabaseUtil.getInstance().getPasswordHandler(credentialStoreConfig
+                    .getStoreProperties().getProperty(UserCoreConstants.PASSWORD_HANDLER_NAME));
+
+            if (passwordHandler == null) {
+                passwordHandler = new DefaultPasswordHandler();
+                if (IS_DEBUG_ENABLED) {
+                    log.debug("No password handler present. Using the default password handler.");
+                }
+            }
+
+            String hashedPassword = passwordHandler.hashPassword(password, salt, hashAlgo);
+
             NamedPreparedStatement comparePasswordPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH));
 
-            String hashedPassword = UserCoreUtil.hashPassword(password, salt, hashAlgo);
             comparePasswordPreparedStatement.setString("hashed_password", hashedPassword);
             comparePasswordPreparedStatement.setString("username", username);
 
