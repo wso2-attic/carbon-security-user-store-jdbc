@@ -118,7 +118,6 @@ public class ConnectorComponent {
     protected void registerPasswordHandler(PasswordHandler passwordHandler, Map<String, String> properties) {
 
         if (passwordHandler != null) {
-
             DatabaseUtil.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME),
                     passwordHandler);
             if (log.isDebugEnabled()) {

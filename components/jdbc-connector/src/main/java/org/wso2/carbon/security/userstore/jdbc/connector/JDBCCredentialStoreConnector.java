@@ -107,6 +107,8 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
             String hashAlgo;
             String salt;
+            int iterationCount;
+            int keyLength;
 
             try (ResultSet resultSet = getPasswordInfoPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -116,6 +118,8 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
                 hashAlgo = resultSet.getString(DatabaseColumnNames.PasswordInfo.HASH_ALGO);
                 salt = resultSet.getString(DatabaseColumnNames.PasswordInfo.PASSWORD_SALT);
+                iterationCount = resultSet.getInt(DatabaseColumnNames.PasswordInfo.ITERATION_COUNT);
+                keyLength = resultSet.getInt(DatabaseColumnNames.PasswordInfo.KEY_LENGTH);
             }
 
             // Get a password handler if there is a one. Otherwise use the default one.
@@ -128,6 +132,9 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     log.debug("No password handler present. Using the default password handler.");
                 }
             }
+
+            passwordHandler.setIterationCount(iterationCount);
+            passwordHandler.setKeyLength(keyLength);
 
             String hashedPassword = passwordHandler.hashPassword(password, salt, hashAlgo);
 

@@ -124,7 +124,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                           "WHERE GROUP_UNIQUE_ID = :group_id;))";
 
     private static final String GET_PASSWORD_INFO =
-            "SELECT PASSWORD_SALT, HASH_ALGO " +
+            "SELECT PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH " +
             "FROM UM_PASSWORD_INFO " +
             "WHERE USER_ID = (SELECT ID " +
                              "FROM UM_USER " +

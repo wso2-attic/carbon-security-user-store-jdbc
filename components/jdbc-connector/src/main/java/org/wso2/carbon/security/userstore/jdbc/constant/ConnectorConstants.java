@@ -23,9 +23,8 @@ public class ConnectorConstants {
 
     public static final String DATA_SOURCE = "dataSource";
     public static final String DATABASE_TYPE = "databaseType";
-    public static final String SQL_QUERIES = "SqlStatements";
-    public static final String USERSTORE_ID = "UserstoreId";
-    public static final String USERSTORE_NAME = "UserstoreName";
+    public static final String ITERATION_COUNT = "iterationCount";
+    public static final String KEY_LENGTH = "keyLength";
     public static final String HASH_ALGORITHM = "hashAlgorithm";
 
     /**
