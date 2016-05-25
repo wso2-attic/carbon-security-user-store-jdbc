@@ -219,6 +219,10 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     public Map<String, String> getUserAttributeValues(String userId, List<String> attributeNames)
             throws IdentityStoreException {
 
+        attributeNames.forEach(
+              t ->  log.info(t)
+        );
+
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
@@ -243,7 +247,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 return userClaims;
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving user claims.");
+            throw new IdentityStoreException("Error occurred while retrieving user claims.", e);
         }
     }
 
