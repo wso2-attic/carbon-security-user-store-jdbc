@@ -15,9 +15,11 @@ import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.bean.Permission;
 import org.wso2.carbon.security.caas.user.core.bean.Role;
 import org.wso2.carbon.security.caas.user.core.bean.User;
+import org.wso2.carbon.security.caas.user.core.claim.Claim;
 import org.wso2.carbon.security.caas.user.core.context.AuthenticationContext;
 import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.ClaimManagerException;
 import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
@@ -32,6 +34,7 @@ import org.wso2.carbon.security.caas.user.core.store.IdentityStore;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -331,6 +334,7 @@ public class JDBCConnectorTests {
                 .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setClaimManager(realmService.getClaimManager())
                 .build());
 
         users.add(new User.UserBuilder()
@@ -341,6 +345,7 @@ public class JDBCConnectorTests {
                 .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setClaimManager(realmService.getClaimManager())
                 .build());
 
         authorizationStore.updateUsersInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, users);
@@ -360,6 +365,7 @@ public class JDBCConnectorTests {
                 .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setClaimManager(realmService.getClaimManager())
                 .build());
 
         users.add(new User.UserBuilder()
@@ -370,6 +376,7 @@ public class JDBCConnectorTests {
                 .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setClaimManager(realmService.getClaimManager())
                 .build());
 
         authorizationStore.updateUsersInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, users);
@@ -607,7 +614,7 @@ public class JDBCConnectorTests {
     }
 
     @Test
-    public void testGetUserClaimValues() throws IdentityStoreException {
+    public void testGetUserAttributeValues() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
         Map<String, String> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
@@ -616,7 +623,7 @@ public class JDBCConnectorTests {
     }
 
     @Test
-    public void testGetUserClaimValuesFromURIs() throws IdentityStoreException {
+    public void testGetUserAttributeValuesFromAttributeNames() throws IdentityStoreException {
 
         List<String> attributeNames = new ArrayList<>();
         attributeNames.add("firstName");
@@ -627,6 +634,25 @@ public class JDBCConnectorTests {
                 DEFAULT_IDENTITY_STORE);
 
         assertFalse(claims.isEmpty());
+    }
+
+    @Test
+    public void testGetClaims() throws IdentityStoreException, ClaimManagerException {
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+        List<Claim> claims = user.getClaims();
+        assertTrue(claims != null && claims.size() > 0);
+    }
+
+    @Test
+    public void testGetClaimsFromClaimURIs() throws IdentityStoreException, ClaimManagerException {
+
+        IdentityStore identityStore = realmService.getIdentityStore();
+        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+        List<String> claimURIs = Arrays.asList("http://wso2.org/claims/firstName");
+        List<Claim> claims = user.getClaims(claimURIs);
+        assertTrue(claims != null && claims.size() == 1);
     }
 
     @Test
