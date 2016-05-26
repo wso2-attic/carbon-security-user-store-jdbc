@@ -19,6 +19,7 @@ package org.wso2.carbon.security.userstore.jdbc.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
+import org.wso2.carbon.security.caas.api.CarbonCallback;
 import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConfig;
 import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
@@ -36,6 +37,7 @@ import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
@@ -83,19 +85,19 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     @Override
     public User.UserBuilder authenticate(Callback[] callbacks) throws CredentialStoreException, AuthenticationFailure {
 
-        String username = null;
+        Map<String, String> userData = null;
         char [] password = null;
 
         for (Callback callback : callbacks) {
-            if (callback instanceof NameCallback) {
-                username = ((NameCallback) callback).getName();
-            } else if (callback instanceof PasswordCallback) {
+            if (callback instanceof PasswordCallback) {
                 password = ((PasswordCallback) callback).getPassword();
+            } else if (callback instanceof CarbonCallback) {
+                userData = (Map<String, String>) ((CarbonCallback) callback).getContent();
             }
         }
 
-        if (username == null || password == null) {
-            throw new AuthenticationFailure("Username or password is null");
+        if (userData == null || password == null || userData.isEmpty()) {
+            throw new AuthenticationFailure("Data required for authentication is missing.");
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
@@ -103,7 +105,9 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             NamedPreparedStatement getPasswordInfoPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_INFO));
-            getPasswordInfoPreparedStatement.setString("username", username);
+            getPasswordInfoPreparedStatement.setString("user_id", userData.get(UserCoreConstants.USER_ID));
+            getPasswordInfoPreparedStatement.setString("identity_store_id",
+                    userData.get(UserCoreConstants.IDENTITY_STORE_ID));
 
             String hashAlgo;
             String salt;
@@ -143,7 +147,9 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH));
 
             comparePasswordPreparedStatement.setString("hashed_password", hashedPassword);
-            comparePasswordPreparedStatement.setString("username", username);
+            comparePasswordPreparedStatement.setString("user_id", userData.get(UserCoreConstants.USER_ID));
+            comparePasswordPreparedStatement.setString("identity_store_id",
+                    userData.get(UserCoreConstants.IDENTITY_STORE_ID));
 
             try (ResultSet resultSet = comparePasswordPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -152,12 +158,10 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                 }
 
                 String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
                 String identityStoreId = resultSet.getString(DatabaseColumnNames.User.IDENTITY_STORE_ID);
 
-                return new User.UserBuilder().setUserName(username).setUserId(userUniqueId)
-                        .setIdentityStoreId(identityStoreId).setCredentialStoreId(credentialStoreId)
-                        .setTenantDomain(tenantDomain);
+                return new User.UserBuilder().setUserId(userUniqueId)
+                        .setIdentityStoreId(identityStoreId).setCredentialStoreId(credentialStoreId);
             }
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);

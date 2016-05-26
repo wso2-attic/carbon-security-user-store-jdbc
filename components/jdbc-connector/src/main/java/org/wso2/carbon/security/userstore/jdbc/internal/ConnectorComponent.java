@@ -86,7 +86,7 @@ public class ConnectorComponent {
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unregisterDataSourceService"
     )
-    protected void registerDataSourceService(DataSourceService service) {
+    protected void registerDataSourceService(DataSourceService service, Map<String, String> properties) {
 
         if (service == null) {
             log.error("Data source service is null. Registering data source service is unsuccessful.");

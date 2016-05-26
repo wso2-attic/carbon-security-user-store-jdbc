@@ -620,6 +620,7 @@ public class JDBCConnectorTests {
 
         List<String> attributeNames = new ArrayList<>();
         attributeNames.add("firstName");
+        attributeNames.add("lastName");
 
         IdentityStore identityStore = realmService.getIdentityStore();
         Map<String, String> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, attributeNames,
