@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.NameCallback;
 import javax.sql.DataSource;
 
 /**
@@ -111,6 +113,19 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
         }
+    }
+
+    @Override
+    public User.UserBuilder getUser(Callback [] callbacks) throws IdentityStoreException, UserNotFoundException {
+
+        for (Callback callback : callbacks) {
+            if (callback instanceof NameCallback) {
+                String username = ((NameCallback) callback).getName();
+                return this.getUser(username);
+            }
+        }
+
+        throw new IdentityStoreException("No name callback present in the callback array.");
     }
 
     @Override
@@ -219,14 +234,14 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     public Map<String, String> getUserAttributeValues(String userId, List<String> attributeNames)
             throws IdentityStoreException {
 
-        attributeNames.forEach(
-              t ->  log.info(t)
-        );
-
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
+            Map<String, Integer> repetitions = new HashMap<>();
+            repetitions.put("attr_names", attributeNames.size());
+
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME),
+                    repetitions);
             namedPreparedStatement.setString("user_id", userId);
             namedPreparedStatement.setString("attr_names", attributeNames);
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {

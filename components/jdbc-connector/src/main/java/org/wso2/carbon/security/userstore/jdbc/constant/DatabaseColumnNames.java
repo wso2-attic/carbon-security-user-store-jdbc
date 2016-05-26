@@ -75,6 +75,8 @@ public class DatabaseColumnNames {
     public static final class PasswordInfo {
         public static final String HASH_ALGO = "HASH_ALGO";
         public static final String PASSWORD_SALT = "PASSWORD_SALT";
+        public static final String ITERATION_COUNT = "ITERATION_COUNT";
+        public static final String KEY_LENGTH = "KEY_LENGTH";
     }
 
     /**

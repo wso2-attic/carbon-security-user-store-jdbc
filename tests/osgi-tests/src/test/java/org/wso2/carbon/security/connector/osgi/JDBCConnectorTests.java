@@ -16,6 +16,7 @@ import org.wso2.carbon.security.caas.user.core.bean.Permission;
 import org.wso2.carbon.security.caas.user.core.bean.Role;
 import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.claim.Claim;
+import org.wso2.carbon.security.caas.user.core.context.AuthenticationContext;
 import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.ClaimManagerException;
@@ -155,7 +156,8 @@ public class JDBCConnectorTests {
 
         CredentialStore authManager = realmService.getCredentialStore();
 
-        assertNotNull(authManager.authenticate(callbacks));
+        AuthenticationContext authenticationContext = authManager.authenticate(callbacks);
+        assertNotNull(authenticationContext);
     }
 
     /* Authorization flow */
@@ -625,6 +627,7 @@ public class JDBCConnectorTests {
 
         List<String> attributeNames = new ArrayList<>();
         attributeNames.add("firstName");
+        attributeNames.add("lastName");
 
         IdentityStore identityStore = realmService.getIdentityStore();
         Map<String, String> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, attributeNames,

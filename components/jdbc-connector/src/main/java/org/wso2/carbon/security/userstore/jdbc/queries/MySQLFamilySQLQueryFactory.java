@@ -25,10 +25,11 @@ import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String COMPARE_PASSWORD_HASH =
-            "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.IDENTITY_STORE_ID, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_USER LEFT JOIN UM_TENANT " +
-            "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
-            "WHERE UM_USER.USERNAME = :username; AND UM_USER.PASSWORD = :hashed_password;";
+            "SELECT USER_UNIQUE_ID, IDENTITY_STORE_ID " +
+            "FROM UM_PASSWORD " +
+            "WHERE USER_UNIQUE_ID = :user_id; " +
+            "AND IDENTITY_STORE_ID = :identity_store_id; " +
+            "AND PASSWORD = :hashed_password;";
 
     private static final String GET_USER_FROM_USERNAME =
             "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
@@ -124,11 +125,9 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                           "WHERE GROUP_UNIQUE_ID = :group_id;))";
 
     private static final String GET_PASSWORD_INFO =
-            "SELECT PASSWORD_SALT, HASH_ALGO " +
+            "SELECT PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH " +
             "FROM UM_PASSWORD_INFO " +
-            "WHERE USER_ID = (SELECT ID " +
-                             "FROM UM_USER " +
-                             "WHERE USERNAME = :username;)";
+            "WHERE USER_UNIQUE_ID = :user_id; AND IDENTITY_STORE_ID = :identity_store_id;";
 
     private static final String ADD_PASSWORD_INFO =
             "INSERT INTO UM_PASSWORD_INFO (USER_ID, PASSWORD_SALT, HASH_ALGO) " +
@@ -151,7 +150,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "WHERE USER_ID = (SELECT ID " +
                              "FROM UM_USER " +
                              "WHERE USER_UNIQUE_ID = :user_id;) " +
-                             "AND ATTR_NAME IN (:attr_names;)";
+            "AND ATTR_NAME IN (:attr_names;)";
 
     private static final String UPDATE_CREDENTIALS =
             "UPDATE UM_USER " +

@@ -20,7 +20,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Prepared statement with named indexes.
@@ -34,10 +36,11 @@ public class NamedPreparedStatement {
      * Create a named prepared statement with repeated indexes.
      * @param connection Database connection to be used.
      * @param sqlQuery Underlying SQL query.
-     * @param repetition Repetition of each index.
+     * @param repetition Repetition of given index.
      * @throws SQLException SQL Exception.
      */
-    public NamedPreparedStatement(Connection connection, String sqlQuery, int repetition) throws SQLException {
+    public NamedPreparedStatement(Connection connection, String sqlQuery, Map<String, Integer> repetition)
+            throws SQLException {
 
         int pos;
         while ((pos = sqlQuery.indexOf(":")) != -1) {
@@ -50,11 +53,14 @@ public class NamedPreparedStatement {
             }
 
             fields.add(sqlQuery.substring(pos + 1, end));
-
             StringBuilder builder = new StringBuilder("?");
-            for (int i = 0; i < repetition - 1; i++) {
-                builder.append(", ?");
+
+            if (repetition.get(sqlQuery.substring(pos + 1, end)) != null) {
+                for (int i = 0; i < repetition.get(sqlQuery.substring(pos + 1, end)) - 1; i++) {
+                    builder.append(", ?");
+                }
             }
+
             sqlQuery = String.format("%s %s %s", sqlQuery.substring(0, pos), builder.toString(),
                     sqlQuery.substring(end + 1));
         }
@@ -68,7 +74,7 @@ public class NamedPreparedStatement {
      * @throws SQLException SQL Exception.
      */
     public NamedPreparedStatement(Connection connection, String sqlQuery) throws SQLException {
-        this(connection, sqlQuery, 0);
+        this(connection, sqlQuery, new HashMap<>());
     }
 
     /**
