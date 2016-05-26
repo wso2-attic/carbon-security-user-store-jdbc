@@ -16,8 +16,8 @@ storeConnectors:
   properties:
    dataSource: "WSO2_CARBON_DB"
    hashAlgorithm: "SHA256"
-   iterationCount: 256000
-   keyLength: 512
+   iterationCount: 4096
+   keyLength: 256
    databaseType: "MySQL"
  -
   name: "JDBCIS1"
