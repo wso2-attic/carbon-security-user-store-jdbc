@@ -105,6 +105,10 @@ public class JDBCConnectorTests {
                 .artifactId("org.wso2.carbon.messaging")
                 .versionAsInProject());
         optionList.add(mavenBundle()
+                .groupId("org.wso2.carbon.caching")
+                .artifactId("org.wso2.carbon.caching")
+                .versionAsInProject());
+        optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.security.caas")
                 .artifactId("org.wso2.carbon.security.caas")
                 .versionAsInProject());
@@ -650,9 +654,9 @@ public class JDBCConnectorTests {
 
         IdentityStore identityStore = realmService.getIdentityStore();
         User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
-        List<String> claimURIs = Arrays.asList("http://wso2.org/claims/firstName");
+        List<String> claimURIs = Arrays.asList("http://wso2.org/claims/firstName", "http://wso2.org/claims/lastName");
         List<Claim> claims = user.getClaims(claimURIs);
-        assertTrue(claims != null && claims.size() == 1);
+        assertTrue(claims != null && claims.size() == 2);
     }
 
     @Test

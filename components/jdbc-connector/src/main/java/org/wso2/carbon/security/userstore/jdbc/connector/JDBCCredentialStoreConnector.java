@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.caas.api.CarbonCallback;
 import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConfig;
+import org.wso2.carbon.security.caas.user.core.config.CredentialConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
 import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
@@ -54,10 +54,10 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private String credentialStoreId;
-    private CredentialStoreConfig credentialStoreConfig;
+    private CredentialConnectorConfig credentialStoreConfig;
     private DataSource dataSource;
 
-    public void init(String storeId, CredentialStoreConfig configuration) throws CredentialStoreException {
+    public void init(String storeId, CredentialConnectorConfig configuration) throws CredentialStoreException {
 
         Properties properties = configuration.getStoreProperties();
         this.credentialStoreConfig = configuration;
@@ -187,7 +187,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public CredentialStoreConfig getCredentialStoreConfig() {
+    public CredentialConnectorConfig getCredentialStoreConfig() {
         return credentialStoreConfig;
     }
 }
