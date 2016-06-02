@@ -1,5 +1,12 @@
 # Carbon Security User Store JDBC
+---
 
+|  Branch | Build Status |
+| :------------ |:-------------
+| master      | [![Build Status](https://wso2.org/jenkins/buildStatus/icon?job=carbon-security-user-store-jdbc)](https://wso2.org/jenkins/view/All%20Builds/job/carbon-security-user-store-jdbc/) |
+
+
+---
 Carbon Security User Store JDBC provides a JDBC based connector for the [Carbon Security](https://github.com/wso2/carbon-security.git).
 This connector provides read only operations for the Credential Store and Identity Store, and complete CRUD operations for the
 Authorization Store.
