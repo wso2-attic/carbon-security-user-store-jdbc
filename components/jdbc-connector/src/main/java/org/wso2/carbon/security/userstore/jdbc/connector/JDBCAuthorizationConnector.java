@@ -23,7 +23,7 @@ import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.bean.Permission;
 import org.wso2.carbon.security.caas.user.core.bean.Role;
 import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConfig;
+import org.wso2.carbon.security.caas.user.core.config.AuthorizationConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
@@ -52,10 +52,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private String authorizationStoreId;
-    private AuthorizationStoreConfig authorizationStoreConfig;
+    private AuthorizationConnectorConfig authorizationStoreConfig;
     private DataSource dataSource;
 
-    public void init(String storeId, AuthorizationStoreConfig authorizationStoreConfig)
+    public void init(String storeId, AuthorizationConnectorConfig authorizationStoreConfig)
             throws AuthorizationStoreException {
 
         Properties properties = authorizationStoreConfig.getStoreProperties();
@@ -929,7 +929,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public AuthorizationStoreConfig getAuthorizationStoreConfig() {
+    public AuthorizationConnectorConfig getAuthorizationStoreConfig() {
         return authorizationStoreConfig;
     }
 }

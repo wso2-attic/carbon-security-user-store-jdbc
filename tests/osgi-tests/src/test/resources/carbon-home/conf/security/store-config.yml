@@ -1,12 +1,17 @@
-enableCache: true
+enableCache: true # Optional. Default: True
 credentialStore:
- enableCache: true
  connector: "#JDBCCS1"
 identityStore:
- enableCache: true
  connector: "#JDBCIS1"
+ caches: # Optional.
+     -
+      name: "cache_name_1" # Mandatory for a caches entry. should provide a valid cache name.
+      cacheConfig: # Optional. Default configs will be assigned to the caches entry.
+       enable: true # Optional. 'true' if not specified. enable/disable the specific cache.
+       maxCapacity: 100 # Optional. If not specified, default system maxCapacity will be applied.
+       expireTime: 10 # Optional. If not specified, default system expiryTime will be applied. Unit: minutes.
+       statisticsEnabled: false # Optional. 'false' if not specified.
 authorizationStore:
- enableCache: true
  connector: "#JDBCAS1"
 
 storeConnectors:

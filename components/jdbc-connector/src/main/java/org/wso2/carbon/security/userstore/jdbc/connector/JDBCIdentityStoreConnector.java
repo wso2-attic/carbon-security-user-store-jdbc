@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.config.IdentityStoreConfig;
+import org.wso2.carbon.security.caas.user.core.config.IdentityConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
@@ -53,11 +53,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private DataSource dataSource;
-    private IdentityStoreConfig identityStoreConfig;
+    private IdentityConnectorConfig identityStoreConfig;
     private String identityStoreId;
 
     @Override
-    public void init(String storeId, IdentityStoreConfig identityStoreConfig) throws IdentityStoreException {
+    public void init(String storeId, IdentityConnectorConfig identityStoreConfig) throws IdentityStoreException {
 
         Properties properties = identityStoreConfig.getStoreProperties();
         this.identityStoreId = storeId;
@@ -457,7 +457,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public IdentityStoreConfig getIdentityStoreConfig() {
+    public IdentityConnectorConfig getIdentityStoreConfig() {
         return identityStoreConfig;
     }
 }
