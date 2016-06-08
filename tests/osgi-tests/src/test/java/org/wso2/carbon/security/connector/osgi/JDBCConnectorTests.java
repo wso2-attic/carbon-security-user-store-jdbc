@@ -145,7 +145,7 @@ public class JDBCConnectorTests {
 
     /* Authentication flow */
 
-    @Test
+    @Test(priority = 0)
     public void testAuthentication() throws CredentialStoreException, IdentityStoreException, AuthenticationFailure {
 
         Callback[] callbacks = new Callback[2];
@@ -166,7 +166,7 @@ public class JDBCConnectorTests {
 
     /* Authorization flow */
 
-    @Test
+    @Test(priority = 1)
     public void testIsUserAuthorizedValid() throws AuthorizationStoreException,
             IdentityStoreException {
 
@@ -174,14 +174,14 @@ public class JDBCConnectorTests {
         assertTrue(authorizationStore.isUserAuthorized(DEFAULT_USER_ID, DEFAULT_PERMISSION, DEFAULT_IDENTITY_STORE));
     }
 
-    @Test
+    @Test(priority = 2)
     public void testIsGroupAuthorizedValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         authorizationStore.isGroupAuthorized(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE, DEFAULT_PERMISSION);
     }
 
-    @Test
+    @Test(priority = 3)
     public void testAddNewRoleValid() throws AuthorizationStoreException {
 
         List<Permission> permissions = new ArrayList<>();
@@ -194,7 +194,7 @@ public class JDBCConnectorTests {
         assertNotNull(role.getRoleId());
     }
 
-    @Test
+    @Test(priority = 4)
     public void testAddNewPermissionValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -204,28 +204,28 @@ public class JDBCConnectorTests {
         assertNotNull(permission.getPermissionId());
     }
 
-    @Test
+    @Test(priority = 5)
     public void testIsUserInRoleValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertTrue(authorizationStore.isUserInRole(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, DEFAULT_ROLE));
     }
 
-    @Test
+    @Test(priority = 6)
     public void testIsGroupInRoleValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertTrue(authorizationStore.isGroupInRole(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE, DEFAULT_ROLE));
     }
 
-    @Test
+    @Test(priority = 7)
     public void testGetRoleValid() throws RoleNotFoundException, AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertNotNull(authorizationStore.getRole(DEFAULT_ROLE));
     }
 
-    @Test
+    @Test(priority = 8)
     public void testGetPermissionValid() throws PermissionNotFoundException, AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -233,21 +233,21 @@ public class JDBCConnectorTests {
                 .getPermission(DEFAULT_PERMISSION.getResourceId(), DEFAULT_PERMISSION.getAction()));
     }
 
-    @Test
+    @Test(priority = 9)
     public void testGetUsersOfRole() throws AuthorizationStoreException, IdentityStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertNotNull(authorizationStore.getUsersOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE));
     }
 
-    @Test
+    @Test(priority = 10)
     public void testGetGroupsOfRole() throws AuthorizationStoreException, IdentityStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertNotNull(authorizationStore.getGroupsOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE));
     }
 
-    @Test
+    @Test(priority = 11)
     public void testDeletePermission() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -256,7 +256,7 @@ public class JDBCConnectorTests {
                 DEFAULT_AUTHORIZATION_STORE).build());
     }
 
-    @Test
+    @Test(priority = 12)
     public void testDeleteRoleValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -268,7 +268,7 @@ public class JDBCConnectorTests {
                 .build());
     }
 
-    @Test
+    @Test(priority = 13)
     public void testUpdateRolesInUserPutValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -296,7 +296,7 @@ public class JDBCConnectorTests {
         authorizationStore.updateRolesInUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, roles);
     }
 
-    @Test
+    @Test(priority = 14)
     public void testUpdateRolesInUserPatchValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -324,7 +324,7 @@ public class JDBCConnectorTests {
         authorizationStore.updateRolesInUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, roles, roles);
     }
 
-    @Test
+    @Test(priority = 15)
     public void testUpdateUsersInRolePutValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -355,7 +355,7 @@ public class JDBCConnectorTests {
         authorizationStore.updateUsersInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, users);
     }
 
-    @Test
+    @Test(priority = 16)
     public void testUpdateUsersInRolePatchValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -386,7 +386,7 @@ public class JDBCConnectorTests {
         authorizationStore.updateUsersInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, users);
     }
 
-    @Test
+    @Test(priority = 17)
     public void testUpdateRolesInGroupPutValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -414,7 +414,7 @@ public class JDBCConnectorTests {
         authorizationStore.updateRolesInGroup(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, roles);
     }
 
-    @Test
+    @Test(priority = 18)
     public void testUpdateRolesInGroupPatchValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -442,7 +442,7 @@ public class JDBCConnectorTests {
         authorizationStore.updateRolesInGroup(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, roles, roles);
     }
 
-    @Test
+    @Test(priority = 19)
     public void testUpdateGroupsInRolePutValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -468,7 +468,7 @@ public class JDBCConnectorTests {
         authorizationStore.updateGroupsInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, groups);
     }
 
-    @Test
+    @Test(priority = 20)
     public void testUpdateGroupsInRolePatchValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -494,7 +494,7 @@ public class JDBCConnectorTests {
         authorizationStore.updateGroupsInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, groups, groups);
     }
 
-    @Test
+    @Test(priority = 21)
     public void testUpdatePermissionsInRolePutValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -510,7 +510,7 @@ public class JDBCConnectorTests {
         authorizationStore.updatePermissionsInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, permissions);
     }
 
-    @Test
+    @Test(priority = 22)
     public void testUpdatePermissionsInRolePatchValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -527,7 +527,7 @@ public class JDBCConnectorTests {
                 permissions);
     }
 
-    @Test
+    @Test(priority = 23)
     public void testCompleteAuthorizationFlowValid() throws AuthorizationStoreException, IdentityStoreException,
             UserNotFoundException, GroupNotFoundException {
 
@@ -554,7 +554,13 @@ public class JDBCConnectorTests {
 
         // Get the user.
         User user = identityStore.getUser("admin");
-        user.updateRoles(userRoles, null);
+        user.updateRoles(userRoles);
+
+        assertTrue(user.isInRole(role1.getName()));
+        assertTrue(user.isInRole(role2.getName()));
+
+        assertTrue(user.isAuthorized(permission1));
+        assertTrue(user.isAuthorized(permission2));
 
         // Add roles to group.
         Role role3 = authorizationStore.addRole("test-group-role1", permissions, DEFAULT_AUTHORIZATION_STORE);
@@ -566,13 +572,7 @@ public class JDBCConnectorTests {
 
         Group group = identityStore.getGroup("is");
 
-        group.updateRoles(groupRoles, null);
-
-        assertTrue(user.isInRole(role1.getName()));
-        assertTrue(user.isInRole(role2.getName()));
-
-        assertTrue(user.isAuthorized(permission1));
-        assertTrue(user.isAuthorized(permission2));
+        group.updateRoles(groupRoles);
 
         assertTrue(group.hasRole(role3.getName()));
         assertTrue(group.hasRole(role4.getName()));
@@ -583,14 +583,14 @@ public class JDBCConnectorTests {
 
     /* Identity management flow */
 
-    @Test
+    @Test(priority = 24)
     public void testIsUserInGroupValid() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
         assertTrue(identityStore.isUserInGroup(DEFAULT_USER_ID, DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE));
     }
 
-    @Test
+    @Test(priority = 25)
     public void testGetUserFromUsername() throws IdentityStoreException, UserNotFoundException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -598,7 +598,7 @@ public class JDBCConnectorTests {
         assertNotNull(user);
     }
 
-    @Test
+    @Test(priority = 26)
     public void testGetUserFromUserId() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -606,7 +606,7 @@ public class JDBCConnectorTests {
         assertNotNull(user);
     }
 
-    @Test
+    @Test(priority = 27)
     public void testListUsers() throws IdentityStoreException {
 
         String filterPattern = "admin";
@@ -617,7 +617,7 @@ public class JDBCConnectorTests {
         assertFalse(users.isEmpty());
     }
 
-    @Test
+    @Test(priority = 28)
     public void testGetUserAttributeValues() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -626,7 +626,7 @@ public class JDBCConnectorTests {
         assertFalse(claims.isEmpty());
     }
 
-    @Test
+    @Test(priority = 29)
     public void testGetUserAttributeValuesFromAttributeNames() throws IdentityStoreException {
 
         List<String> attributeNames = new ArrayList<>();
@@ -640,7 +640,7 @@ public class JDBCConnectorTests {
         assertFalse(claims.isEmpty());
     }
 
-    @Test
+    @Test(priority = 30)
     public void testGetClaims() throws IdentityStoreException, ClaimManagerException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -649,7 +649,7 @@ public class JDBCConnectorTests {
         assertTrue(claims != null && claims.size() > 0);
     }
 
-    @Test
+    @Test(priority = 31)
     public void testGetClaimsFromClaimURIs() throws IdentityStoreException, ClaimManagerException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -659,7 +659,7 @@ public class JDBCConnectorTests {
         assertTrue(claims != null && claims.size() == 2);
     }
 
-    @Test
+    @Test(priority = 32)
     public void testGetGroup() throws IdentityStoreException, GroupNotFoundException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -668,7 +668,7 @@ public class JDBCConnectorTests {
         assertNotNull(group);
     }
 
-    @Test
+    @Test(priority = 33)
     public void testGetGroupFromId() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -677,7 +677,7 @@ public class JDBCConnectorTests {
         assertNotNull(group);
     }
 
-    @Test
+    @Test(priority = 34)
     public void testListGroups() throws IdentityStoreException {
 
         String filterPattern = "is";
@@ -688,7 +688,7 @@ public class JDBCConnectorTests {
         assertFalse(groups.isEmpty());
     }
 
-    @Test
+    @Test(priority = 35)
     public void testGetGroupsOfUser() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
@@ -696,7 +696,7 @@ public class JDBCConnectorTests {
         assertFalse(groups.isEmpty());
     }
 
-    @Test
+    @Test(priority = 36)
     public void testGetUsersOfGroup() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
