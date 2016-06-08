@@ -274,7 +274,7 @@
         <commons.io.wso2.version>2.4.0.wso2v1</commons.io.wso2.version>
         <com.zaxxer.hikaricp.version>2.4.1</com.zaxxer.hikaricp.version>
         <com.h2database.h2.version>1.4.191</com.h2database.h2.version>
-        <org.wso2.carbon.caching.version>1.0.0-SNAPSHOT</org.wso2.carbon.caching.version>
+        <org.wso2.carbon.caching.version>1.0.0</org.wso2.carbon.caching.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>

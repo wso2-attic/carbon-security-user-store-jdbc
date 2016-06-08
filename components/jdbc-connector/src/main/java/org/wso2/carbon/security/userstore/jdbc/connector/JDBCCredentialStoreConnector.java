@@ -40,7 +40,6 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.sql.DataSource;
 
@@ -171,19 +170,19 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     @Override
     public boolean canHandle(Callback[] callbacks) {
 
-        boolean nameCallbackPresent = false;
+        boolean carbonCallbackPresent = false;
         boolean passwordCallbackPresent = false;
 
         for (Callback callback : callbacks) {
-            if (callback instanceof  NameCallback) {
-                nameCallbackPresent = true;
+            if (callback instanceof  CarbonCallback) {
+                carbonCallbackPresent = true;
             }
             if (callback instanceof  PasswordCallback) {
                 passwordCallbackPresent = true;
             }
         }
 
-        return nameCallbackPresent && passwordCallbackPresent;
+        return carbonCallbackPresent && passwordCallbackPresent;
     }
 
     @Override
