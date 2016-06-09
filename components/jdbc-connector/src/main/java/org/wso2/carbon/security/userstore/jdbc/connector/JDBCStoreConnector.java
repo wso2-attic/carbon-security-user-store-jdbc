@@ -30,7 +30,6 @@ import java.util.Map;
 public abstract class JDBCStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCStoreConnector.class);
-    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     protected Map<String, String> sqlQueries;
 
@@ -38,7 +37,7 @@ public abstract class JDBCStoreConnector {
 
         if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") || databaseType.equalsIgnoreCase("H2"))) {
             sqlQueries = new MySQLFamilySQLQueryFactory().getQueries();
-            if (IS_DEBUG_ENABLED) {
+            if (log.isDebugEnabled()) {
                 log.debug("{} sql queries loaded for database type: {}.", sqlQueries.size(), databaseType);
             }
         } else {
