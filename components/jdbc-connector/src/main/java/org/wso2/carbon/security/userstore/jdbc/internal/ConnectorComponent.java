@@ -121,8 +121,8 @@ public class ConnectorComponent {
             DatabaseUtil.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME),
                     passwordHandler);
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Password handler for name %s registered.", properties
-                        .get(UserCoreConstants.PASSWORD_HANDLER_NAME)));
+                log.debug("Password handler for name {} registered.", properties.get(UserCoreConstants
+                        .PASSWORD_HANDLER_NAME));
             }
         }
     }
@@ -132,8 +132,8 @@ public class ConnectorComponent {
         DatabaseUtil.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME), null);
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("Password handler for name %s unregistered.", properties
-                    .get(UserCoreConstants.PASSWORD_HANDLER_NAME)));
+            log.debug("Password handler for name {} unregistered.", properties.get(UserCoreConstants
+                    .PASSWORD_HANDLER_NAME));
         }
     }
 }
