@@ -50,7 +50,6 @@ import javax.sql.DataSource;
 public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements IdentityStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCIdentityStoreConnector.class);
-    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private DataSource dataSource;
     private IdentityConnectorConfig identityStoreConfig;
@@ -72,8 +71,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
         loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
 
-        if (IS_DEBUG_ENABLED) {
-            log.debug(String.format("JDBC identity store with id: %s initialized successfully.", identityStoreId));
+        if (log.isDebugEnabled()) {
+            log.debug("JDBC identity store with id: {} initialized successfully.", identityStoreId);
         }
     }
 
@@ -101,9 +100,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
                 String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
 
-                if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("User with user id: %s retrieved from identity store: %s.", userId,
-                            identityStoreId));
+                if (log.isDebugEnabled()) {
+                    log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
                 }
 
                 return new User.UserBuilder().setUserName(username).setUserId(userId)
@@ -147,9 +145,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
                 String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
 
-                if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("User with user id: %s retrieved from identity store: %s.", userId,
-                            identityStoreId));
+                if (log.isDebugEnabled()) {
+                    log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
                 }
 
                 return new User.UserBuilder().setUserName(username).setUserId(userId)
@@ -189,9 +186,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
             }
 
-            if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s users retrieved from identity store: %s.", userList.size(),
-                        identityStoreId));
+            if (log.isDebugEnabled()) {
+                log.debug("{} users retrieved from identity store: {}.", userList.size(), identityStoreId);
             }
 
             return userList;
@@ -218,9 +214,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     userClaims.put(attrName, attrValue);
                 }
 
-                if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s attributes of user: %s retrieved from identity store: %s.",
-                            userClaims.size(), userId, identityStoreId));
+                if (log.isDebugEnabled()) {
+                    log.debug("{} attributes of user: {} retrieved from identity store: {}.", userClaims.size(),
+                            userId, identityStoreId);
                 }
 
                 return userClaims;
@@ -254,9 +250,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     userClaims.put(attrName, attrValue);
                 }
 
-                if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s attributes of user: %s retrieved from identity store: %s.",
-                            userClaims.size(), userId, identityStoreId));
+                if (log.isDebugEnabled()) {
+                    log.debug("{} attributes of user: {} retrieved from identity store: {}.", userClaims.size(),
+                            userId, identityStoreId);
                 }
 
                 return userClaims;
@@ -283,9 +279,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
                 String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
 
-                if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("Group with name: %s retrieved from identity store: %s.", groupName,
-                            identityStoreId));
+                if (log.isDebugEnabled()) {
+                    log.debug("Group with name: {} retrieved from identity store: {}.", groupName, identityStoreId);
                 }
 
                 return new Group.GroupBuilder().setGroupId(groupId).setIdentityStoreId(identityStoreId)
@@ -314,9 +309,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
                 String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
 
-                if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("Group with id: %s retrieved from identity store: %s.", groupId,
-                            identityStoreId));
+                if (log.isDebugEnabled()) {
+                    log.debug("Group with id: {} retrieved from identity store: {}.", groupId, identityStoreId);
                 }
 
                 return new Group.GroupBuilder().setGroupId(groupId).setIdentityStoreId(identityStoreId)
@@ -353,9 +347,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
             }
 
-            if (IS_DEBUG_ENABLED) {
-                log.debug(String.format("%s groups retrieved for filter pattern %s from identity store: %s.",
-                        groups.size(), filterPattern, identityStoreId));
+            if (log.isDebugEnabled()) {
+                log.debug("{} groups retrieved for filter pattern {} from identity store: {}.", groups.size(),
+                        filterPattern, identityStoreId);
             }
 
             return groups;
@@ -386,9 +380,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     groupList.add(group);
                 }
 
-                if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s groups retrieved for user id %s from identity store: %s.",
-                            groupList.size(), userId, identityStoreId));
+                if (log.isDebugEnabled()) {
+                    log.debug("{} groups retrieved for user id {} from identity store: {}.", groupList.size(),
+                            userId, identityStoreId);
                 }
 
                 return groupList;
@@ -421,9 +415,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     userList.add(user);
                 }
 
-                if (IS_DEBUG_ENABLED) {
-                    log.debug(String.format("%s users retrieved for group: %s from identity store: %s.",
-                            userList.size(), groupId, identityStoreId));
+                if (log.isDebugEnabled()) {
+                    log.debug("{} users retrieved for group: {} from identity store: {}.", userList.size(), groupId,
+                            identityStoreId);
                 }
 
                 return userList;

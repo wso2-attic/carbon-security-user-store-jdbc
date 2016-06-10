@@ -50,7 +50,6 @@ import javax.sql.DataSource;
 public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements CredentialStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCCredentialStoreConnector.class);
-    private static final boolean IS_DEBUG_ENABLED = log.isDebugEnabled();
 
     private String credentialStoreId;
     private CredentialConnectorConfig credentialStoreConfig;
@@ -71,8 +70,8 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
         loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
 
-        if (IS_DEBUG_ENABLED) {
-            log.debug(String.format("JDBC credential store with id %s initialized successfully.", credentialStoreId));
+        if (log.isDebugEnabled()) {
+            log.debug("JDBC credential store with id {} initialized successfully.", credentialStoreId);
         }
     }
 
@@ -131,7 +130,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
             if (passwordHandler == null) {
                 passwordHandler = new DefaultPasswordHandler();
-                if (IS_DEBUG_ENABLED) {
+                if (log.isDebugEnabled()) {
                     log.debug("No password handler present. Using the default password handler.");
                 }
             }
