@@ -13,5 +13,9 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 ################################################################################
-#name: "jdbc-store-connector"
-#dataSource: "jdbc/WSO2CARBON_DB"
+
+name: "JDBCIdentityStore"
+connectorType: "JDBCIdentityStore"
+properties:
+ dataSource: "WSO2_CARBON_DB"
+ databaseType: "MySQL"

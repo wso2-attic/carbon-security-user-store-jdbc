@@ -44,7 +44,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Component(
-        name = "org.wso2.carbon.security.connector.jdbc.ConnectorComponent",
+        name = "org.wso2.carbon.security.userstore.jdbc.internal.ConnectorComponent",
         immediate = true
 )
 public class ConnectorComponent {
@@ -74,9 +74,7 @@ public class ConnectorComponent {
         bundleContext.registerService(CredentialStoreConnectorFactory.class, new JDBCCredentialStoreConnectorFactory(),
                 connectorProperties);
 
-        if (log.isDebugEnabled()) {
-            log.debug("JDBC user store connectors registered as services successfully.");
-        }
+        log.info("JDBC user store bundle successfully activated.");
     }
 
     @Reference(

@@ -31,8 +31,6 @@ import org.wso2.carbon.security.caas.user.core.store.AuthorizationStore;
 import org.wso2.carbon.security.caas.user.core.store.CredentialStore;
 import org.wso2.carbon.security.caas.user.core.store.IdentityStore;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,9 +59,9 @@ public class JDBCConnectorTests {
     private static final String DEFAULT_ROLE_ID = "985b79ecfcdf11e586aa5e5517507c66";
     private static final String DEFAULT_GROUP_ID = "a422aa98ecf411e59ce95e5517507c66";
     private static final String DEFAULT_PERMISSION_ID = "f61a1c240df011e6a1483e1d05defe78";
-    private static final String DEFAULT_IDENTITY_STORE = "JDBCIS1";
-    private static final String DEFAULT_CREDENTIAL_STORE = "JDBCCS1";
-    private static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAS1";
+    private static final String DEFAULT_IDENTITY_STORE = "JDBCIdentityStore";
+    private static final String DEFAULT_CREDENTIAL_STORE = "JDBCCredentialStore";
+    private static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAuthorizationStore";
     private static final Permission DEFAULT_PERMISSION = new Permission("root/resource/id", "add");
 
     @Inject
@@ -129,11 +127,9 @@ public class JDBCConnectorTests {
                 .artifactId("h2")
                 .versionAsInProject());
 
-        String currentDir = Paths.get("").toAbsolutePath().toString();
-        Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
 
         CarbonSysPropConfiguration sysPropConfiguration = new CarbonSysPropConfiguration();
-        sysPropConfiguration.setCarbonHome(carbonHome.toString());
+        sysPropConfiguration.setCarbonHome(System.getProperty("carbon.home"));
         sysPropConfiguration.setServerKey("carbon-security");
         sysPropConfiguration.setServerName("WSO2 Carbon Security Server");
         sysPropConfiguration.setServerVersion("1.0.0");

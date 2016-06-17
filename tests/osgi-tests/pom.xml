@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>org.wso2.carbon.security.userstore.jdbc.test</artifactId>
-        <groupId>org.wso2.carbon.security.userstore</groupId>
+        <groupId>org.wso2.carbon.security.userstore.test</groupId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -163,35 +163,34 @@
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <!--copying distribution/carbon-home directory to the target folder-->
-                                <id>copy-resources</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/carbon-home</outputDirectory>
-                                    <overwrite>true</overwrite>
-                                    <resources>
-                                        <resource>
-                                            <directory>src/test/resources/carbon-home</directory>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
+                                <id>unpack-distribution</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.wso2.carbon.security.userstore.test</groupId>
+                                            <artifactId>org.wso2.carbon.security.userstore.test.distribution</artifactId>
+                                            <version>1.0.0-SNAPSHOT</version>
+                                            <type>zip</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+
+                            <execution>
                                 <id>copy-jacoco-dependencies</id>
-                                <phase>compile</phase>
+                                <phase>generate-resources</phase>
                                 <goals>
                                     <goal>copy-dependencies</goal>
                                 </goals>
@@ -203,20 +202,51 @@
                             </execution>
                         </executions>
                     </plugin>
+
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <!--copying distribution/conf directory to the target folder-->
+                                <id>copy-resources</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/wso2carbon-kernel-${project.version}/conf/</outputDirectory>
+                                    <overwrite>true</overwrite>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/test/resources/conf</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
-                                <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}
-                                </org.ops4j.pax.url.mvn.localRepository>
+                                <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}</org.ops4j.pax.url.mvn.localRepository>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
                             </systemPropertyVariables>
+                            <systemProperties>
+                                <property>
+                                    <name>carbon.home</name>
+                                    <value>${basedir}/target/wso2carbon-kernel-${project.version}</value>
+                                </property>
+                            </systemProperties>
+
                             <suiteXmlFiles>
                                 <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
                         </configuration>
                     </plugin>
+
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
@@ -247,6 +277,7 @@
                             </execution>
                         </executions>
                     </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -288,6 +319,7 @@
                             </dependency>
                         </dependencies>
                     </plugin>
+
                     <plugin>
                         <groupId>org.ops4j.pax.exam</groupId>
                         <artifactId>maven-paxexam-plugin</artifactId>
@@ -301,6 +333,8 @@
                             </execution>
                         </executions>
                     </plugin>
+
+                    <!-- Create a mock H2 database and add mock data to it.-->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>sql-maven-plugin</artifactId>
@@ -312,9 +346,7 @@
                             </dependency>
                         </dependencies>
                         <configuration>
-                            <url>
-                                jdbc:h2:file:${basedir}/target/carbon-home/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000;MV_STORE=FALSE
-                            </url>
+                            <url>jdbc:h2:file:${basedir}/target/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000;MV_STORE=FALSE</url>
                             <username>wso2carbon</username>
                             <password>wso2carbon</password>
                             <driver>org.h2.Driver</driver>
@@ -330,7 +362,7 @@
                                 <configuration>
                                     <autocommit>true</autocommit>
                                     <srcFiles>
-                                        <srcFile>${basedir}/../../feature/resources/database/WSO2CARBON_DB.sql</srcFile>
+                                        <srcFile>${basedir}/../../feature/resources/dbscripts/WSO2CARBON_DB.sql</srcFile>
                                     </srcFiles>
                                     <onError>abort</onError>
                                 </configuration>
@@ -352,6 +384,7 @@
                             </execution>
                         </executions>
                     </plugin>
+
                 </plugins>
             </build>
         </profile>

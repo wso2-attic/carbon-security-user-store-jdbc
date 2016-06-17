@@ -1,15 +1,14 @@
 <datasources-configuration>
-
     <datasources>
         <datasource>
             <name>WSO2_CARBON_DB</name>
-            <description>The datasource used for registry and user manager</description>
+            <description>The datasource used for JDBC User Store</description>
             <jndiConfig>
                 <name>jdbc/WSO2CARBON_DB</name>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:h2:./target/carbon-home/database/WSO2CARBON_DB;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000;MV_STORE=FALSE</url>
+                    <url>jdbc:h2:./database/WSO2CARBON_DB;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000;MV_STORE=FALSE</url>
                     <username>wso2carbon</username>
                     <password>wso2carbon</password>
                     <driverClassName>org.h2.Driver</driverClassName>
@@ -22,7 +21,5 @@
                 </configuration>
             </definition>
         </datasource>
-
     </datasources>
-
 </datasources-configuration>

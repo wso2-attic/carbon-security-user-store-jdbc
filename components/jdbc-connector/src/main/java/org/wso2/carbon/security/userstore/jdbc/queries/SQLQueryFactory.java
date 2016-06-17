@@ -27,10 +27,19 @@ public abstract class SQLQueryFactory {
 
     protected Map<String, String> sqlQueries = new HashMap<>();
 
+    /**
+     * Get query from query name.
+     * @param queryName Name of the query.
+     * @return Query as a String.
+     */
     public String getQuery(String queryName) {
         return sqlQueries.get(queryName);
     }
 
+    /**
+     * Get all of the queries.
+     * @return Queries as Map String, String.
+     */
     public Map<String, String> getQueries() {
         return sqlQueries;
     }
