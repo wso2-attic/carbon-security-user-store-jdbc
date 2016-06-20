@@ -68,7 +68,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             throw new AuthorizationStoreException("Error while setting the data source.", e);
         }
 
-        loadQueries(properties.getProperty(ConnectorConstants.DATABASE_TYPE));
+        loadQueries(properties);
 
         if (log.isDebugEnabled()) {
             log.debug("JDBC authorization store with the id of '{}' initialized.", authorizationStoreId);
@@ -257,7 +257,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             namedPreparedStatement.getPreparedStatement().execute();
 
             if (log.isDebugEnabled()) {
-                log.debug("Permission with resource id: {}, action: {}, permission id: {} is added to from " +
+                log.debug("Permission with resource id: {}, action: {}, permission id: {} is added to " +
                         "authorization store: {}.", resourceId, action, permissionId, authorizationStoreId);
             }
 

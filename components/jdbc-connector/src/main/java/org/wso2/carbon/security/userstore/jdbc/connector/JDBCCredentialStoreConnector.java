@@ -68,7 +68,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             throw new CredentialStoreException("Error while setting the data source.", e);
         }
 
-        loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
+        loadQueries(properties);
 
         if (log.isDebugEnabled()) {
             log.debug("JDBC credential store with id {} initialized successfully.", credentialStoreId);

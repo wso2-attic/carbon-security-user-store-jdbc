@@ -4,7 +4,7 @@ claims:
  -
   claimURI: "http://wso2.org/claims/firstName"
   mappedAttributes:
-   JDBCIS1: "firstName"
+   JDBCIdentityStore: "firstName"
   properties:
    displayName: "First Name"
    description: "First Name"
@@ -13,7 +13,7 @@ claims:
  -
   claimURI: "http://wso2.org/claims/lastName"
   mappedAttributes:
-   JDBCIS1: "lastName"
+   JDBCIdentityStore: "lastName"
   properties:
    displayName: "Last Name"
    description: "Last Name"
