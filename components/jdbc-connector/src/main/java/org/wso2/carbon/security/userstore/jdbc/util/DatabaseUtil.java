@@ -42,8 +42,8 @@ public class DatabaseUtil {
         return instance;
     }
 
-    public void setDataSourceService(DataSourceService dataSourceService) {
-        this.dataSourceService = dataSourceService;
+    public PasswordHandler getPasswordHandler(String handlerName) {
+        return passwordHandlerList.get(handlerName);
     }
 
     public DataSource getDataSource(String dataSourceName) throws DataSourceException {
@@ -54,11 +54,11 @@ public class DatabaseUtil {
         return (DataSource) dataSourceService.getDataSource(dataSourceName);
     }
 
-    public void setPasswordHandler(String name, PasswordHandler passwordHandler) {
-        passwordHandlerList.put(name, passwordHandler);
+    public void setDataSourceService(DataSourceService dataSourceService) {
+        this.dataSourceService = dataSourceService;
     }
 
-    public PasswordHandler getPasswordHandler(String handlerName) {
-        return passwordHandlerList.get(handlerName);
+    public void setPasswordHandler(String name, PasswordHandler passwordHandler) {
+        passwordHandlerList.put(name, passwordHandler);
     }
 }
