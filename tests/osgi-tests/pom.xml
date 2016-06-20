@@ -28,7 +28,7 @@
     <artifactId>org.wso2.carbon.security.userstore.jdbc.test.osgi</artifactId>
     <packaging>bundle</packaging>
 
-    <name>WSO2 Carbon Security JDBC User Store - OSGi Tests</name>
+    <name>WSO2 Carbon Security JDBC User Store Tests - OSGi Tests</name>
     <url>http://maven.apache.org</url>
 
     <build>

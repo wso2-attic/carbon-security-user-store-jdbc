@@ -28,7 +28,7 @@
     <groupId>org.wso2.carbon.security.userstore.test</groupId>
     <artifactId>org.wso2.carbon.security.userstore.jdbc.test</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon Security JDBC User Store - Tests</name>
+    <name>WSO2 Carbon Security JDBC User Store Tests - Parent</name>
     <url>http://maven.apache.org</url>
 
     <modules>
