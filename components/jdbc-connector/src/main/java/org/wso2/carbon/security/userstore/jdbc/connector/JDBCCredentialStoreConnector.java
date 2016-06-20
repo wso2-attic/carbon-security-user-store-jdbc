@@ -103,8 +103,9 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             NamedPreparedStatement getPasswordInfoPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_INFO));
-            getPasswordInfoPreparedStatement.setString("user_id", userData.get(UserCoreConstants.USER_ID));
-            getPasswordInfoPreparedStatement.setString("identity_store_id",
+            getPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
+                    userData.get(UserCoreConstants.USER_ID));
+            getPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
                     userData.get(UserCoreConstants.IDENTITY_STORE_ID));
 
             String hashAlgo;
@@ -144,9 +145,11 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH));
 
-            comparePasswordPreparedStatement.setString("hashed_password", hashedPassword);
-            comparePasswordPreparedStatement.setString("user_id", userData.get(UserCoreConstants.USER_ID));
-            comparePasswordPreparedStatement.setString("identity_store_id",
+            comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.HASHED_PASSWORD,
+                    hashedPassword);
+            comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
+                    userData.get(UserCoreConstants.USER_ID));
+            comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
                     userData.get(UserCoreConstants.IDENTITY_STORE_ID));
 
             try (ResultSet resultSet = comparePasswordPreparedStatement.getPreparedStatement().executeQuery()) {

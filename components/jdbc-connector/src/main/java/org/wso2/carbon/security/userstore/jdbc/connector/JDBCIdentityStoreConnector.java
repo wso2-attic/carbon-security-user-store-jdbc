@@ -88,7 +88,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_USERNAME));
-            namedPreparedStatement.setString("username", username);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USERNAME, username);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -133,7 +133,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ID));
-            namedPreparedStatement.setString("user_id", userId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -169,9 +169,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS));
-            listUsersNamedPreparedStatement.setString("username", filterPattern);
-            listUsersNamedPreparedStatement.setInt("length", length);
-            listUsersNamedPreparedStatement.setInt("offset", offset);
+            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USERNAME, filterPattern);
+            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
 
             try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -203,7 +203,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES));
-            namedPreparedStatement.setString("user_id", userId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 Map<String, String> userClaims = new HashMap<>();
@@ -233,13 +233,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             Map<String, Integer> repetitions = new HashMap<>();
-            repetitions.put("attr_names", attributeNames.size());
+            repetitions.put(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAMES, attributeNames.size());
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME),
                     repetitions);
-            namedPreparedStatement.setString("user_id", userId);
-            namedPreparedStatement.setString("attr_names", attributeNames);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAMES, attributeNames);
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 Map<String, String> userClaims = new HashMap<>();
@@ -269,7 +269,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_NAME));
-            namedPreparedStatement.setString("groupname", groupName);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_NAME, groupName);
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 if (!resultSet.next()) {
@@ -298,7 +298,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ID));
-            namedPreparedStatement.setString("group_id", groupId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -332,9 +332,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement listGroupsNamedPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP));
-            listGroupsNamedPreparedStatement.setString("group_name", filterPattern);
-            listGroupsNamedPreparedStatement.setInt("length", length);
-            listGroupsNamedPreparedStatement.setInt("offset", offset);
+            listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_NAME, filterPattern);
+            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
 
             try (ResultSet resultSet = listGroupsNamedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -366,7 +366,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER));
-            namedPreparedStatement.setString("user_id", userId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -399,7 +399,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_GROUP));
-            namedPreparedStatement.setString("group_id", groupId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -434,8 +434,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_GROUP));
-            namedPreparedStatement.setString("user_id", userId);
-            namedPreparedStatement.setString("group_id", groupId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
                 return resultSet.next();

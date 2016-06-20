@@ -47,7 +47,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "SELECT UM_GROUP.GROUP_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
             "FROM UM_GROUP LEFT JOIN UM_TENANT " +
             "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
-            "WHERE UM_GROUP.GROUP_NAME = :groupname;";
+            "WHERE UM_GROUP.GROUP_NAME = :group_name;";
 
     private static final String GET_GROUP_FROM_ID =
             "SELECT UM_GROUP.GROUP_NAME, UM_TENANT.DOMAIN_NAME " +
