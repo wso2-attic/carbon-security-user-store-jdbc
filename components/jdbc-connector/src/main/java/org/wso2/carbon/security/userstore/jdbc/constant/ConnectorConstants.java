@@ -23,9 +23,27 @@ public class ConnectorConstants {
 
     public static final String DATA_SOURCE = "dataSource";
     public static final String DATABASE_TYPE = "databaseType";
-    public static final String ITERATION_COUNT = "iterationCount";
-    public static final String KEY_LENGTH = "keyLength";
-    public static final String HASH_ALGORITHM = "hashAlgorithm";
+
+    /**
+     * Placeholders related to the named prepared statement.
+     */
+    public static final class SQLPlaceholders {
+
+        public static final String ROLE_NAME = "role_name";
+        public static final String ROLE_ID = "role_id";
+        public static final String PERMISSION_ID = "permission_id";
+        public static final String RESOURCE_ID = "resource_id";
+        public static final String ACTION = "action";
+        public static final String USERNAME = "username";
+        public static final String USER_ID = "user_id";
+        public static final String GROUP_NAME = "group_name";
+        public static final String GROUP_ID = "group_id";
+        public static final String IDENTITY_STORE_ID = "identity_store_id";
+        public static final String HASHED_PASSWORD = "hashed_password";
+        public static final String LENGTH = "length";
+        public static final String OFFSET = "offset";
+        public static final String ATTRIBUTE_NAMES = "attr_names";
+    }
 
     /**
      * Query type related constants.

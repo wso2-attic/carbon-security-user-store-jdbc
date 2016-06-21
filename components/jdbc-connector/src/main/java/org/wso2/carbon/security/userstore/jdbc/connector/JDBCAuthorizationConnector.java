@@ -87,7 +87,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLE));
-            namedPreparedStatement.setString("role_name", roleName);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, roleName);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -118,8 +118,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION));
-            namedPreparedStatement.setString("resource_id", resourceId);
-            namedPreparedStatement.setString("action", action);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_ID, resourceId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION, action);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -150,7 +150,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_USER));
-            namedPreparedStatement.setString("user_id", userId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -182,7 +182,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_GROUP));
-            namedPreparedStatement.setString("group_id", groupId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -214,7 +214,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FOR_ROLE));
-            namedPreparedStatement.setString("role_id", roleId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -250,9 +250,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             String permissionId = UserCoreUtil.getRandomId();
 
-            namedPreparedStatement.setString("resource_id", resourceId);
-            namedPreparedStatement.setString("action", action);
-            namedPreparedStatement.setString("permission_id", permissionId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_ID, resourceId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION, action);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID, permissionId);
 
             namedPreparedStatement.getPreparedStatement().execute();
 
@@ -278,7 +278,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             String roleUniqueId = UserCoreUtil.getRandomId();
 
-            addRolePreparedStatement.setString("role_name", roleName);
+            addRolePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, roleName);
             addRolePreparedStatement.setString("role_unique_id", roleUniqueId);
             addRolePreparedStatement.getPreparedStatement().executeUpdate();
             ResultSet resultSet = addRolePreparedStatement.getPreparedStatement().getGeneratedKeys();
@@ -298,8 +298,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
 
             for (Permission permission : permissions) {
-                addRolePermissionPreparedStatement.setLong("role_id", roleId);
-                addRolePermissionPreparedStatement.setString("permission_id", permission.getPermissionId());
+                addRolePermissionPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+                addRolePermissionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID,
+                        permission.getPermissionId());
                 addRolePermissionPreparedStatement.getPreparedStatement().addBatch();
             }
 
@@ -327,9 +328,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_ROLE));
-            namedPreparedStatement.setString("user_id", userId);
-            namedPreparedStatement.setString("identity_store_id", identityStoreId);
-            namedPreparedStatement.setString("role_name", roleName);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID, identityStoreId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, roleName);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
                 return resultSet.next();
@@ -348,9 +349,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_IS_GROUP_IN_ROLE));
-            namedPreparedStatement.setString("group_id", groupId);
-            namedPreparedStatement.setString("identity_store_id", identityStoreId);
-            namedPreparedStatement.setString("role_name", roleName);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID, identityStoreId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, roleName);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
                 return resultSet.next();
@@ -370,7 +371,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_ROLE));
-            namedPreparedStatement.setString("role_id", roleId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
                 while (resultSet.next()) {
@@ -401,7 +402,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_ROLE));
-            namedPreparedStatement.setString("role_id", roleId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
                 while (resultSet.next()) {
@@ -431,7 +432,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLE));
 
-            namedPreparedStatement.setString("role_id", roleId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
             namedPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (log.isDebugEnabled()) {
@@ -451,7 +452,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_PERMISSION));
 
-            namedPreparedStatement.setString("permission_id", permissionId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID, permissionId);
             namedPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (log.isDebugEnabled()) {
@@ -474,8 +475,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_FROM_USER));
 
-            deleteRolesOfUserPreparedStatement.setString("user_id", userId);
-            deleteRolesOfUserPreparedStatement.setString("identity_store_id", identityStoreId);
+            deleteRolesOfUserPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+            deleteRolesOfUserPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                    identityStoreId);
             deleteRolesOfUserPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (log.isDebugEnabled()) {
@@ -488,9 +490,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
 
             for (Role role : roles) {
-                addRolesToUserPreparedStatement.setString("user_id", userId);
-                addRolesToUserPreparedStatement.setString("identity_store_id", identityStoreId);
-                addRolesToUserPreparedStatement.setString("role_id", role.getRoleId());
+                addRolesToUserPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+                addRolesToUserPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                        identityStoreId);
+                addRolesToUserPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, role.getRoleId());
                 addRolesToUserPreparedStatement.getPreparedStatement().addBatch();
             }
 
@@ -520,9 +523,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
 
                 for (Role role : removeList) {
-                    unAssingPreparedStatement.setString("user_id", userId);
-                    unAssingPreparedStatement.setString("identity_store_id", identityStoreId);
-                    unAssingPreparedStatement.setString("role_id", role.getRoleId());
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            identityStoreId);
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, role.getRoleId());
                     unAssingPreparedStatement.getPreparedStatement().addBatch();
                 }
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
@@ -539,9 +543,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
 
                 for (Role role : addList) {
-                    assignPreparedStatement.setString("user_id", userId);
-                    assignPreparedStatement.setString("identity_store_id", identityStoreId);
-                    assignPreparedStatement.setString("role_id", role.getRoleId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            identityStoreId);
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, role.getRoleId());
                     assignPreparedStatement.getPreparedStatement().addBatch();
                 }
                 assignPreparedStatement.getPreparedStatement().executeBatch();
@@ -565,7 +570,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             NamedPreparedStatement deleteUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USERS_FROM_ROLE));
 
-            deleteUsersPreparedStatement.setString("role_id", roleId);
+            deleteUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
 
             if (log.isDebugEnabled()) {
                 log.debug("All users of the role: {} deleted from from authorization store: {}.", roleId,
@@ -576,9 +581,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
 
             for (User user : users) {
-                addUsersPreparedStatement.setString("user_id", user.getUserId());
-                addUsersPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
-                addUsersPreparedStatement.setString("role_id", roleId);
+                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                        user.getIdentityStoreId());
+                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
                 addUsersPreparedStatement.getPreparedStatement().addBatch();
             }
 
@@ -608,9 +614,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
 
                 for (User user : removeList) {
-                    unAssingPreparedStatement.setString("role_id", roleId);
-                    unAssingPreparedStatement.setString("user_id", user.getUserId());
-                    unAssingPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            user.getIdentityStoreId());
                     unAssingPreparedStatement.getPreparedStatement().addBatch();
                 }
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
@@ -627,9 +634,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
 
                 for (User user : addList) {
-                    assignPreparedStatement.setString("role_id", roleId);
-                    assignPreparedStatement.setString("user_id", user.getUserId());
-                    assignPreparedStatement.setString("identity_store_id", user.getIdentityStoreId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            user.getIdentityStoreId());
                     assignPreparedStatement.getPreparedStatement().addBatch();
                 }
                 assignPreparedStatement.getPreparedStatement().executeBatch();
@@ -657,8 +665,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ROLES_FROM_GROUP));
 
-            deleteRolesOfGroupPreparedStatement.setString("group_id", groupId);
-            deleteRolesOfGroupPreparedStatement.setString("identity_store_id", identityStoreId);
+            deleteRolesOfGroupPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
+            deleteRolesOfGroupPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                    identityStoreId);
             deleteRolesOfGroupPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (log.isDebugEnabled()) {
@@ -671,9 +680,11 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
 
             for (Role role : roles) {
-                addRolesToGroupPreparedStatement.setString("group_id", groupId);
-                addRolesToGroupPreparedStatement.setString("identity_store_id", identityStoreId);
-                addRolesToGroupPreparedStatement.setString("role_id", role.getRoleId());
+                addRolesToGroupPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
+                addRolesToGroupPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                        identityStoreId);
+                addRolesToGroupPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID,
+                        role.getRoleId());
                 addRolesToGroupPreparedStatement.getPreparedStatement().addBatch();
             }
 
@@ -703,9 +714,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
 
                 for (Role role : removeList) {
-                    unAssingPreparedStatement.setString("group_id", groupId);
-                    unAssingPreparedStatement.setString("identity_store_id", identityStoreId);
-                    unAssingPreparedStatement.setString("role_id", role.getRoleId());
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            identityStoreId);
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, role.getRoleId());
                     unAssingPreparedStatement.getPreparedStatement().addBatch();
                 }
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
@@ -722,9 +734,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
 
                 for (Role role : addList) {
-                    assignPreparedStatement.setString("group_id", groupId);
-                    assignPreparedStatement.setString("identity_store_id", identityStoreId);
-                    assignPreparedStatement.setString("role_id", role.getRoleId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            identityStoreId);
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, role.getRoleId());
                     assignPreparedStatement.getPreparedStatement().addBatch();
                 }
                 assignPreparedStatement.getPreparedStatement().executeBatch();
@@ -751,7 +764,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUPS_FROM_ROLE));
 
-            deleteGroupsPreparedStatement.setString("role_id", roleId);
+            deleteGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
 
             if (log.isDebugEnabled()) {
                 log.debug("All groups deleted from the role: {} in authorization store: {}.", roleId,
@@ -762,9 +775,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
 
             for (Group group : groups) {
-                addGroupsPreparedStatement.setString("group_id", group.getGroupId());
-                addGroupsPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
-                addGroupsPreparedStatement.setString("role_id", roleId);
+                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
+                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                        group.getIdentityStoreId());
+                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
                 addGroupsPreparedStatement.getPreparedStatement().addBatch();
             }
 
@@ -794,9 +808,11 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
 
                 for (Group group : removeList) {
-                    unAssingPreparedStatement.setString("role_id", roleId);
-                    unAssingPreparedStatement.setString("group_id", group.getGroupId());
-                    unAssingPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID,
+                            group.getGroupId());
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            group.getIdentityStoreId());
                     unAssingPreparedStatement.getPreparedStatement().addBatch();
                 }
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
@@ -813,9 +829,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
 
                 for (Group group : addList) {
-                    assignPreparedStatement.setString("role_id", roleId);
-                    assignPreparedStatement.setString("group_id", group.getGroupId());
-                    assignPreparedStatement.setString("identity_store_id", group.getIdentityStoreId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            group.getIdentityStoreId());
                     assignPreparedStatement.getPreparedStatement().addBatch();
                 }
                 assignPreparedStatement.getPreparedStatement().executeBatch();
@@ -843,7 +860,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_PERMISSIONS_FROM_ROLE));
 
-            deletePermissionPreparedStatement.setString("role_id", roleId);
+            deletePermissionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
             deletePermissionPreparedStatement.getPreparedStatement().executeUpdate();
 
             if (log.isDebugEnabled()) {
@@ -856,8 +873,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE_BY_UNIQUE_ID));
 
             for (Permission permission : permissions) {
-                addPermissionsPreparedStatement.setString("permission_id", permission.getPermissionId());
-                addPermissionsPreparedStatement.setString("role_id", roleId);
+                addPermissionsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID,
+                        permission.getPermissionId());
+                addPermissionsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
                 addPermissionsPreparedStatement.getPreparedStatement().addBatch();
             }
 
@@ -887,8 +905,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE));
 
                 for (Permission permission : removeList) {
-                    unAssingPreparedStatement.setString("role_id", roleId);
-                    unAssingPreparedStatement.setString("permission_id", permission.getPermissionId());
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID,
+                            permission.getPermissionId());
                     unAssingPreparedStatement.getPreparedStatement().addBatch();
                 }
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
@@ -905,8 +924,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE_BY_UNIQUE_ID));
 
                 for (Permission permission : addList) {
-                    assignPreparedStatement.setString("role_id", roleId);
-                    assignPreparedStatement.setString("permission_id", permission.getPermissionId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID,
+                            permission.getPermissionId());
                     assignPreparedStatement.getPreparedStatement().addBatch();
                 }
 
