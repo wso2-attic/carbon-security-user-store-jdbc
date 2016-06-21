@@ -19,9 +19,11 @@ package org.wso2.carbon.security.userstore.jdbc.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.security.caas.user.core.exception.StoreException;
+import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.queries.MySQLFamilySQLQueryFactory;
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Represents a JDBC based store connector.
@@ -33,7 +35,9 @@ public abstract class JDBCStoreConnector {
 
     protected Map<String, String> sqlQueries;
 
-    protected void loadQueries(String databaseType) {
+    protected void loadQueries(Properties properties) {
+
+        String databaseType = properties.getProperty(ConnectorConstants.DATABASE_TYPE);
 
         if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") || databaseType.equalsIgnoreCase("H2"))) {
             sqlQueries = new MySQLFamilySQLQueryFactory().getQueries();
@@ -43,5 +47,10 @@ public abstract class JDBCStoreConnector {
         } else {
             throw new StoreException("Invalid or unsupported database type specified in the configuration.");
         }
+
+        // If there are matching queries in the properties, we have to override the default and replace with them.
+        sqlQueries.keySet().stream()
+                .filter(properties::containsKey)
+                .forEach(key -> sqlQueries.put(key, properties.getProperty(key)));
     }
 }

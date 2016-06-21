@@ -69,7 +69,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             throw new IdentityStoreException("Error occurred while initiating data source.", e);
         }
 
-        loadQueries((String) properties.get(ConnectorConstants.DATABASE_TYPE));
+        loadQueries(properties);
 
         if (log.isDebugEnabled()) {
             log.debug("JDBC identity store with id: {} initialized successfully.", identityStoreId);

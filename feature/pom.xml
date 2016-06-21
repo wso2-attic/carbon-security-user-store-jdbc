@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.security.userstore</groupId>
@@ -54,11 +53,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -75,8 +69,10 @@
                                 <resource>
                                     <directory>resources</directory>
                                     <includes>
-                                        <include>conf/jdbc-connector.yml</include>
-                                        <include>database/WSO2CARBON_DB.sql</include>
+                                        <include>conf/jdbc-identity-connector.yml</include>
+                                        <include>conf/jdbc-credential-connector.yml</include>
+                                        <include>conf/jdbc-authorization-connector.yml</include>
+                                        <include>dbscripts/WSO2CARBON_DB.sql</include>
                                         <include>p2.inf</include>
                                     </includes>
                                 </resource>
@@ -115,6 +111,20 @@
                                     <version>${carbon.security.userstore.jdbc.version}</version>
                                 </bundle>
                             </bundles>
+                            <importFeatures>
+                                <feature>
+                                    <id>org.wso2.carbon.security.caas.feature</id>
+                                    <version>${carbon.security.caas.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.jndi.feature</id>
+                                    <version>${carbon.jndi.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.datasource.core.feature</id>
+                                    <version>${carbon.datasources.version}</version>
+                                </feature>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
@@ -128,9 +138,9 @@
                         <phase>install</phase>
                         <configuration>
                             <target>
-                                <delete dir="src/main/resources"/>
-                                <delete dir="src/main"/>
-                                <delete dir="src"/>
+                                <delete dir="src/main/resources" />
+                                <delete dir="src/main" />
+                                <delete dir="src" />
                             </target>
                         </configuration>
                         <goals>
