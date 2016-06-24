@@ -84,9 +84,29 @@ public class DatabaseColumnNames {
      */
     public static final class Permission {
         public static final String ID = "ID";
-        public static final String RESOURCE_ID = "RESOURCE_ID";
-        public static final String ACTION = "ACTION";
+        public static final String RESOURCE_ID = "DOMAIN";
+        public static final String ACTION = "ACTION_DOMAIN";
         public static final String PERMISSION_ID = "PERMISSION_UNIQUE_ID";
+    }
+
+    /**
+     * Names of the Resource table columns.
+     */
+    public static final class Resource {
+        public static final String ID = "ID";
+        public static final String DOMAIN_ID = "DOMAIN_ID";
+        public static final String RESOURCE_NAME = "RESOURCE_NAME";
+        public static final String USER_UNIQUE_ID = "USER_UNIQUE_ID";
+        public static final String IDENTITY_STORE_ID = "IDENTITY_STORE_ID";
+    }
+
+    /**
+     * Names of the Action table columns.
+     */
+    public static final class Action {
+        public static final String ID = "ID";
+        public static final String DOMAIN_ID = "DOMAIN_ID";
+        public static final String ACTION_NAME = "ACTION_NAME";
     }
 
     /**

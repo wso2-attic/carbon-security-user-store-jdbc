@@ -184,13 +184,20 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                         "WHERE USER_UNIQUE_ID = :user_id;)";
 
     private static final String GET_PERMISSIONS_FOR_ROLE =
-            "SELECT RESOURCE_ID, ACTION, PERMISSION_UNIQUE_ID " +
+            "SELECT UM_RESOURCE.DOMAIN_ID, UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, " +
+                    "UM_RESOURCE.IDENTITY_STORE_ID, UM_ACTION.DOMAIN_ID, UM_ACTION.ACTION_NAME, " +
+                    "UM_PERMISSION.PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
-            "WHERE ID IN (SELECT PERMISSION_ID " +
-                        "FROM UM_ROLE_PERMISSION " +
-                        "WHERE ROLE_ID = (SELECT ID " +
-                                         "FROM UM_ROLE " +
-                                         "WHERE ROLE_UNIQUE_ID = :role_id;))";
+            "LEFT JOIN UM_RESOURCE ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
+            "LEFT JOIN UM_ACTION ON UM_PERMISSION.ACTION_ID = UM_ACTION.ID " +
+            "WHERE UM_PERMISSION.ID IN (SELECT PERMISSION_ID " +
+                                       "FROM UM_ROLE_PERMISSION " +
+                                       "WHERE ROLE_ID = (SELECT ID " +
+                                                        "FROM UM_ROLE " +
+                                                        "WHERE ROLE_UNIQUE_ID = :role_id;)) " +
+            "AND UM_PERMISSION.RESOURCE_ID IN (SELECT ID FROM UM_RESOURCE " +
+                                              "WHERE DOMAIN_ID LIKE :resource_domain; " +
+                                              "AND RESOURCE_NAME LIKE :resource_name;)";
 
     private static final String GET_ROLES_FOR_GROUP =
             "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
@@ -208,8 +215,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "OFFSET :offset;";
 
     private static final String ADD_PERMISSION =
-            "INSERT INTO UM_PERMISSION (RESOURCE_ID, ACTION, PERMISSION_UNIQUE_ID) " +
-            "VALUES (:resource_id;, :action;, :permission_id;)";
+            "INSERT INTO UM_PERMISSION (RESOURCE_ID, ACTION_ID, PERMISSION_UNIQUE_ID) " +
+            "VALUES (:resource_id;, :action_id;, :permission_id;)";
 
     private static final String ADD_ROLE =
             "INSERT INTO UM_ROLE (ROLE_NAME, ROLE_UNIQUE_ID) " +
@@ -319,9 +326,36 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "AND PERMISSION_ID = (SELECT ID FROM UM_PERMISSION WHERE PERMISSION_UNIQUE_ID = :permission_id;)";
 
     private static final String GET_PERMISSION =
-            "SELECT PERMISSION_UNIQUE_ID " +
-            "FROM UM_PERMISSION " +
-            "WHERE RESOURCE_ID = :resource_id; AND ACTION = :action;";
+            "SELECT UM_PERMISSION.PERMISSION_UNIQUE_ID, UM_RESOURCE.USER_UNIQUE_ID, UM_RESOURCE.IDENTITY_STORE_ID " +
+            "FROM UM_PERMISSION LEFT JOIN UM_RESOURCE " +
+            "ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
+            "WHERE RESOURCE_ID = (SELECT ID " +
+                                 "FROM UM_RESOURCE " +
+                                 "WHERE DOMAIN_ID = :resource_domain; " +
+                                 "AND RESOURCE_NAME = :resource_name;) " +
+            "AND ACTION_ID = (SELECT ID " +
+                             "FROM UM_ACTION " +
+                             "WHERE DOMAIN_ID = :action_domain; " +
+                             "AND ACTION_NAME = :action_name;) ";
+
+    private static final String ADD_RESOURCE =
+            "INSERT INTO UM_RESOURCE(DOMAIN_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID) " +
+            "VALUES (:resource_domain;, :resource_name;, :user_id;, :identity_store_id;)";
+
+    private static final String ADD_ACTION =
+            "INSERT INTO UM_ACTION(DOMAIN_ID, ACTION_NAME) " +
+            "VALUES (:action_domain;, :action_name;)";
+
+    private static final String GET_RESOURCE_ID =
+            "SELECT ID " +
+            "FROM UM_RESOURCE " +
+            "WHERE DOMAIN_ID = :resource_domain; " +
+            "AND RESOURCE_NAME = :resource_name;";
+
+    private static final String GET_ACTION_ID =
+            "SELECT ID FROM UM_ACTION " +
+            "WHERE DOMAIN_ID = :action_domain; " +
+            "AND ACTION_NAME = :action_name;";
 
     public MySQLFamilySQLQueryFactory() {
 
@@ -383,5 +417,9 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE,
                 DELETE_GIVEN_PERMISSIONS_FROM_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION, GET_PERMISSION);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCE_ID, GET_RESOURCE_ID);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_RESOURCE, ADD_RESOURCE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ACTION_ID, GET_ACTION_ID);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ACTION, ADD_ACTION);
     }
 }

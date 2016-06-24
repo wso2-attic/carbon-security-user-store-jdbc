@@ -32,8 +32,7 @@ public class ConnectorConstants {
         public static final String ROLE_NAME = "role_name";
         public static final String ROLE_ID = "role_id";
         public static final String PERMISSION_ID = "permission_id";
-        public static final String RESOURCE_ID = "resource_id";
-        public static final String ACTION = "action";
+        public static final String ACTION_DOMAIN = "action_domain";
         public static final String USERNAME = "username";
         public static final String USER_ID = "user_id";
         public static final String GROUP_NAME = "group_name";
@@ -43,6 +42,12 @@ public class ConnectorConstants {
         public static final String LENGTH = "length";
         public static final String OFFSET = "offset";
         public static final String ATTRIBUTE_NAMES = "attr_names";
+        public static final String ROLE_UNIQUE_ID = "role_unique_id";
+        public static final String RESOURCE_NAME = "resource_name";
+        public static final String ACTION_NAME = "action_name";
+        public static final String RESOURCE_DOMAIN = "resource_domain";
+        public static final String RESOURCE_ID = "resource_id";
+        public static final String ACTION_ID = "action_id";
     }
 
     /**
@@ -104,5 +109,9 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE =
                 "sql_query_delete_given_permissions_from_role";
         public static final String SQL_QUERY_GET_PERMISSION = "sql_query_get_permission";
+        public static final String SQL_QUERY_ADD_RESOURCE = "sql_query_add_resource_if_not_exist";
+        public static final String SQL_QUERY_ADD_ACTION = "sql_query_add_action_if_not_exist";
+        public static final String SQL_QUERY_GET_RESOURCE_ID = "sql_query_get_resource_id";
+        public static final String SQL_QUERY_GET_ACTION_ID = "sql_query_get_action_id";
     }
 }
