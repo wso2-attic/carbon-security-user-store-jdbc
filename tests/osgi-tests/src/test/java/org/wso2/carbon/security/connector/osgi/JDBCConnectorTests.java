@@ -247,8 +247,8 @@ public class JDBCConnectorTests {
     public void testGetPermissionValid() throws PermissionNotFoundException, AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        assertNotNull(authorizationStore
-                .getPermission(DEFAULT_PERMISSION.getResource(), DEFAULT_PERMISSION.getAction()));
+        assertNotNull(authorizationStore.getPermission(DEFAULT_PERMISSION.getResource().getResourceString(),
+                DEFAULT_PERMISSION.getAction().getActionString()));
     }
 
     @Test(priority = 9)

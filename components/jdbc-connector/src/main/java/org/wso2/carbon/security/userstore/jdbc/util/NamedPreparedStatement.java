@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.security.userstore.jdbc.util;
 
+import org.wso2.carbon.security.caas.user.core.exception.StoreException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -47,7 +49,7 @@ public class NamedPreparedStatement {
 
             int end = sqlQuery.substring(pos).indexOf(";");
             if (end == -1) {
-                end = sqlQuery.length();
+                throw new StoreException("Cannot find the end of the placeholder.");
             } else {
                 end += pos;
             }

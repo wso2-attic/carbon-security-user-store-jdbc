@@ -269,163 +269,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public Permission.PermissionBuilder addPermission(Resource resource, Action action)
-            throws AuthorizationStoreException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            // Add resource if not exists.
-            NamedPreparedStatement getResourceIdPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCE_ID));
-            getResourceIdPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_DOMAIN,
-                    resource.getResourceDomain());
-            getResourceIdPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
-                    resource.getResourceId());
-
-            long resourceId;
-
-            try (ResultSet resultSet = getResourceIdPreparedStatement.getPreparedStatement().executeQuery()) {
-                if (resultSet.next()) {
-                    resourceId = resultSet.getLong(1);
-                } else {
-
-                    if (resource.getOwner() == null) {
-                        throw new AuthorizationStoreException("Resource owner cannot be null.");
-                    }
-
-                    NamedPreparedStatement addResourcePreparedStatement = new NamedPreparedStatement(
-                            unitOfWork.getConnection(),
-                            sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_RESOURCE));
-                    addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_DOMAIN,
-                            resource.getResourceDomain());
-                    addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
-                            resource.getResourceId());
-                    addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
-                            resource.getOwner().getUserId());
-                    addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                            resource.getOwner().getIdentityStoreId());
-
-                    addResourcePreparedStatement.getPreparedStatement().executeUpdate();
-
-                    try (ResultSet rs = addResourcePreparedStatement.getPreparedStatement().getGeneratedKeys()) {
-                        if (!rs.next()) {
-                            throw new AuthorizationStoreException("Error occurred while adding the resource.");
-                        }
-                        resourceId = rs.getLong(1);
-                    }
-                }
-            }
-
-            // Add action if not exists.
-            NamedPreparedStatement getActionPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ACTION_ID));
-            getActionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_DOMAIN,
-                    action.getActionDomain());
-            getActionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME,
-                    action.getAction());
-
-            long actionId;
-
-            try (ResultSet resultSet = getActionPreparedStatement.getPreparedStatement().executeQuery()) {
-                if (resultSet.next()) {
-                    actionId = resultSet.getLong(1);
-                } else {
-                    NamedPreparedStatement addActionPreparedStatement = new NamedPreparedStatement(
-                            unitOfWork.getConnection(),
-                            sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ACTION));
-                    addActionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_DOMAIN,
-                            action.getActionDomain());
-                    addActionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME,
-                            action.getAction());
-
-                    addActionPreparedStatement.getPreparedStatement().executeUpdate();
-
-                    try (ResultSet rs = addActionPreparedStatement.getPreparedStatement().getGeneratedKeys()) {
-                        if (!rs.next()) {
-                            throw new AuthorizationStoreException("Error occurred while adding the action.");
-                        }
-                        actionId = rs.getLong(1);
-                    }
-                }
-            }
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSION));
-
-            String permissionId = UserCoreUtil.getRandomId();
-
-            namedPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.RESOURCE_ID, resourceId);
-            namedPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.ACTION_ID, actionId);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID, permissionId);
-
-            namedPreparedStatement.getPreparedStatement().execute();
-
-            if (log.isDebugEnabled()) {
-                log.debug("Permission with resource id: {}, action: {}, permission id: {} is added to " +
-                        "authorization store: {}.", resource.getResourceString(), action.getActionString(),
-                        permissionId, authorizationStoreId);
-            }
-
-            return new Permission.PermissionBuilder(resource, action, permissionId, authorizationStoreId);
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while adding the permission.", e);
-        }
-    }
-
-    @Override
-    public Role.RoleBuilder addRole(String roleName, List<Permission> permissions) throws AuthorizationStoreException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-
-            NamedPreparedStatement addRolePreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE));
-
-            String roleUniqueId = UserCoreUtil.getRandomId();
-
-            addRolePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, roleName);
-            addRolePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_UNIQUE_ID, roleUniqueId);
-            addRolePreparedStatement.getPreparedStatement().executeUpdate();
-            ResultSet resultSet = addRolePreparedStatement.getPreparedStatement().getGeneratedKeys();
-
-            if (!resultSet.next()) {
-                throw new AuthorizationStoreException("Failed to add the role.");
-            }
-
-            long roleId = resultSet.getLong(1);
-
-            if (log.isDebugEnabled()) {
-                log.debug("Role with role id: {} added to {}.", roleUniqueId, authorizationStoreId);
-            }
-
-            NamedPreparedStatement addRolePermissionPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
-
-            for (Permission permission : permissions) {
-                addRolePermissionPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                addRolePermissionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID,
-                        permission.getPermissionId());
-                addRolePermissionPreparedStatement.getPreparedStatement().addBatch();
-            }
-
-            addRolePermissionPreparedStatement.getPreparedStatement().executeBatch();
-            unitOfWork.endTransaction();
-
-            if (log.isDebugEnabled()) {
-                log.debug("{} number of permissions added to the role with role id: {} from authorization store: {}.",
-                        permissions.size(), roleId, authorizationStoreId);
-            }
-
-            return new Role.RoleBuilder().setAuthorizationStoreId(authorizationStoreId).setRoleName(roleName)
-                    .setRoleId(roleUniqueId);
-
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while adding the role.", e);
-        }
-    }
-
-    @Override
     public boolean isUserInRole(String userId, String identityStoreId, String roleName)
             throws AuthorizationStoreException {
 
@@ -526,6 +369,164 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             return groupBuilders;
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving groups of the role.", e);
+        }
+    }
+
+    @Override
+    public Role.RoleBuilder addRole(String roleName, List<Permission> permissions) throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement addRolePreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE));
+
+            String roleUniqueId = UserCoreUtil.getRandomId();
+
+            addRolePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, roleName);
+            addRolePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_UNIQUE_ID, roleUniqueId);
+            addRolePreparedStatement.getPreparedStatement().executeUpdate();
+            ResultSet resultSet = addRolePreparedStatement.getPreparedStatement().getGeneratedKeys();
+
+            if (!resultSet.next()) {
+                throw new AuthorizationStoreException("Failed to add the role.");
+            }
+
+            long roleId = resultSet.getLong(1);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Role with role id: {} added to {}.", roleUniqueId, authorizationStoreId);
+            }
+
+            NamedPreparedStatement addRolePermissionPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE));
+
+            for (Permission permission : permissions) {
+                addRolePermissionPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+                addRolePermissionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID,
+                        permission.getPermissionId());
+                addRolePermissionPreparedStatement.getPreparedStatement().addBatch();
+            }
+
+            addRolePermissionPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+
+            if (log.isDebugEnabled()) {
+                log.debug("{} number of permissions added to the role with role id: {} from authorization store: {}.",
+                        permissions.size(), roleId, authorizationStoreId);
+            }
+
+            return new Role.RoleBuilder().setAuthorizationStoreId(authorizationStoreId).setRoleName(roleName)
+                    .setRoleId(roleUniqueId);
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while adding the role.", e);
+        }
+    }
+
+    @Override
+    public Permission.PermissionBuilder addPermission(Resource resource, Action action)
+            throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            // Add resource if not exists.
+            NamedPreparedStatement getResourceIdPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCE_ID));
+            getResourceIdPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_DOMAIN,
+                    resource.getResourceDomain());
+            getResourceIdPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
+                    resource.getResourceId());
+
+            long resourceId;
+
+            try (ResultSet resultSet = getResourceIdPreparedStatement.getPreparedStatement().executeQuery()) {
+                if (resultSet.next()) {
+                    resourceId = resultSet.getLong(1);
+                } else {
+
+                    if (resource.getOwner().getUserId() == null) {
+                        throw new AuthorizationStoreException("Resource owner cannot be null when creating " +
+                                "permission with non existing resource.");
+                    }
+
+                    NamedPreparedStatement addResourcePreparedStatement = new NamedPreparedStatement(
+                            unitOfWork.getConnection(),
+                            sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_RESOURCE));
+                    addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_DOMAIN,
+                            resource.getResourceDomain());
+                    addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
+                            resource.getResourceId());
+                    addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
+                            resource.getOwner().getUserId());
+                    addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+                            resource.getOwner().getIdentityStoreId());
+
+                    addResourcePreparedStatement.getPreparedStatement().executeUpdate();
+
+                    try (ResultSet rs = addResourcePreparedStatement.getPreparedStatement().getGeneratedKeys()) {
+                        if (!rs.next()) {
+                            throw new AuthorizationStoreException("Error occurred while adding the resource.");
+                        }
+                        resourceId = rs.getLong(1);
+                    }
+                }
+            }
+
+            // Add action if not exists.
+            NamedPreparedStatement getActionPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ACTION_ID));
+            getActionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_DOMAIN,
+                    action.getActionDomain());
+            getActionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME,
+                    action.getAction());
+
+            long actionId;
+
+            try (ResultSet resultSet = getActionPreparedStatement.getPreparedStatement().executeQuery()) {
+                if (resultSet.next()) {
+                    actionId = resultSet.getLong(1);
+                } else {
+                    NamedPreparedStatement addActionPreparedStatement = new NamedPreparedStatement(
+                            unitOfWork.getConnection(),
+                            sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ACTION));
+                    addActionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_DOMAIN,
+                            action.getActionDomain());
+                    addActionPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME,
+                            action.getAction());
+
+                    addActionPreparedStatement.getPreparedStatement().executeUpdate();
+
+                    try (ResultSet rs = addActionPreparedStatement.getPreparedStatement().getGeneratedKeys()) {
+                        if (!rs.next()) {
+                            throw new AuthorizationStoreException("Error occurred while adding the action.");
+                        }
+                        actionId = rs.getLong(1);
+                    }
+                }
+            }
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSION));
+
+            String permissionId = UserCoreUtil.getRandomId();
+
+            namedPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.RESOURCE_ID, resourceId);
+            namedPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.ACTION_ID, actionId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PERMISSION_ID, permissionId);
+
+            namedPreparedStatement.getPreparedStatement().execute();
+
+            if (log.isDebugEnabled()) {
+                log.debug("Permission with resource id: {}, action: {}, permission id: {} is added to " +
+                                "authorization store: {}.", resource.getResourceString(), action.getActionString(),
+                        permissionId, authorizationStoreId);
+            }
+
+            return new Permission.PermissionBuilder(resource, action, permissionId, authorizationStoreId);
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while adding the permission.", e);
         }
     }
 
