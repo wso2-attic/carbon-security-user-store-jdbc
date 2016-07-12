@@ -184,19 +184,25 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                         "WHERE USER_UNIQUE_ID = :user_id;)";
 
     private static final String GET_PERMISSIONS_FOR_ROLE =
-            "SELECT UM_RESOURCE.DOMAIN_ID, UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, " +
-                    "UM_RESOURCE.IDENTITY_STORE_ID, UM_ACTION.DOMAIN_ID, UM_ACTION.ACTION_NAME, " +
+            "SELECT RESOURCE_NAMESPACE.NAMESPACE, UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, " +
+                    "UM_RESOURCE.IDENTITY_STORE_ID, ACTION_NAMESPACE.NAMESPACE, UM_ACTION.ACTION_NAME, " +
                     "UM_PERMISSION.PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
             "LEFT JOIN UM_RESOURCE ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
+            "LEFT JOIN UM_RESOURCE_NAMESPACE AS RESOURCE_NAMESPACE ON UM_RESOURCE.NAMESPACE_ID = " +
+                    "RESOURCE_NAMESPACE.ID " +
             "LEFT JOIN UM_ACTION ON UM_PERMISSION.ACTION_ID = UM_ACTION.ID " +
+            "LEFT JOIN UM_RESOURCE_NAMESPACE AS ACTION_NAMESPACE ON UM_ACTION.NAMESPACE_ID = " +
+                    "ACTION_NAMESPACE.ID " +
             "WHERE UM_PERMISSION.ID IN (SELECT PERMISSION_ID " +
                                        "FROM UM_ROLE_PERMISSION " +
                                        "WHERE ROLE_ID = (SELECT ID " +
                                                         "FROM UM_ROLE " +
                                                         "WHERE ROLE_UNIQUE_ID = :role_id;)) " +
             "AND UM_PERMISSION.RESOURCE_ID IN (SELECT ID FROM UM_RESOURCE " +
-                                              "WHERE DOMAIN_ID LIKE :resource_domain; " +
+                                              "WHERE NAMESPACE_ID IN (SELECT ID " +
+                                                                     "FROM UM_RESOURCE_NAMESPACE " +
+                                                                     "WHERE NAMESPACE LIKE :resource_namespace;) " +
                                               "AND RESOURCE_NAME LIKE :resource_name;)";
 
     private static final String GET_ROLES_FOR_GROUP =
@@ -331,30 +337,44 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
             "WHERE RESOURCE_ID = (SELECT ID " +
                                  "FROM UM_RESOURCE " +
-                                 "WHERE DOMAIN_ID = :resource_domain; " +
+                                 "WHERE NAMESPACE_ID = (SELECT ID " +
+                                                       "FROM UM_RESOURCE_NAMESPACE " +
+                                                       "WHERE NAMESPACE = :resource_namespace;) " +
                                  "AND RESOURCE_NAME = :resource_name;) " +
             "AND ACTION_ID = (SELECT ID " +
                              "FROM UM_ACTION " +
-                             "WHERE DOMAIN_ID = :action_domain; " +
+                             "WHERE NAMESPACE_ID = (SELECT ID " +
+                                                   "FROM UM_RESOURCE_NAMESPACE " +
+                                                   "WHERE NAMESPACE = :action_namespace;) " +
                              "AND ACTION_NAME = :action_name;) ";
 
     private static final String ADD_RESOURCE =
-            "INSERT INTO UM_RESOURCE(DOMAIN_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID) " +
-            "VALUES (:resource_domain;, :resource_name;, :user_id;, :identity_store_id;)";
+            "INSERT INTO UM_RESOURCE(NAMESPACE_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID) " +
+            "VALUES ((SELECT ID " +
+                     "FROM UM_RESOURCE_NAMESPACE " +
+                     "WHERE NAMESPACE = :resource_namespace;), " +
+                    ":resource_name;, :user_id;, :identity_store_id;)";
 
     private static final String ADD_ACTION =
-            "INSERT INTO UM_ACTION(DOMAIN_ID, ACTION_NAME) " +
-            "VALUES (:action_domain;, :action_name;)";
+            "INSERT INTO UM_ACTION(NAMESPACE_ID, ACTION_NAME) " +
+            "VALUES ((SELECT ID " +
+                     "FROM UM_RESOURCE_NAMESPACE " +
+                     "WHERE NAMESPACE = :action_namespace;)," +
+                    " :action_name;)";
 
     private static final String GET_RESOURCE_ID =
             "SELECT ID " +
             "FROM UM_RESOURCE " +
-            "WHERE DOMAIN_ID = :resource_domain; " +
+            "WHERE NAMESPACE_ID = (SELECT ID " +
+                               "FROM UM_RESOURCE_NAMESPACE " +
+                               "WHERE NAMESPACE = :resource_namespace;) " +
             "AND RESOURCE_NAME = :resource_name;";
 
     private static final String GET_ACTION_ID =
             "SELECT ID FROM UM_ACTION " +
-            "WHERE DOMAIN_ID = :action_domain; " +
+            "WHERE NAMESPACE_ID = (SELECT ID " +
+                                  "FROM UM_RESOURCE_NAMESPACE " +
+                                  "WHERE NAMESPACE = :action_namespace;) " +
             "AND ACTION_NAME = :action_name;";
 
     public MySQLFamilySQLQueryFactory() {

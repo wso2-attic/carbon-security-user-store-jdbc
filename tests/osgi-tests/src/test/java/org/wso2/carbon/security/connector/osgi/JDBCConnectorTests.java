@@ -148,7 +148,6 @@ public class JDBCConnectorTests {
                 .artifactId("h2")
                 .versionAsInProject());
 
-
         CarbonSysPropConfiguration sysPropConfiguration = new CarbonSysPropConfiguration();
         sysPropConfiguration.setCarbonHome(System.getProperty("carbon.home"));
         sysPropConfiguration.setServerKey("carbon-security");

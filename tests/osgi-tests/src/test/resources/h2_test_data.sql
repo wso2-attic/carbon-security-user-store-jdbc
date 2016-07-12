@@ -48,15 +48,18 @@ VALUES ('admin', '985b79ecfcdf11e586aa5e5517507c66'),
   ('role4', '7f8ae028134c11e6a1483e1d05defe78'),
   ('role5', '7f8ae2a8134c11e6a1483e1d05defe78');
 
-INSERT INTO UM_RESOURCE (DOMAIN_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID)
-VALUES ('reg', 'root/resource/id', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore');
+INSERT INTO UM_RESOURCE_NAMESPACE (NAMESPACE, DESCRIPTION)
+VALUES ('reg', 'Represents a registry resource/action');
 
-INSERT INTO UM_ACTION (DOMAIN_ID, ACTION_NAME)
-VALUES ('reg', 'add'),
-  ('reg', 'delete'),
-  ('reg','update'),
-  ('reg', 'action1'),
-  ('reg', 'action2');
+INSERT INTO UM_RESOURCE (NAMESPACE_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID)
+VALUES (1, 'root/resource/id', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore');
+
+INSERT INTO UM_ACTION (NAMESPACE_ID, ACTION_NAME)
+VALUES (1, 'add'),
+  (1, 'delete'),
+  (1,'update'),
+  (1, 'action1'),
+  (1, 'action2');
 
 INSERT INTO UM_PERMISSION (RESOURCE_ID, ACTION_ID, PERMISSION_UNIQUE_ID)
 VALUES (1, 1, 'f61a1c240df011e6a1483e1d05defe78'),

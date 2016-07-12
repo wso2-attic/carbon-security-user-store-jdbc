@@ -32,7 +32,7 @@ public class ConnectorConstants {
         public static final String ROLE_NAME = "role_name";
         public static final String ROLE_ID = "role_id";
         public static final String PERMISSION_ID = "permission_id";
-        public static final String ACTION_DOMAIN = "action_domain";
+        public static final String ACTION_ACTION_NAMESPACE = "action_namespace";
         public static final String USERNAME = "username";
         public static final String USER_ID = "user_id";
         public static final String GROUP_NAME = "group_name";
@@ -45,7 +45,7 @@ public class ConnectorConstants {
         public static final String ROLE_UNIQUE_ID = "role_unique_id";
         public static final String RESOURCE_NAME = "resource_name";
         public static final String ACTION_NAME = "action_name";
-        public static final String RESOURCE_DOMAIN = "resource_domain";
+        public static final String RESOURCE_NAMESPACE = "resource_namespace";
         public static final String RESOURCE_ID = "resource_id";
         public static final String ACTION_ID = "action_id";
     }
