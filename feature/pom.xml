@@ -50,10 +50,55 @@
             <groupId>org.wso2.carbon.datasources</groupId>
             <artifactId>org.wso2.carbon.datasource.core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>clean-h2-database</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete file="resources/database/WSO2CARBON_DB.mv.db" />
+                                <delete file="resources/database/WSO2CARBON_DB.trace.db" />
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-carbon-database</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <path id="h2.classpath">
+                                    <path refid="maven.compile.classpath" />
+                                </path>
+                                <echo message="########### Creating Carbon Database ##############" />
+                                <sql driver="org.h2.Driver" url="jdbc:h2:${basedir}/resources/database/WSO2CARBON_DB;create=true" userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
+                                    <classpath>
+                                        <path refid="h2.classpath" />
+                                    </classpath>
+                                    <fileset file="${basedir}/resources/dbscripts/WSO2CARBON_DB.sql" />
+                                </sql>
+                                <echo message="##################### END ########################" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
@@ -72,6 +117,8 @@
                                         <include>conf/jdbc-identity-connector.yml</include>
                                         <include>conf/jdbc-credential-connector.yml</include>
                                         <include>conf/jdbc-authorization-connector.yml</include>
+                                        <include>database/**</include>
+                                        <include>datasources/jdbc-userstore-datasources.xml</include>
                                         <include>dbscripts/WSO2CARBON_DB.sql</include>
                                         <include>p2.inf</include>
                                     </includes>
@@ -110,6 +157,11 @@
                                     <symbolicName>org.wso2.carbon.security.userstore.jdbc</symbolicName>
                                     <version>${carbon.security.userstore.jdbc.version}</version>
                                 </bundle>
+                                <!-- TODO: Move this into importFeatures once H2 feature is available. -->
+                                <bundle>
+                                    <symbolicName>org.h2</symbolicName>
+                                    <version>${com.h2database.h2.version}</version>
+                                </bundle>
                             </bundles>
                             <importFeatures>
                                 <feature>
@@ -139,6 +191,7 @@
                         <configuration>
                             <target>
                                 <delete dir="src/main/resources" />
+                                <delete dir="resources/database" />
                                 <delete dir="src/main" />
                                 <delete dir="src" />
                             </target>
