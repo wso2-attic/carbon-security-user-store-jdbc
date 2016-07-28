@@ -1,3 +1,13 @@
 instructions.configure = \
+org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../../conf); \
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.security.userstore.jdbc_${feature.version}/conf,target:${installFolder}/../../../conf/security,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.security.userstore.jdbc_${feature.version}/dbscripts,target:${installFolder}/../../../dbscripts,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.security.userstore.jdbc_${feature.version}/datasources,target:${installFolder}/../../../conf/datasources,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../../features/org.wso2.carbon.security.userstore.jdbc_${feature.version}/database,target:${installFolder}/../../../database,overwrite:true);\
+
+instructions.unconfigure = \
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../../../conf/security/jdbc-authorization-connector.yml);\
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../../../conf/security/jdbc-credential-connector.yml);\
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../../../conf/security/jdbc-identity-connector.yml);\
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../../../dbscripts/jdbc-userstore-datasources.xml);\
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../../../database/WSO2CARBON_DB.mv.db);\
