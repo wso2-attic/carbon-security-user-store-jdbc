@@ -360,6 +360,62 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
+    public Map<String, String> getGroupAttributeValues(String groupId) throws IdentityStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ATTRIBUTES));
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                Map<String, String> groupAttributes = new HashMap<>();
+                while (resultSet.next()) {
+                    String attributeName = resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_NAME);
+                    String attributeValue = resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_VALUE);
+                    groupAttributes.put(attributeName, attributeValue);
+                }
+
+                return groupAttributes;
+            }
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while retrieving attribute values of the group.", e);
+        }
+    }
+
+    @Override
+    public Map<String, String> getGroupAttributeValues(String groupId, List<String> attributeNames)
+            throws IdentityStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            Map<String, Integer> repetitions = new HashMap<>();
+            repetitions.put(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAMES, attributeNames.size());
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ATTRIBUTES_FROM_NAME),
+                    repetitions);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAMES, attributeNames);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                Map<String, String> groupAttributes = new HashMap<>();
+                while (resultSet.next()) {
+                    String attributeName = resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_NAME);
+                    String attributeValue = resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_VALUE);
+                    groupAttributes.put(attributeName, attributeValue);
+                }
+
+                return groupAttributes;
+            }
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while retrieving attribute values of the group.", e);
+        }
+    }
+
+    @Override
     public List<Group.GroupBuilder> getGroupsOfUser(String userId) throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {

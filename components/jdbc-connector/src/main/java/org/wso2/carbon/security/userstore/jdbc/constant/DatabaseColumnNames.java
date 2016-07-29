@@ -62,6 +62,14 @@ public class DatabaseColumnNames {
     }
 
     /**
+     * Names of the GroupAttributes table columns.
+     */
+    public static final class GroupAttributes {
+        public static final String ATTR_NAME = "ATTR_NAME";
+        public static final String ATTR_VALUE = "ATTR_VALUE";
+    }
+
+    /**
      * Names of the UserGroup table columns.
      */
     public static final class UserGroup {

@@ -70,6 +70,15 @@
             org.wso2.carbon.security.*;version="${org.wso2.carbon.security.version.range}"
         </import.package>
 
+        <carbon.component>
+            osgi.service;
+            objectClass="org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory",
+            osgi.service;
+            objectClass="org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnectorFactory",
+            osgi.service;
+            objectClass="org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory"
+        </carbon.component>
+
         <dsannotations>*</dsannotations>
 
         <!-- OSGi API version range-->

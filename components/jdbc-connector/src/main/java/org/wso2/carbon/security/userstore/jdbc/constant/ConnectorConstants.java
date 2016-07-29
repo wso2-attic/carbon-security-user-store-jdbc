@@ -113,5 +113,8 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_ADD_ACTION = "sql_query_add_action_if_not_exist";
         public static final String SQL_QUERY_GET_RESOURCE_ID = "sql_query_get_resource_id";
         public static final String SQL_QUERY_GET_ACTION_ID = "sql_query_get_action_id";
+        public static final String SQL_QUERY_GET_GROUP_ATTRIBUTES = "sql_query_get_group_attributes";
+        public static final String SQL_QUERY_GET_GROUP_ATTRIBUTES_FROM_NAME =
+                "sql_query_get_group_attributes_from_name";
     }
 }

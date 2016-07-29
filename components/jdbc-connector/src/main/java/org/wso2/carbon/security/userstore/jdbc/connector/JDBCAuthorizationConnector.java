@@ -269,6 +269,13 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
+    public List<Permission.PermissionBuilder> getPermissionsForRole(String s, Action action)
+            throws AuthorizationStoreException {
+        // TODO: Implement this method.
+        return null;
+    }
+
+    @Override
     public boolean isUserInRole(String userId, String identityStoreId, String roleName)
             throws AuthorizationStoreException {
 

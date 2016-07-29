@@ -377,6 +377,22 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                   "WHERE NAMESPACE = :action_namespace;) " +
             "AND ACTION_NAME = :action_name;";
 
+    private static final String GET_GROUP_ATTRIBUTES =
+            "SELECT ATTR_NAME, ATTR_VALUE " +
+            "FROM UM_GROUP_ATTRIBUTES " +
+            "WHERE GROUP_ID = (SELECT GROUP_ID " +
+                              "FROM UM_GROUP " +
+                              "WHERE GROUP_UNIQUE_ID = :group_id;)";
+
+    private static final String GET_GROUP_ATTRIBUTES_FROM_NAME =
+            "SELECT ATTR_NAME, ATTR_VALUE " +
+            "FROM UM_GROUP_ATTRIBUTES " +
+            "WHERE GROUP_ID = (SELECT ID " +
+                              "FROM UM_GROUP " +
+                              "WHERE GROUP_UNIQUE_ID = :group_id;) " +
+            "AND ATTR_NAME IN (:attr_names;)";
+
+
     public MySQLFamilySQLQueryFactory() {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH, COMPARE_PASSWORD_HASH);
@@ -441,5 +457,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_RESOURCE, ADD_RESOURCE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ACTION_ID, GET_ACTION_ID);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ACTION, ADD_ACTION);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ATTRIBUTES, GET_GROUP_ATTRIBUTES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ATTRIBUTES_FROM_NAME,
+                GET_GROUP_ATTRIBUTES_FROM_NAME);
     }
 }
