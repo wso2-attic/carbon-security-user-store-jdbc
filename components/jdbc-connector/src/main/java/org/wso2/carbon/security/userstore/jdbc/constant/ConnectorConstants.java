@@ -32,8 +32,7 @@ public class ConnectorConstants {
         public static final String ROLE_NAME = "role_name";
         public static final String ROLE_ID = "role_id";
         public static final String PERMISSION_ID = "permission_id";
-        public static final String RESOURCE_ID = "resource_id";
-        public static final String ACTION = "action";
+        public static final String ACTION_NAMESPACE = "action_namespace";
         public static final String USERNAME = "username";
         public static final String USER_ID = "user_id";
         public static final String GROUP_NAME = "group_name";
@@ -43,6 +42,15 @@ public class ConnectorConstants {
         public static final String LENGTH = "length";
         public static final String OFFSET = "offset";
         public static final String ATTRIBUTE_NAMES = "attr_names";
+        public static final String ROLE_UNIQUE_ID = "role_unique_id";
+        public static final String RESOURCE_NAME = "resource_name";
+        public static final String ACTION_NAME = "action_name";
+        public static final String RESOURCE_NAMESPACE = "resource_namespace";
+        public static final String RESOURCE_ID = "resource_id";
+        public static final String ACTION_ID = "action_id";
+        public static final String NAMESPACE = "namespace";
+        public static final String DESCRIPTION = "description";
+        public static final String NAMESPACE_ID = "namespace_id";
     }
 
     /**
@@ -78,7 +86,8 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_RENAME_USER = "sql_query_rename_user";
         public static final String SQL_QUERY_GET_ROLE = "sql_query_get_role";
         public static final String SQL_QUERY_GET_ROLES_FOR_USER = "sql_query_get_roles_for_user";
-        public static final String SQL_QUERY_GET_PERMISSIONS_FOR_ROLE = "sql_query_get_permissions_for_role";
+        public static final String SQL_QUERY_GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE =
+                "sql_query_get_permissions_from_resource_for_role";
         public static final String SQL_QUERY_GET_ROLES_FOR_GROUP = "sql_query_get_roles_for_group";
         public static final String SQL_QUERY_LIST_GROUP = "sql_query_list_group";
         public static final String SQL_QUERY_ADD_PERMISSION = "sql_query_add_permission";
@@ -104,5 +113,16 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE =
                 "sql_query_delete_given_permissions_from_role";
         public static final String SQL_QUERY_GET_PERMISSION = "sql_query_get_permission";
+        public static final String SQL_QUERY_ADD_RESOURCE = "sql_query_add_resource_if_not_exist";
+        public static final String SQL_QUERY_ADD_ACTION = "sql_query_add_action_if_not_exist";
+        public static final String SQL_QUERY_GET_RESOURCE_ID = "sql_query_get_resource_id";
+        public static final String SQL_QUERY_GET_ACTION_ID = "sql_query_get_action_id";
+        public static final String SQL_QUERY_GET_GROUP_ATTRIBUTES = "sql_query_get_group_attributes";
+        public static final String SQL_QUERY_GET_GROUP_ATTRIBUTES_FROM_NAME =
+                "sql_query_get_group_attributes_from_name";
+        public static final String SQL_QUERY_GET_PERMISSIONS_FROM_ACTION_FOR_ROLE =
+                "sql_query_get_permissions_from_action_for_role";
+        public static final String SQL_QUERY_GET_NAMESPACE_ID = "sql_query_get_namespace_id";
+        public static final String SQL_QUERY_ADD_NAMESPACE = "sql_query_add_namespace";
     }
 }

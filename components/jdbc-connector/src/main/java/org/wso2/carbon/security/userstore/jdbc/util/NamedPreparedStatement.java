@@ -47,7 +47,7 @@ public class NamedPreparedStatement {
 
             int end = sqlQuery.substring(pos).indexOf(";");
             if (end == -1) {
-                end = sqlQuery.length();
+                throw new SQLException("Cannot find the end of the placeholder.");
             } else {
                 end += pos;
             }

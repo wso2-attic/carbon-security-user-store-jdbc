@@ -183,14 +183,27 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                         "FROM UM_USER_ROLE " +
                         "WHERE USER_UNIQUE_ID = :user_id;)";
 
-    private static final String GET_PERMISSIONS_FOR_ROLE =
-            "SELECT RESOURCE_ID, ACTION, PERMISSION_UNIQUE_ID " +
+    private static final String GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE =
+            "SELECT RESOURCE_NAMESPACE.NAMESPACE, UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, " +
+                    "UM_RESOURCE.IDENTITY_STORE_ID, ACTION_NAMESPACE.NAMESPACE, UM_ACTION.ACTION_NAME, " +
+                    "UM_PERMISSION.PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
-            "WHERE ID IN (SELECT PERMISSION_ID " +
-                        "FROM UM_ROLE_PERMISSION " +
-                        "WHERE ROLE_ID = (SELECT ID " +
-                                         "FROM UM_ROLE " +
-                                         "WHERE ROLE_UNIQUE_ID = :role_id;))";
+            "LEFT JOIN UM_RESOURCE ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
+            "LEFT JOIN UM_RESOURCE_NAMESPACE AS RESOURCE_NAMESPACE ON UM_RESOURCE.NAMESPACE_ID = " +
+                    "RESOURCE_NAMESPACE.ID " +
+            "LEFT JOIN UM_ACTION ON UM_PERMISSION.ACTION_ID = UM_ACTION.ID " +
+            "LEFT JOIN UM_RESOURCE_NAMESPACE AS ACTION_NAMESPACE ON UM_ACTION.NAMESPACE_ID = " +
+                    "ACTION_NAMESPACE.ID " +
+            "WHERE UM_PERMISSION.ID IN (SELECT PERMISSION_ID " +
+                                       "FROM UM_ROLE_PERMISSION " +
+                                       "WHERE ROLE_ID = (SELECT ID " +
+                                                        "FROM UM_ROLE " +
+                                                        "WHERE ROLE_UNIQUE_ID = :role_id;)) " +
+            "AND UM_PERMISSION.RESOURCE_ID IN (SELECT ID FROM UM_RESOURCE " +
+                                              "WHERE NAMESPACE_ID IN (SELECT ID " +
+                                                                     "FROM UM_RESOURCE_NAMESPACE " +
+                                                                     "WHERE NAMESPACE LIKE :resource_namespace;) " +
+                                              "AND RESOURCE_NAME LIKE :resource_name;)";
 
     private static final String GET_ROLES_FOR_GROUP =
             "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
@@ -208,8 +221,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "OFFSET :offset;";
 
     private static final String ADD_PERMISSION =
-            "INSERT INTO UM_PERMISSION (RESOURCE_ID, ACTION, PERMISSION_UNIQUE_ID) " +
-            "VALUES (:resource_id;, :action;, :permission_id;)";
+            "INSERT INTO UM_PERMISSION (RESOURCE_ID, ACTION_ID, PERMISSION_UNIQUE_ID) " +
+            "VALUES (:resource_id;, :action_id;, :permission_id;)";
 
     private static final String ADD_ROLE =
             "INSERT INTO UM_ROLE (ROLE_NAME, ROLE_UNIQUE_ID) " +
@@ -319,9 +332,89 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "AND PERMISSION_ID = (SELECT ID FROM UM_PERMISSION WHERE PERMISSION_UNIQUE_ID = :permission_id;)";
 
     private static final String GET_PERMISSION =
-            "SELECT PERMISSION_UNIQUE_ID " +
+            "SELECT UM_PERMISSION.PERMISSION_UNIQUE_ID, UM_RESOURCE.USER_UNIQUE_ID, UM_RESOURCE.IDENTITY_STORE_ID " +
+            "FROM UM_PERMISSION LEFT JOIN UM_RESOURCE " +
+            "ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
+            "WHERE RESOURCE_ID = (SELECT ID " +
+                                 "FROM UM_RESOURCE " +
+                                 "WHERE NAMESPACE_ID = (SELECT ID " +
+                                                       "FROM UM_RESOURCE_NAMESPACE " +
+                                                       "WHERE NAMESPACE = :resource_namespace;) " +
+                                 "AND RESOURCE_NAME = :resource_name;) " +
+            "AND ACTION_ID = (SELECT ID " +
+                             "FROM UM_ACTION " +
+                             "WHERE NAMESPACE_ID = (SELECT ID " +
+                                                   "FROM UM_RESOURCE_NAMESPACE " +
+                                                   "WHERE NAMESPACE = :action_namespace;) " +
+                             "AND ACTION_NAME = :action_name;) ";
+
+    private static final String ADD_NAMESPACE =
+            "INSERT INTO UM_RESOURCE_NAMESPACE(NAMESPACE, DESCRIPTION) " +
+            "VALUES (:namespace;, :description;)";
+
+    private static final String GET_NAMESPACE_ID =
+            "SELECT ID FROM UM_RESOURCE_NAMESPACE " +
+            "WHERE NAMESPACE = :namespace;";
+
+    private static final String ADD_RESOURCE =
+            "INSERT INTO UM_RESOURCE(NAMESPACE_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID) " +
+            "VALUES (:namespace_id;, :resource_name;, :user_id;, :identity_store_id;)";
+
+    private static final String ADD_ACTION =
+            "INSERT INTO UM_ACTION(NAMESPACE_ID, ACTION_NAME) " +
+            "VALUES (:namespace_id;, :action_name;)";
+
+    private static final String GET_RESOURCE_ID =
+            "SELECT ID " +
+            "FROM UM_RESOURCE " +
+            "WHERE NAMESPACE_ID = (SELECT ID " +
+                               "FROM UM_RESOURCE_NAMESPACE " +
+                               "WHERE NAMESPACE = :resource_namespace;) " +
+            "AND RESOURCE_NAME = :resource_name;";
+
+    private static final String GET_ACTION_ID =
+            "SELECT ID FROM UM_ACTION " +
+            "WHERE NAMESPACE_ID = (SELECT ID " +
+                                  "FROM UM_RESOURCE_NAMESPACE " +
+                                  "WHERE NAMESPACE = :action_namespace;) " +
+            "AND ACTION_NAME = :action_name;";
+
+    private static final String GET_GROUP_ATTRIBUTES =
+            "SELECT ATTR_NAME, ATTR_VALUE " +
+            "FROM UM_GROUP_ATTRIBUTES " +
+            "WHERE GROUP_ID = (SELECT GROUP_ID " +
+                              "FROM UM_GROUP " +
+                              "WHERE GROUP_UNIQUE_ID = :group_id;)";
+
+    private static final String GET_GROUP_ATTRIBUTES_FROM_NAME =
+            "SELECT ATTR_NAME, ATTR_VALUE " +
+            "FROM UM_GROUP_ATTRIBUTES " +
+            "WHERE GROUP_ID = (SELECT ID " +
+                              "FROM UM_GROUP " +
+                              "WHERE GROUP_UNIQUE_ID = :group_id;) " +
+            "AND ATTR_NAME IN (:attr_names;)";
+
+    private static final String GET_PERMISSIONS_FROM_ACTION_FOR_ROLE =
+            "SELECT RESOURCE_NAMESPACE.NAMESPACE, UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, " +
+                    "UM_RESOURCE.IDENTITY_STORE_ID, ACTION_NAMESPACE.NAMESPACE, UM_ACTION.ACTION_NAME, " +
+                    "UM_PERMISSION.PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
-            "WHERE RESOURCE_ID = :resource_id; AND ACTION = :action;";
+            "LEFT JOIN UM_RESOURCE ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
+            "LEFT JOIN UM_RESOURCE_NAMESPACE AS RESOURCE_NAMESPACE ON UM_RESOURCE.NAMESPACE_ID = " +
+                    "RESOURCE_NAMESPACE.ID " +
+            "LEFT JOIN UM_ACTION ON UM_PERMISSION.ACTION_ID = UM_ACTION.ID " +
+            "LEFT JOIN UM_RESOURCE_NAMESPACE AS ACTION_NAMESPACE ON UM_ACTION.NAMESPACE_ID = " +
+                    "ACTION_NAMESPACE.ID " +
+            "WHERE UM_PERMISSION.ID IN (SELECT PERMISSION_ID " +
+                                       "FROM UM_ROLE_PERMISSION " +
+                                       "WHERE ROLE_ID = (SELECT ID " +
+                                                        "FROM UM_ROLE " +
+                                                        "WHERE ROLE_UNIQUE_ID = :role_id;)) " +
+            "AND UM_PERMISSION.ACTION_ID IN (SELECT ID FROM UM_ACTION " +
+                                            "WHERE NAMESPACE_ID IN (SELECT ID " +
+                                                                   "FROM UM_RESOURCE_NAMESPACE " +
+                                                                   "WHERE NAMESPACE LIKE :resource_namespace;) " +
+                                            "AND RESOURCE_NAME LIKE :action_name;)";
 
     public MySQLFamilySQLQueryFactory() {
 
@@ -354,7 +447,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_GROUP, IS_USER_IN_GROUP);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLE, GET_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_USER, GET_ROLES_FOR_USER);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FOR_ROLE, GET_PERMISSIONS_FOR_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE,
+                GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_GROUP, GET_ROLES_FOR_GROUP);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP, LIST_GROUP);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSION, ADD_PERMISSION);
@@ -383,5 +477,16 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE,
                 DELETE_GIVEN_PERMISSIONS_FROM_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION, GET_PERMISSION);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCE_ID, GET_RESOURCE_ID);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_RESOURCE, ADD_RESOURCE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ACTION_ID, GET_ACTION_ID);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ACTION, ADD_ACTION);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ATTRIBUTES, GET_GROUP_ATTRIBUTES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_ATTRIBUTES_FROM_NAME,
+                GET_GROUP_ATTRIBUTES_FROM_NAME);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FROM_ACTION_FOR_ROLE,
+                GET_PERMISSIONS_FROM_ACTION_FOR_ROLE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_NAMESPACE_ID, GET_NAMESPACE_ID);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_NAMESPACE, ADD_NAMESPACE);
     }
 }

@@ -27,8 +27,10 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+import org.wso2.carbon.security.caas.user.core.bean.Action;
 import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.bean.Permission;
+import org.wso2.carbon.security.caas.user.core.bean.Resource;
 import org.wso2.carbon.security.caas.user.core.bean.Role;
 import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.claim.Claim;
@@ -78,7 +80,10 @@ public class JDBCConnectorTests {
     private static final String DEFAULT_IDENTITY_STORE = "JDBCIdentityStore";
     private static final String DEFAULT_CREDENTIAL_STORE = "JDBCCredentialStore";
     private static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAuthorizationStore";
-    private static final Permission DEFAULT_PERMISSION = new Permission("root/resource/id", "add");
+    private static final Resource DEFAULT_RESOURCE = new Resource("reg", "root/resource/id",
+            "41dadd2aea6e11e59ce95e5517507c66", "JDBCIdentityStore");
+    private static final Action ACTION_ADD = new Action("reg", "add");
+    private static final Permission DEFAULT_PERMISSION = new Permission(DEFAULT_RESOURCE, ACTION_ADD);
 
     @Inject
     private BundleContext bundleContext;
@@ -143,7 +148,6 @@ public class JDBCConnectorTests {
                 .artifactId("h2")
                 .versionAsInProject());
 
-
         CarbonSysPropConfiguration sysPropConfiguration = new CarbonSysPropConfiguration();
         sysPropConfiguration.setCarbonHome(System.getProperty("carbon.home"));
         sysPropConfiguration.setServerKey("carbon-security");
@@ -197,7 +201,7 @@ public class JDBCConnectorTests {
     public void testAddNewRoleValid() throws AuthorizationStoreException {
 
         List<Permission> permissions = new ArrayList<>();
-        permissions.add(new Permission.PermissionBuilder("root/resource/id", "add", DEFAULT_PERMISSION_ID,
+        permissions.add(new Permission.PermissionBuilder(DEFAULT_RESOURCE, ACTION_ADD, DEFAULT_PERMISSION_ID,
                 DEFAULT_AUTHORIZATION_STORE).build());
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
@@ -206,12 +210,32 @@ public class JDBCConnectorTests {
         assertNotNull(role.getRoleId());
     }
 
+    @Test(priority = 3)
+    public void testAddNewActionValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        Action action = authorizationStore.addAction("reg", "test-action", DEFAULT_AUTHORIZATION_STORE);
+
+        assertNotNull(action);
+    }
+
+    @Test(priority = 3)
+    public void testAddNewResourceValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        Resource resource = authorizationStore.addResource("reg", "root/resource/test-resource",
+                DEFAULT_AUTHORIZATION_STORE, DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+
+        assertNotNull(resource);
+    }
+
     @Test(priority = 4)
     public void testAddNewPermissionValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        Permission permission = authorizationStore
-                .addPermission("root/resource/id", "delete", DEFAULT_AUTHORIZATION_STORE);
+        Permission permission = authorizationStore.addPermission(new Resource("reg", "root/resource/test-resource",
+                DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE), new Action("reg", "test-action"),
+                DEFAULT_AUTHORIZATION_STORE);
 
         assertNotNull(permission.getPermissionId());
     }
@@ -241,8 +265,8 @@ public class JDBCConnectorTests {
     public void testGetPermissionValid() throws PermissionNotFoundException, AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        assertNotNull(authorizationStore
-                .getPermission(DEFAULT_PERMISSION.getResourceId(), DEFAULT_PERMISSION.getAction()));
+        assertNotNull(authorizationStore.getPermission(DEFAULT_PERMISSION.getResource().getResourceString(),
+                DEFAULT_PERMISSION.getAction().getActionString()));
     }
 
     @Test(priority = 9)
@@ -264,7 +288,7 @@ public class JDBCConnectorTests {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         authorizationStore.deletePermission(new Permission
-                .PermissionBuilder("root/resource/id", "action2", "e890c688135011e6a1483e1d05defe78",
+                .PermissionBuilder(DEFAULT_RESOURCE, new Action("reg", "action2"), "e890c688135011e6a1483e1d05defe78",
                 DEFAULT_AUTHORIZATION_STORE).build());
     }
 
@@ -512,10 +536,10 @@ public class JDBCConnectorTests {
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
 
         List<Permission> permissions = new ArrayList<>();
-        permissions.add(new Permission.PermissionBuilder("root/resource/id", "add", "f61a1c240df011e6a1483e1d05defe78",
-                DEFAULT_AUTHORIZATION_STORE)
+        permissions.add(new Permission.PermissionBuilder(DEFAULT_RESOURCE, ACTION_ADD,
+                "f61a1c240df011e6a1483e1d05defe78", DEFAULT_AUTHORIZATION_STORE)
                 .build());
-        permissions.add(new Permission.PermissionBuilder("root/resource/id", "delete",
+        permissions.add(new Permission.PermissionBuilder(DEFAULT_RESOURCE, new Action("reg", "delete"),
                 "64335ff4106211e6a1483e1d05defe78", DEFAULT_AUTHORIZATION_STORE)
                 .build());
 
@@ -528,10 +552,10 @@ public class JDBCConnectorTests {
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
 
         List<Permission> permissions = new ArrayList<>();
-        permissions.add(new Permission.PermissionBuilder("root/resource/id", "add", "f61a1c240df011e6a1483e1d05defe78",
-                DEFAULT_AUTHORIZATION_STORE)
+        permissions.add(new Permission.PermissionBuilder(DEFAULT_RESOURCE, ACTION_ADD,
+                "f61a1c240df011e6a1483e1d05defe78", DEFAULT_AUTHORIZATION_STORE)
                 .build());
-        permissions.add(new Permission.PermissionBuilder("root/resource/id", "delete",
+        permissions.add(new Permission.PermissionBuilder(DEFAULT_RESOURCE, new Action("reg", "delete"),
                 "64335ff4106211e6a1483e1d05defe78", DEFAULT_AUTHORIZATION_STORE)
                 .build());
 
@@ -546,10 +570,14 @@ public class JDBCConnectorTests {
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         IdentityStore identityStore = realmService.getIdentityStore();
 
+        // Add actions.
+        Action action1 = authorizationStore.addAction("reg", "test-action1", DEFAULT_AUTHORIZATION_STORE);
+        Action action2 = authorizationStore.addAction("reg", "test-action2", DEFAULT_AUTHORIZATION_STORE);
+
         // Add permissions.
-        Permission permission1 = authorizationStore.addPermission("root/resource/id", "test-permission1",
+        Permission permission1 = authorizationStore.addPermission(DEFAULT_RESOURCE, action1,
                 DEFAULT_AUTHORIZATION_STORE);
-        Permission permission2 = authorizationStore.addPermission("root/resource/id", "test-permission2",
+        Permission permission2 = authorizationStore.addPermission(DEFAULT_RESOURCE, action2,
                 DEFAULT_AUTHORIZATION_STORE);
 
         List<Permission> permissions = new ArrayList<>();

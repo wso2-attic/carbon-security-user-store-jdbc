@@ -62,6 +62,14 @@ public class DatabaseColumnNames {
     }
 
     /**
+     * Names of the GroupAttributes table columns.
+     */
+    public static final class GroupAttributes {
+        public static final String ATTR_NAME = "ATTR_NAME";
+        public static final String ATTR_VALUE = "ATTR_VALUE";
+    }
+
+    /**
      * Names of the UserGroup table columns.
      */
     public static final class UserGroup {
@@ -84,9 +92,37 @@ public class DatabaseColumnNames {
      */
     public static final class Permission {
         public static final String ID = "ID";
-        public static final String RESOURCE_ID = "RESOURCE_ID";
-        public static final String ACTION = "ACTION";
+        public static final String RESOURCE_ID = "DOMAIN";
+        public static final String ACTION = "ACTION_NAMESPACE";
         public static final String PERMISSION_ID = "PERMISSION_UNIQUE_ID";
+    }
+
+    /**
+     * Names of the Resource Namespace table columns.
+     */
+    public static final class ResourceNamespace {
+        public static final String ID = "ID";
+        public static final String NAMESPACE = "NAMESPACE";
+    }
+
+    /**
+     * Names of the Resource table columns.
+     */
+    public static final class Resource {
+        public static final String ID = "ID";
+        public static final String NAMESPACE_ID = "NAMESPACE_ID";
+        public static final String RESOURCE_NAME = "RESOURCE_NAME";
+        public static final String USER_UNIQUE_ID = "USER_UNIQUE_ID";
+        public static final String IDENTITY_STORE_ID = "IDENTITY_STORE_ID";
+    }
+
+    /**
+     * Names of the Action table columns.
+     */
+    public static final class Action {
+        public static final String ID = "ID";
+        public static final String NAMESPACE_ID = "NAMESPACE_ID";
+        public static final String ACTION_NAME = "ACTION_NAME";
     }
 
     /**
