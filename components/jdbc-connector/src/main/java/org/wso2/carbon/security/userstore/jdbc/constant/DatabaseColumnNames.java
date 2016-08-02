@@ -93,7 +93,7 @@ public class DatabaseColumnNames {
     public static final class Permission {
         public static final String ID = "ID";
         public static final String RESOURCE_ID = "DOMAIN";
-        public static final String ACTION = "ACTION_ACTION_NAMESPACE";
+        public static final String ACTION = "ACTION_NAMESPACE";
         public static final String PERMISSION_ID = "PERMISSION_UNIQUE_ID";
     }
 

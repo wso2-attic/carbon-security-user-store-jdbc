@@ -210,6 +210,25 @@ public class JDBCConnectorTests {
         assertNotNull(role.getRoleId());
     }
 
+    @Test(priority = 3)
+    public void testAddNewActionValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        Action action = authorizationStore.addAction("reg", "test-action", DEFAULT_AUTHORIZATION_STORE);
+
+        assertNotNull(action);
+    }
+
+    @Test(priority = 3)
+    public void testAddNewResourceValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        Resource resource = authorizationStore.addResource("reg", "root/resource/test-resource",
+                DEFAULT_AUTHORIZATION_STORE, DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+
+        assertNotNull(resource);
+    }
+
     @Test(priority = 4)
     public void testAddNewPermissionValid() throws AuthorizationStoreException {
 
@@ -551,10 +570,14 @@ public class JDBCConnectorTests {
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         IdentityStore identityStore = realmService.getIdentityStore();
 
+        // Add actions.
+        Action action1 = authorizationStore.addAction("reg", "test-action1", DEFAULT_AUTHORIZATION_STORE);
+        Action action2 = authorizationStore.addAction("reg", "test-action2", DEFAULT_AUTHORIZATION_STORE);
+
         // Add permissions.
-        Permission permission1 = authorizationStore.addPermission(DEFAULT_RESOURCE, new Action("reg", "test-action1"),
+        Permission permission1 = authorizationStore.addPermission(DEFAULT_RESOURCE, action1,
                 DEFAULT_AUTHORIZATION_STORE);
-        Permission permission2 = authorizationStore.addPermission(DEFAULT_RESOURCE, new Action("reg", "test-action2"),
+        Permission permission2 = authorizationStore.addPermission(DEFAULT_RESOURCE, action2,
                 DEFAULT_AUTHORIZATION_STORE);
 
         List<Permission> permissions = new ArrayList<>();
