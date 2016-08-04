@@ -35,7 +35,7 @@ public class DefaultPasswordHandler implements PasswordHandler {
 
     private static final String KEY_FACTORY_ALGO_HEAD = "PBKDF2WithHmac";
 
-    private int iterationCount = 4056;
+    private int iterationCount = 4096;
     private int keyLength = 256;
 
     /**

@@ -283,6 +283,30 @@ public class JDBCConnectorTests {
         assertNotNull(authorizationStore.getGroupsOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE));
     }
 
+    @Test(priority = 10)
+    public void testGetPermissionsForRoleFromResourceValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        List<Permission> permissions = authorizationStore
+                .getPermissionsOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, DEFAULT_RESOURCE);
+
+        assertNotNull(permissions);
+    }
+
+    @Test(priority = 10)
+    public void testGetPermissionsForRoleFromActionValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+
+        Action action = new Action("reg", "add");
+
+        List<Permission> permissions = authorizationStore
+                .getPermissionsOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, action);
+
+        assertNotNull(permissions);
+    }
+
     @Test(priority = 11)
     public void testDeletePermission() throws AuthorizationStoreException {
 
