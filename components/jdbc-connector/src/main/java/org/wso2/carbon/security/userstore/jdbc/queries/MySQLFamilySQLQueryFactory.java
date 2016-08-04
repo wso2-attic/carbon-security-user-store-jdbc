@@ -413,7 +413,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "AND UM_PERMISSION.ACTION_ID IN (SELECT ID FROM UM_ACTION " +
                                             "WHERE NAMESPACE_ID IN (SELECT ID " +
                                                                    "FROM UM_RESOURCE_NAMESPACE " +
-                                                                   "WHERE NAMESPACE LIKE :resource_namespace;) " +
+                                                                   "WHERE NAMESPACE LIKE :action_namespace;) " +
                                             "AND RESOURCE_NAME LIKE :action_name;)";
 
     public MySQLFamilySQLQueryFactory() {
