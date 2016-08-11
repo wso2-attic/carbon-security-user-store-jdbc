@@ -286,7 +286,7 @@
                                 <phase>prepare-package</phase>
                                 <configuration>
                                     <target xmlns:jacoco="antlib:org.jacoco.ant">
-                                        //this task is to provide class/src files locations for jacoco report generation
+                                        // This task is to provide class/src files locations for jacoco report generation
                                         <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
                                             <classpath path="${project.build.directory}" />
                                         </taskdef>
