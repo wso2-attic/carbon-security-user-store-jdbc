@@ -28,7 +28,7 @@ CREATE TABLE UM_USER
 (
   ID                  INTEGER AUTO_INCREMENT PRIMARY KEY NOT NULL,
   USER_UNIQUE_ID      VARCHAR(64)                        NOT NULL,
-  USERNAME            VARCHAR(255)                       NOT NULL,
+  USERNAME            VARCHAR(255) UNIQUE                NOT NULL,
   IDENTITY_STORE_ID   VARCHAR(255)                       NOT NULL,
   CREDENTIAL_STORE_ID VARCHAR(255)                       NOT NULL,
   TENANT_ID           INTEGER                            NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE UM_ROLE
 (
   ID             INTEGER AUTO_INCREMENT PRIMARY KEY NOT NULL,
   ROLE_UNIQUE_ID VARCHAR(64)                        NOT NULL,
-  ROLE_NAME      VARCHAR(255)                       NOT NULL
+  ROLE_NAME      VARCHAR(255) UNIQUE                NOT NULL
 );
 
 CREATE TABLE UM_RESOURCE_NAMESPACE

@@ -211,10 +211,32 @@ public class JDBCConnectorTests {
     }
 
     @Test(priority = 3)
+    public void testAddNewRoleToPrimaryValid() throws AuthorizationStoreException {
+
+        List<Permission> permissions = new ArrayList<>();
+        permissions.add(new Permission.PermissionBuilder(DEFAULT_RESOURCE, ACTION_ADD, DEFAULT_PERMISSION_ID,
+                DEFAULT_AUTHORIZATION_STORE).build());
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        Role role = authorizationStore.addRole("test1", permissions);
+
+        assertNotNull(role.getRoleId());
+    }
+
+    @Test(priority = 3)
     public void testAddNewActionValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         Action action = authorizationStore.addAction("reg", "test-action", DEFAULT_AUTHORIZATION_STORE);
+
+        assertNotNull(action);
+    }
+
+    @Test(priority = 3)
+    public void testAddNewActionToPrimaryValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        Action action = authorizationStore.addAction("reg", "test-action-1");
 
         assertNotNull(action);
     }
@@ -229,12 +251,32 @@ public class JDBCConnectorTests {
         assertNotNull(resource);
     }
 
+    @Test(priority = 3)
+    public void testAddNewResourceToPrimaryValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        Resource resource = authorizationStore.addResource("reg", "root/resource/test-resource-1", DEFAULT_USER_ID,
+                DEFAULT_IDENTITY_STORE);
+
+        assertNotNull(resource);
+    }
+
     @Test(priority = 4)
     public void testAddNewPermissionValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         Permission permission = authorizationStore.addPermission(new Resource("reg", "root/resource/test-resource",
-                DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE), new Action("reg", "test-action"),
+                DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE), new Action("reg", "test-action"));
+
+        assertNotNull(permission.getPermissionId());
+    }
+
+    @Test(priority = 4)
+    public void testAddNewPermissionToPrimaryValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        Permission permission = authorizationStore.addPermission(new Resource("reg", "root/resource/test-resource-1",
+                        DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE), new Action("reg", "test-action-1"),
                 DEFAULT_AUTHORIZATION_STORE);
 
         assertNotNull(permission.getPermissionId());

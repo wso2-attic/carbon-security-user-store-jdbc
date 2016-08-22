@@ -124,5 +124,15 @@ public class ConnectorConstants {
                 "sql_query_get_permissions_from_action_for_role";
         public static final String SQL_QUERY_GET_NAMESPACE_ID = "sql_query_get_namespace_id";
         public static final String SQL_QUERY_ADD_NAMESPACE = "sql_query_add_namespace";
+        public static final String SQL_QUERY_COUNT_ROLES = "sql_query_count_roles";
+        public static final String SQL_QUERY_COUNT_USERS = "sql_query_count_users";
+        public static final String SQL_QUERY_COUNT_GROUPS = "sql_query_count_groups";
+        public static final String SQL_QUERY_COUNT_PERMISSIONS = "sql_query_count_permissions";
+        public static final String SQL_QUERY_LIST_ROLES = "sql_query_list_roles";
+        public static final String SQL_QUERY_GET_RESOURCES = "sql_query_get_resources";
+        public static final String SQL_QUERY_GET_ACTIONS = "sql_query_get_actions";
+        public static final String SQL_QUERY_LIST_PERMISSIONS = "sql_query_list_permissions";
+        public static final String SQL_QUERY_DELETE_RESOURCE = "sql_query_delete_resource";
+        public static final String SQL_QUERY_DELETE_ACTION = "sql_query_delete_action";
     }
 }

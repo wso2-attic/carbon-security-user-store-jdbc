@@ -113,6 +113,61 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
+    public int getRoleCount() throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_ROLES));
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while getting role count.", e);
+        }
+    }
+
+    @Override
+    public List<Role.RoleBuilder> listRoles(String filterPattern, int offset, int length)
+            throws AuthorizationStoreException {
+
+        // We are using SQL filters. So replace the '*' with '%'.
+        filterPattern = filterPattern.replace('*', '%');
+
+        List<Role.RoleBuilder> roles = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_ROLES));
+
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, filterPattern);
+            namedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+            namedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (resultSet.next()) {
+                    String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
+                    String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
+                    roles.add(new Role.RoleBuilder().setRoleId(roleId).setRoleName(roleName)
+                            .setAuthorizationStoreId(authorizationStoreId));
+                }
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("{} roles retrieved for filter pattern {} from authorization store: {}.", roles.size(),
+                        filterPattern, authorizationStoreId);
+            }
+
+            return roles;
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while retrieving the roles.", e);
+        }
+    }
+
+    @Override
     public Permission.PermissionBuilder getPermission(Resource resource, Action action)
             throws AuthorizationStoreException, PermissionNotFoundException {
 
@@ -152,6 +207,125 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
         }
+    }
+
+    @Override
+    public int getPermissionCount() throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_PERMISSIONS));
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while getting permission count.", e);
+        }
+    }
+
+    @Override
+    public List<Permission.PermissionBuilder> listPermissions(String resourcePattern, String actionPattern, int offset,
+                                                              int length) throws AuthorizationStoreException {
+
+        List<Permission.PermissionBuilder> permissions = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_PERMISSIONS));
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourcePattern);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME, actionPattern);
+            namedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+            namedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (resultSet.next()) {
+                    String resourceNamespace = resultSet.getString(DatabaseColumnNames.Resource.NAMESPACE_ID);
+                    String resourceId = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
+                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
+                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
+                    Resource res = new Resource(resourceNamespace, resourceId, userId, identityStoreId);
+
+                    String actionNamespace = resultSet.getString(DatabaseColumnNames.Action.NAMESPACE_ID);
+                    String actionName = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
+                    Action act = new Action(actionNamespace, actionName);
+
+                    String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
+
+                    permissions.add(new Permission.PermissionBuilder(res, act, permissionId, authorizationStoreId));
+                }
+            }
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while retrieving permissions.", e);
+        }
+
+        return permissions;
+    }
+
+    @Override
+    public List<Resource.ResourceBuilder> getResources(String resourcePattern) throws AuthorizationStoreException {
+
+        List<Resource.ResourceBuilder> resources = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCES));
+            namedPreparedStatement.setString("", resourcePattern);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                while (resultSet.next()) {
+                    String namespace = resultSet.getString(DatabaseColumnNames.Resource.NAMESPACE_ID);
+                    String resourceId = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
+                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
+                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
+
+                    Resource.ResourceBuilder resource = new Resource.ResourceBuilder()
+                            .setResourceNamespace(namespace)
+                            .setResourceId(resourceId)
+                            .setUserId(userId)
+                            .setIdentityStoreId(identityStoreId)
+                            .setAuthorizationStore(authorizationStoreId);
+                    resources.add(resource);
+                }
+            }
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while retrieving the resources.", e);
+        }
+
+        return resources;
+    }
+
+    @Override
+    public List<Action.ActionBuilder> getActions(String actionPattern) throws AuthorizationStoreException {
+
+        List<Action.ActionBuilder> actions = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ACTIONS));
+            namedPreparedStatement.setString("", actionPattern);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                while (resultSet.next()) {
+                    String namespace = resultSet.getString(DatabaseColumnNames.Action.NAMESPACE_ID);
+                    String actionName = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
+                    Action.ActionBuilder action = new Action.ActionBuilder()
+                            .setActionNamespace(namespace)
+                            .setAction(actionName)
+                            .setAuthorizationStore(authorizationStoreId);
+                    actions.add(action);
+                }
+            }
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while retrieving the actions.", e);
+        }
+
+        return actions;
     }
 
     @Override
@@ -272,8 +446,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public List<Permission.PermissionBuilder> getPermissionsForRole(String roleId, Action action)
             throws AuthorizationStoreException {
 
-        String actionDomain = action.getActionNamespace().replace('*', '?');
-        String actionName = action.getAction().replace('*', '?');
+        String actionDomain = action.getActionNamespace().replace('*', '%');
+        String actionName = action.getAction().replace('*', '%');
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -482,6 +656,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             long namespaceId = addNamespaceIfNotExist(resourceNamespace, "", unitOfWork);
 
+            // Add the resource.
             NamedPreparedStatement addResourcePreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_RESOURCE));
@@ -492,8 +667,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     identityStoreId);
 
             addResourcePreparedStatement.getPreparedStatement().executeUpdate();
-
             return new Resource(resourceNamespace, resourceId, userId, identityStoreId);
+
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while adding the resource.", e);
         }
@@ -621,6 +796,40 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while deleting the permission.", e);
+        }
+    }
+
+    @Override
+    public void deleteResource(Resource resource) throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_RESOURCE));
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
+                    resource.getResourceString());
+
+            namedPreparedStatement.getPreparedStatement().executeUpdate();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while deleting the resource.", e);
+        }
+    }
+
+    @Override
+    public void deleteAction(Action action) throws AuthorizationStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ACTION));
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
+                    action.getActionString());
+
+            namedPreparedStatement.getPreparedStatement().executeUpdate();
+
+        } catch (SQLException e) {
+            throw new AuthorizationStoreException("An error occurred while deleting the resource.", e);
         }
     }
 
