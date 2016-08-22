@@ -127,6 +127,25 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
+    public int getUserCount() throws IdentityStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_USERS));
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new IdentityStoreException("An error occurred while getting user count.", e);
+        }
+    }
+
+    @Override
     public User.UserBuilder getUserFromId(String userId) throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
@@ -161,6 +180,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public List<User.UserBuilder> listUsers(String filterPattern, int offset, int length)
             throws IdentityStoreException {
+
+        // We are using SQL filters. So replace the '*' with '%'.
+        filterPattern = filterPattern.replace('*', '%');
 
         List<User.UserBuilder> userList = new ArrayList<>();
 
@@ -292,6 +314,25 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
+    public int getGroupCount() throws IdentityStoreException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_GROUPS));
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new IdentityStoreException("An error occurred while getting group count.", e);
+        }
+    }
+
+    @Override
     public Group.GroupBuilder getGroupById(String groupId) throws IdentityStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
@@ -324,6 +365,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public List<Group.GroupBuilder> listGroups(String filterPattern, int offset, int length)
             throws IdentityStoreException {
+
+        // We are using SQL filters. So replace the '*' with '%'.
+        filterPattern = filterPattern.replace('*', '%');
 
         List<Group.GroupBuilder> groups = new ArrayList<>();
 

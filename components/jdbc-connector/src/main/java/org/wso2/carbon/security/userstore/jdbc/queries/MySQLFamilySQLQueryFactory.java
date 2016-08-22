@@ -416,6 +416,41 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                                                    "WHERE NAMESPACE LIKE :action_namespace;) " +
                                             "AND RESOURCE_NAME LIKE :action_name;)";
 
+    private static final String COUNT_ROLES = "SELECT COUNT(*) FROM UM_ROLE";
+
+    private static final String COUNT_PERMISSIONS = "SELECT COUNT(*) FROM UM_PERMISSION";
+
+    private static final String COUNT_USERS = "SELECT COUNT(*) FROM UM_USER";
+
+    private static final String COUNT_GROUPS = "SELECT COUNT(*) FROM UM_GROUP";
+
+    private static final String GET_RESOURCES = "";
+
+    private static final String GET_ACTIONS = "";
+
+    private static final String LIST_ROLES =
+            "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
+            "FROM UM_ROLE " +
+            "WHERE ROLE_NAME LIKE :role_name; " +
+            "LIMIT :length; OFFSET :offset;";
+
+    private static final String LIST_PERMISSIONS =
+            "SELECT RESOURCE_N.NAMESPACE AS RESOURCE_NAMESPACE, " +
+                    "UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, UM_RESOURCE.IDENTITY_STORE_ID, " +
+                    "ACTION_N.NAMESPACE AS ACTION_NAMESPACE, UM_ACTION.ACTION_NAME " +
+            "FROM UM_PERMISSION " +
+            "JOIN UM_RESOURCE ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
+            "JOIN UM_ACTION ON UM_PERMISSION.ACTION_ID = UM_ACTION.ID " +
+            "JOIN UM_RESOURCE_NAMESPACE AS RESOURCE_N ON UM_RESOURCE.NAMESPACE_ID = RESOURCE_N.ID " +
+            "JOIN UM_RESOURCE_NAMESPACE AS ACTION_N ON UM_ACTION.NAMESPACE_ID = ACTION_N.ID " +
+            "WHERE UM_RESOURCE.RESOURCE_NAME " +
+            "LIKE 'resource_name' AND UM_ACTION.ACTION_NAME LIKE 'action_name' " +
+            "LIMIT :length; OFFSET :offset;";
+
+    private static final String DELETE_RESOURCE = "";
+
+    private static final String DELETE_ACTION = "";
+
     public MySQLFamilySQLQueryFactory() {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH, COMPARE_PASSWORD_HASH);
@@ -488,5 +523,15 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                 GET_PERMISSIONS_FROM_ACTION_FOR_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_NAMESPACE_ID, GET_NAMESPACE_ID);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_NAMESPACE, ADD_NAMESPACE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_ROLES, COUNT_ROLES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_PERMISSIONS, COUNT_PERMISSIONS);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_USERS, COUNT_USERS);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_GROUPS, COUNT_GROUPS);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCES, GET_RESOURCES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ACTIONS, GET_ACTIONS);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_ROLES, LIST_ROLES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_PERMISSIONS, LIST_PERMISSIONS);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_RESOURCE, DELETE_RESOURCE);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ACTION, DELETE_ACTION);
     }
 }
