@@ -437,14 +437,15 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String LIST_PERMISSIONS =
             "SELECT RESOURCE_N.NAMESPACE AS RESOURCE_NAMESPACE, " +
                     "UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, UM_RESOURCE.IDENTITY_STORE_ID, " +
-                    "ACTION_N.NAMESPACE AS ACTION_NAMESPACE, UM_ACTION.ACTION_NAME " +
+                    "ACTION_N.NAMESPACE AS ACTION_NAMESPACE, UM_ACTION.ACTION_NAME, " +
+                    "UM_PERMISSION.PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
             "JOIN UM_RESOURCE ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
             "JOIN UM_ACTION ON UM_PERMISSION.ACTION_ID = UM_ACTION.ID " +
             "JOIN UM_RESOURCE_NAMESPACE AS RESOURCE_N ON UM_RESOURCE.NAMESPACE_ID = RESOURCE_N.ID " +
             "JOIN UM_RESOURCE_NAMESPACE AS ACTION_N ON UM_ACTION.NAMESPACE_ID = ACTION_N.ID " +
             "WHERE UM_RESOURCE.RESOURCE_NAME " +
-            "LIKE 'resource_name' AND UM_ACTION.ACTION_NAME LIKE 'action_name' " +
+            "LIKE :resource_name; AND UM_ACTION.ACTION_NAME LIKE :action_name; " +
             "LIMIT :length; OFFSET :offset;";
 
     private static final String DELETE_RESOURCE = "";

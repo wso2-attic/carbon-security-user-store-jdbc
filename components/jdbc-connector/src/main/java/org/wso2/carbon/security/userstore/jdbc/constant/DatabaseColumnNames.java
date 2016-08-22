@@ -151,4 +151,13 @@ public class DatabaseColumnNames {
         public static final String GROUP_UNIQUE_ID = "GROUP_UNIQUE_ID";
         public static final String IDENTITY_STORE_ID = "IDENTITY_STORE_ID";
     }
+
+    /**
+     * Names that defined in multi joins.
+     */
+    public static final class JoinNames {
+
+        public static final String RESOURCE_NAMESPACE = "RESOURCE_NAMESPACE";
+        public static final String ACTION_NAMESPACE = "ACTION_NAMESPACE";
+    }
 }
