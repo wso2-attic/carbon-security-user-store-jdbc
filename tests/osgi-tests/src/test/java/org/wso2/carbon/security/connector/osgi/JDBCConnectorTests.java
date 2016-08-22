@@ -303,12 +303,30 @@ public class JDBCConnectorTests {
         assertNotNull(authorizationStore.getRole(DEFAULT_ROLE));
     }
 
+    @Test
+    public void testListRolesValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        List<Role> roles = authorizationStore.listRoles("*", 0, 10);
+
+        assertFalse(roles.isEmpty());
+    }
+
     @Test(priority = 8)
     public void testGetPermissionValid() throws PermissionNotFoundException, AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertNotNull(authorizationStore.getPermission(DEFAULT_PERMISSION.getResource().getResourceString(),
                 DEFAULT_PERMISSION.getAction().getActionString()));
+    }
+
+    @Test
+    public void testListPermissionsValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        List<Permission> permissions = authorizationStore.listPermissions("*", "*", 0, 10);
+
+        assertFalse(permissions.isEmpty());
     }
 
     @Test(priority = 9)

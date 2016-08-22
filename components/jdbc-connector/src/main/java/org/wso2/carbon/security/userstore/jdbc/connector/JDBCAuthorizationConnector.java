@@ -121,7 +121,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_ROLES));
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-                return resultSet.getInt(1);
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+                return 0;
             }
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while getting role count.", e);
@@ -218,7 +221,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_COUNT_PERMISSIONS));
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-                return resultSet.getInt(1);
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+                return 0;
             }
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while getting permission count.", e);
@@ -230,6 +236,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                                                               int length) throws AuthorizationStoreException {
 
         List<Permission.PermissionBuilder> permissions = new ArrayList<>();
+
+        resourcePattern = resourcePattern.replace("*", "%");
+        actionPattern = actionPattern.replace("*", "%");
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -243,13 +252,13 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 while (resultSet.next()) {
-                    String resourceNamespace = resultSet.getString(DatabaseColumnNames.Resource.NAMESPACE_ID);
+                    String resourceNamespace = resultSet.getString(DatabaseColumnNames.JoinNames.RESOURCE_NAMESPACE);
                     String resourceId = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
                     String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
                     String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
                     Resource res = new Resource(resourceNamespace, resourceId, userId, identityStoreId);
 
-                    String actionNamespace = resultSet.getString(DatabaseColumnNames.Action.NAMESPACE_ID);
+                    String actionNamespace = resultSet.getString(DatabaseColumnNames.JoinNames.ACTION_NAMESPACE);
                     String actionName = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
                     Action act = new Action(actionNamespace, actionName);
 
