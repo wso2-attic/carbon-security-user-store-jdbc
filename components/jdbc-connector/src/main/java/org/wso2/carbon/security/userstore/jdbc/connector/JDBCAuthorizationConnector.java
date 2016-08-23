@@ -135,6 +135,11 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public List<Role.RoleBuilder> listRoles(String filterPattern, int offset, int length)
             throws AuthorizationStoreException {
 
+        // Get the max allowed row count if the length is -1.
+        if (length == -1) {
+            length = getMaxRowRetrievalCount();
+        }
+
         // We are using SQL filters. So replace the '*' with '%'.
         filterPattern = filterPattern.replace('*', '%');
 
@@ -235,10 +240,16 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public List<Permission.PermissionBuilder> listPermissions(String resourcePattern, String actionPattern, int offset,
                                                               int length) throws AuthorizationStoreException {
 
-        List<Permission.PermissionBuilder> permissions = new ArrayList<>();
+        // Get the max allowed row count if the length is -1.
+        if (length == -1) {
+            length = getMaxRowRetrievalCount();
+        }
 
+        // We are using SQL filters. So replace the '*' with '%'.
         resourcePattern = resourcePattern.replace("*", "%");
         actionPattern = actionPattern.replace("*", "%");
+
+        List<Permission.PermissionBuilder> permissions = new ArrayList<>();
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -1382,5 +1393,25 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
         }
 
         return namespaceId;
+    }
+
+    /**
+     * Get the maximum number of rows allowed to retrieve in a single query.
+     * @return Max allowed number of rows.
+     */
+    private int getMaxRowRetrievalCount() {
+
+        int length;
+        String maxValue = authorizationStoreConfig.getStoreProperties().getProperty(ConnectorConstants.MAX_ROW_LIMIT);
+
+        if (maxValue == null) {
+
+            // Most DBs support integer max value as the max value for the SQL LIMIT.
+            length = Integer.MAX_VALUE;
+        } else {
+            length = Integer.parseInt(maxValue);
+        }
+
+        return length;
     }
 }

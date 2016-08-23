@@ -181,6 +181,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     public List<User.UserBuilder> listUsers(String filterPattern, int offset, int length)
             throws IdentityStoreException {
 
+        // Get the max allowed row count if the length is -1.
+        if (length == -1) {
+            length = getMaxRowRetrievalCount();
+        }
+
         // We are using SQL filters. So replace the '*' with '%'.
         filterPattern = filterPattern.replace('*', '%');
 
@@ -365,6 +370,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public List<Group.GroupBuilder> listGroups(String filterPattern, int offset, int length)
             throws IdentityStoreException {
+
+        // Get the max allowed row count if the length is -1.
+        if (length == -1) {
+            length = getMaxRowRetrievalCount();
+        }
 
         // We are using SQL filters. So replace the '*' with '%'.
         filterPattern = filterPattern.replace('*', '%');
@@ -553,5 +563,24 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public IdentityConnectorConfig getIdentityStoreConfig() {
         return identityStoreConfig;
+    }
+
+    /**
+     * Get the maximum number of rows allowed to retrieve in a single query.
+     * @return Max allowed number of rows.
+     */
+    private int getMaxRowRetrievalCount() {
+
+        int length;
+
+        String maxValue = identityStoreConfig.getStoreProperties().getProperty(ConnectorConstants.MAX_ROW_LIMIT);
+
+        if (maxValue == null) {
+            length = Integer.MAX_VALUE;
+        } else {
+            length = Integer.parseInt(maxValue);
+        }
+
+        return length;
     }
 }
