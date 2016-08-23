@@ -329,6 +329,24 @@ public class JDBCConnectorTests {
         assertFalse(permissions.isEmpty());
     }
 
+    @Test
+    public void testGetResourcesValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        List<Resource> resources = authorizationStore.listResources("*");
+
+        assertFalse(resources.isEmpty());
+    }
+
+    @Test
+    public void testGetActionsValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        List<Action> actions = authorizationStore.listActions("*");
+
+        assertFalse(actions.isEmpty());
+    }
+
     @Test(priority = 9)
     public void testGetUsersOfRole() throws AuthorizationStoreException, IdentityStoreException {
 
@@ -385,6 +403,30 @@ public class JDBCConnectorTests {
                 .setAuthorizationStore(authorizationStore)
                 .setRoleId("7f8adbe6134c11e6a1483e1d05defe78")
                 .setRoleName("role1")
+                .build());
+    }
+
+    @Test
+    public void testDeleteResourceValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        authorizationStore.deleteResource(new Resource.ResourceBuilder()
+                .setAuthorizationStore(DEFAULT_AUTHORIZATION_STORE)
+                .setResourceNamespace("reg")
+                .setResourceId("root/resource/delete")
+                .setUserId(DEFAULT_USER_ID)
+                .setIdentityStoreId(DEFAULT_IDENTITY_STORE)
+                .build());
+    }
+
+    @Test
+    public void testDeleteActionValid() throws AuthorizationStoreException {
+
+        AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
+        authorizationStore.deleteAction(new Action.ActionBuilder()
+                .setActionNamespace("reg")
+                .setAction("action3")
+                .setAuthorizationStore(DEFAULT_AUTHORIZATION_STORE)
                 .build());
     }
 

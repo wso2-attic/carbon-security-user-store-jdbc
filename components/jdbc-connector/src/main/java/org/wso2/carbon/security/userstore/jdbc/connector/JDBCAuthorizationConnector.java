@@ -277,17 +277,20 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public List<Resource.ResourceBuilder> getResources(String resourcePattern) throws AuthorizationStoreException {
 
+        // We are using SQL patterns. So replace '*' with '%'.
+        resourcePattern = resourcePattern.replace('*', '%');
+
         List<Resource.ResourceBuilder> resources = new ArrayList<>();
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCES));
-            namedPreparedStatement.setString("", resourcePattern);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourcePattern);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
                 while (resultSet.next()) {
-                    String namespace = resultSet.getString(DatabaseColumnNames.Resource.NAMESPACE_ID);
+                    String namespace = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
                     String resourceId = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
                     String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
                     String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
@@ -311,17 +314,20 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public List<Action.ActionBuilder> getActions(String actionPattern) throws AuthorizationStoreException {
 
+        // We are using SQL patterns. So replace '*' with '%'.
+        actionPattern = actionPattern.replace('*', '%');
+
         List<Action.ActionBuilder> actions = new ArrayList<>();
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ACTIONS));
-            namedPreparedStatement.setString("", actionPattern);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME, actionPattern);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
                 while (resultSet.next()) {
-                    String namespace = resultSet.getString(DatabaseColumnNames.Action.NAMESPACE_ID);
+                    String namespace = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
                     String actionName = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
                     Action.ActionBuilder action = new Action.ActionBuilder()
                             .setActionNamespace(namespace)
@@ -811,12 +817,17 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public void deleteResource(Resource resource) throws AuthorizationStoreException {
 
+        // TODO: Think about how to delete hierarchical resources.
+
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_RESOURCE));
+
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAMESPACE,
+                    resource.getResourceNamespace());
             namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
-                    resource.getResourceString());
+                    resource.getResourceId());
 
             namedPreparedStatement.getPreparedStatement().executeUpdate();
 
@@ -832,8 +843,11 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ACTION));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
-                    action.getActionString());
+
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAMESPACE,
+                    action.getActionNamespace());
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME,
+                    action.getAction());
 
             namedPreparedStatement.getPreparedStatement().executeUpdate();
 
