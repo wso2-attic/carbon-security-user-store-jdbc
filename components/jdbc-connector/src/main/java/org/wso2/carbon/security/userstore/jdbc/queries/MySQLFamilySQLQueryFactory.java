@@ -424,9 +424,17 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String COUNT_GROUPS = "SELECT COUNT(*) FROM UM_GROUP";
 
-    private static final String GET_RESOURCES = "";
+    private static final String GET_RESOURCES =
+            "SELECT UM_RESOURCE_N.NAMESPACE, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID " +
+            "FROM UM_RESOURCE " +
+            "JOIN UM_RESOURCE_NAMESPACE AS UM_RESOURCE_N ON UM_RESOURCE_N.ID = UM_RESOURCE.NAMESPACE_ID " +
+            "WHERE RESOURCE_NAME LIKE :resource_name;";
 
-    private static final String GET_ACTIONS = "";
+    private static final String GET_ACTIONS =
+            "SELECT UM_RESOURCE_N.NAMESPACE, ACTION_NAME " +
+            "FROM UM_ACTION " +
+            "JOIN UM_RESOURCE_NAMESPACE AS UM_RESOURCE_N ON UM_RESOURCE_N.ID = UM_ACTION.NAMESPACE_ID " +
+            "WHERE ACTION_NAME LIKE :action_name;";
 
     private static final String LIST_ROLES =
             "SELECT ROLE_NAME, ROLE_UNIQUE_ID " +
@@ -448,9 +456,17 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "LIKE :resource_name; AND UM_ACTION.ACTION_NAME LIKE :action_name; " +
             "LIMIT :length; OFFSET :offset;";
 
-    private static final String DELETE_RESOURCE = "";
+    private static final String DELETE_RESOURCE =
+            "DELETE FROM UM_RESOURCE " +
+            "WHERE RESOURCE_NAME = :resource_name; " +
+            "AND NAMESPACE_ID = (SELECT ID FROM UM_RESOURCE_NAMESPACE " +
+                                "WHERE NAMESPACE = :resource_namespace;)";
 
-    private static final String DELETE_ACTION = "";
+    private static final String DELETE_ACTION =
+            "DELETE FROM UM_ACTION " +
+            "WHERE ACTION_NAME = :action_name; " +
+            "AND NAMESPACE_ID = (SELECT ID FROM UM_RESOURCE_NAMESPACE " +
+                                "WHERE NAMESPACE = :resource_namespace;)";
 
     public MySQLFamilySQLQueryFactory() {
 

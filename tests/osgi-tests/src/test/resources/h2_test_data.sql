@@ -51,14 +51,16 @@ VALUES ('reg', 'Represents a registry resource/action');
 
 INSERT INTO UM_RESOURCE (NAMESPACE_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID)
 VALUES (1, 'root/resource/id', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore'),
-  (1, 'root/resource/name', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore');
+  (1, 'root/resource/name', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore'),
+  (1, 'root/resource/delete', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore');
 
 INSERT INTO UM_ACTION (NAMESPACE_ID, ACTION_NAME)
 VALUES (1, 'add'),
   (1, 'delete'),
   (1,'update'),
   (1, 'action1'),
-  (1, 'action2');
+  (1, 'action2'),
+  (1, 'action3');
 
 INSERT INTO UM_PERMISSION (RESOURCE_ID, ACTION_ID, PERMISSION_UNIQUE_ID)
 VALUES (1, 1, 'f61a1c240df011e6a1483e1d05defe78'),
