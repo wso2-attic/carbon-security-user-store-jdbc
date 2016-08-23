@@ -23,6 +23,7 @@ public class ConnectorConstants {
 
     public static final String DATA_SOURCE = "dataSource";
     public static final String DATABASE_TYPE = "databaseType";
+    public static final String MAX_ROW_LIMIT = "maxRowLimit";
 
     /**
      * Placeholders related to the named prepared statement.

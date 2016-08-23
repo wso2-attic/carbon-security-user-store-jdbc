@@ -307,7 +307,7 @@ public class JDBCConnectorTests {
     public void testListRolesValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        List<Role> roles = authorizationStore.listRoles("*", 0, 10);
+        List<Role> roles = authorizationStore.listRoles("*", 0, -1);
 
         assertFalse(roles.isEmpty());
     }
@@ -324,7 +324,7 @@ public class JDBCConnectorTests {
     public void testListPermissionsValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        List<Permission> permissions = authorizationStore.listPermissions("*", "*", 0, 10);
+        List<Permission> permissions = authorizationStore.listPermissions("*", "*", 0, -1);
 
         assertFalse(permissions.isEmpty());
     }
@@ -775,10 +775,10 @@ public class JDBCConnectorTests {
     @Test(priority = 27)
     public void testListUsers() throws IdentityStoreException {
 
-        String filterPattern = "admin";
+        String filterPattern = "*";
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<User> users = identityStore.listUsers(filterPattern, 0, 1);
+        List<User> users = identityStore.listUsers(filterPattern, 0, -1);
 
         assertFalse(users.isEmpty());
     }
@@ -846,10 +846,10 @@ public class JDBCConnectorTests {
     @Test(priority = 34)
     public void testListGroups() throws IdentityStoreException {
 
-        String filterPattern = "is";
+        String filterPattern = "*";
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<Group> groups = identityStore.listGroups(filterPattern, 0, 1);
+        List<Group> groups = identityStore.listGroups(filterPattern, 0, -1);
 
         assertFalse(groups.isEmpty());
     }
