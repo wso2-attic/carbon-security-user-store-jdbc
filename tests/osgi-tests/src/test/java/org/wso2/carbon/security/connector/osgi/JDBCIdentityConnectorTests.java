@@ -17,19 +17,16 @@
 package org.wso2.carbon.security.connector.osgi;
 
 import org.testng.annotations.Test;
+import org.wso2.carbon.security.caas.user.core.bean.Attribute;
 import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.claim.Claim;
-import org.wso2.carbon.security.caas.user.core.exception.ClaimManagerException;
 import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
 import org.wso2.carbon.security.caas.user.core.store.IdentityStore;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -56,13 +53,13 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         assertNotNull(user);
     }
 
-    @Test(priority = 26)
-    public void testGetUserFromUserId() throws IdentityStoreException {
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
-        assertNotNull(user);
-    }
+//    @Test(priority = 26)
+//    public void testGetUserFromUserId() throws IdentityStoreException {
+//
+//        IdentityStore identityStore = realmService.getIdentityStore();
+//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+//        assertNotNull(user);
+//    }
 
     @Test(priority = 27)
     public void testListUsers() throws IdentityStoreException {
@@ -79,7 +76,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     public void testGetUserAttributeValues() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        Map<String, String> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+        List<Attribute> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
 
         assertFalse(claims.isEmpty());
     }
@@ -92,30 +89,30 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         attributeNames.add("lastName");
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        Map<String, String> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, attributeNames,
+        List<Attribute> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, attributeNames,
                 DEFAULT_IDENTITY_STORE);
 
         assertFalse(claims.isEmpty());
     }
 
-    @Test(priority = 30)
-    public void testGetClaims() throws IdentityStoreException, ClaimManagerException {
+//    @Test(priority = 30)
+//    public void testGetClaims() throws IdentityStoreException, ClaimManagerException {
+//
+//        IdentityStore identityStore = realmService.getIdentityStore();
+//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+//        List<Claim> claims = user.getClaims();
+//        assertTrue(claims != null && claims.size() > 0);
+//    }
 
-        IdentityStore identityStore = realmService.getIdentityStore();
-        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
-        List<Claim> claims = user.getClaims();
-        assertTrue(claims != null && claims.size() > 0);
-    }
-
-    @Test(priority = 31)
-    public void testGetClaimsFromClaimURIs() throws IdentityStoreException, ClaimManagerException {
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
-        List<String> claimURIs = Arrays.asList("http://wso2.org/claims/firstName", "http://wso2.org/claims/lastName");
-        List<Claim> claims = user.getClaims(claimURIs);
-        assertTrue(claims != null && claims.size() == 2);
-    }
+//    @Test(priority = 31)
+//    public void testGetClaimsFromClaimURIs() throws IdentityStoreException, ClaimManagerException {
+//
+//        IdentityStore identityStore = realmService.getIdentityStore();
+//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+//        List<String> claimURIs = Arrays.asList("http://wso2.org/claims/firstName", "http://wso2.org/claims/lastName");
+//        List<Claim> claims = user.getClaims(claimURIs);
+//        assertTrue(claims != null && claims.size() == 2);
+//    }
 
     @Test(priority = 32)
     public void testGetGroup() throws IdentityStoreException, GroupNotFoundException {
@@ -126,14 +123,14 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         assertNotNull(group);
     }
 
-    @Test(priority = 33)
-    public void testGetGroupFromId() throws IdentityStoreException {
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        Group group = identityStore.getGroupFromId(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE);
-
-        assertNotNull(group);
-    }
+//    @Test(priority = 33)
+//    public void testGetGroupFromId() throws IdentityStoreException {
+//
+//        IdentityStore identityStore = realmService.getIdentityStore();
+//        Group group = identityStore.getGroupFromId(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE);
+//
+//        assertNotNull(group);
+//    }
 
     @Test(priority = 34)
     public void testListGroups() throws IdentityStoreException {

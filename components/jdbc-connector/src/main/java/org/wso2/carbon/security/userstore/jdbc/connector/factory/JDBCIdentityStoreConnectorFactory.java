@@ -26,7 +26,7 @@ import org.wso2.carbon.security.userstore.jdbc.connector.JDBCIdentityStoreConnec
 public class JDBCIdentityStoreConnectorFactory implements IdentityStoreConnectorFactory {
 
     @Override
-    public IdentityStoreConnector getInstance() {
+    public IdentityStoreConnector getConnector() {
         return new JDBCIdentityStoreConnector();
     }
 }

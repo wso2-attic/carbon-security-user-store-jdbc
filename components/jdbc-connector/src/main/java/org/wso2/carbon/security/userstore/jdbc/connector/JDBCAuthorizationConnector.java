@@ -25,7 +25,7 @@ import org.wso2.carbon.security.caas.user.core.bean.Permission;
 import org.wso2.carbon.security.caas.user.core.bean.Resource;
 import org.wso2.carbon.security.caas.user.core.bean.Role;
 import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.config.AuthorizationConnectorConfig;
+import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
@@ -53,10 +53,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     private static Logger log = LoggerFactory.getLogger(JDBCAuthorizationConnector.class);
 
     private String authorizationStoreId;
-    private AuthorizationConnectorConfig authorizationStoreConfig;
+    private AuthorizationStoreConnectorConfig authorizationStoreConfig;
     private DataSource dataSource;
 
-    public void init(String storeId, AuthorizationConnectorConfig authorizationStoreConfig)
+    public void init(String storeId, AuthorizationStoreConnectorConfig authorizationStoreConfig)
             throws AuthorizationStoreException {
 
         Properties properties = authorizationStoreConfig.getStoreProperties();
@@ -179,42 +179,44 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public Permission.PermissionBuilder getPermission(Resource resource, Action action)
             throws AuthorizationStoreException, PermissionNotFoundException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAMESPACE,
-                    resource.getResourceNamespace());
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
-                    resource.getResourceId());
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAMESPACE,
-                    action.getActionNamespace());
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME, action.getAction());
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                if (!resultSet.next()) {
-                    throw new PermissionNotFoundException("No permission found for the given name in "
-                            + authorizationStoreId);
-                }
-
-                String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
-                String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
-                String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
-
-                resource = new Resource(resource.getResourceNamespace(), resource.getResourceId(), userId,
-                        identityStoreId);
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Permission with permission id: {} retrieved from authorization store: {}.",
-                            permissionId, authorizationStoreId);
-                }
-
-                return new Permission.PermissionBuilder(resource, action, permissionId, authorizationStoreId);
-            }
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
-        }
+        //TODO Update the implementation with new domain model
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSION));
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAMESPACE,
+//                    resource.getResourceNamespace());
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME,
+//                    resource.getResourceId());
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAMESPACE,
+//                    action.getActionNamespace());
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME, action.getAction());
+//
+//            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+//
+//                if (!resultSet.next()) {
+//                    throw new PermissionNotFoundException("No permission found for the given name in "
+//                            + authorizationStoreId);
+//                }
+//
+//                String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
+//                String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
+//                String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
+//
+//                resource = new Resource(resource.getResourceNamespace(), resource.getResourceId(), userId,
+//                        identityStoreId);
+//
+//                if (log.isDebugEnabled()) {
+//                    log.debug("Permission with permission id: {} retrieved from authorization store: {}.",
+//                            permissionId, authorizationStoreId);
+//                }
+//
+//                return new Permission.PermissionBuilder(resource, action, permissionId, authorizationStoreId);
+//            }
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
+//        }
+        return null;
     }
 
     @Override
@@ -240,47 +242,47 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public List<Permission.PermissionBuilder> listPermissions(String resourcePattern, String actionPattern, int offset,
                                                               int length) throws AuthorizationStoreException {
 
+        //TODO Update the implementation with new domain model
         // Get the max allowed row count if the length is -1.
-        if (length == -1) {
-            length = getMaxRowRetrievalCount();
-        }
-
-        // We are using SQL filters. So replace the '*' with '%'.
-        resourcePattern = resourcePattern.replace("*", "%");
-        actionPattern = actionPattern.replace("*", "%");
+//        if (length == -1) {
+//            length = getMaxRowRetrievalCount();
+//        }
+//
+//        // We are using SQL filters. So replace the '*' with '%'.
+//        resourcePattern = resourcePattern.replace("*", "%");
+//        actionPattern = actionPattern.replace("*", "%");
 
         List<Permission.PermissionBuilder> permissions = new ArrayList<>();
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_PERMISSIONS));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourcePattern);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME, actionPattern);
-            namedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
-            namedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                while (resultSet.next()) {
-                    String resourceNamespace = resultSet.getString(DatabaseColumnNames.JoinNames.RESOURCE_NAMESPACE);
-                    String resourceId = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
-                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
-                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
-                    Resource res = new Resource(resourceNamespace, resourceId, userId, identityStoreId);
-
-                    String actionNamespace = resultSet.getString(DatabaseColumnNames.JoinNames.ACTION_NAMESPACE);
-                    String actionName = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
-                    Action act = new Action(actionNamespace, actionName);
-
-                    String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
-
-                    permissions.add(new Permission.PermissionBuilder(res, act, permissionId, authorizationStoreId));
-                }
-            }
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving permissions.", e);
-        }
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_PERMISSIONS));
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourcePattern);
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME, actionPattern);
+//            namedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+//            namedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+//
+//            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+//
+//                while (resultSet.next()) {
+//                    String resourceNamespace = resultSet.getString(DatabaseColumnNames.JoinNames.RESOURCE_NAMESPACE);
+//                    String resourceId = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
+//                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
+//                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
+//                    Resource res = new Resource(resourceNamespace, resourceId, userId, identityStoreId);
+//
+//                    String actionNamespace = resultSet.getString(DatabaseColumnNames.JoinNames.ACTION_NAMESPACE);
+//                    String actionName = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
+//                    Action act = new Action(actionNamespace, actionName);
+//
+//                    String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
+//
+//                    permissions.add(new Permission.PermissionBuilder(res, act, permissionId, authorizationStoreId));
+//                }
+//            }
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while retrieving permissions.", e);
+//        }
 
         return permissions;
     }
@@ -288,36 +290,36 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public List<Resource.ResourceBuilder> getResources(String resourcePattern) throws AuthorizationStoreException {
 
+        //TODO Update the implementation with new domain model
         // We are using SQL patterns. So replace '*' with '%'.
-        resourcePattern = resourcePattern.replace('*', '%');
+//        resourcePattern = resourcePattern.replace('*', '%');
 
         List<Resource.ResourceBuilder> resources = new ArrayList<>();
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCES));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourcePattern);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-                while (resultSet.next()) {
-                    String namespace = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
-                    String resourceId = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
-                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
-                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
-
-                    Resource.ResourceBuilder resource = new Resource.ResourceBuilder()
-                            .setResourceNamespace(namespace)
-                            .setResourceId(resourceId)
-                            .setUserId(userId)
-                            .setIdentityStoreId(identityStoreId)
-                            .setAuthorizationStore(authorizationStoreId);
-                    resources.add(resource);
-                }
-            }
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving the resources.", e);
-        }
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_RESOURCES));
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourcePattern);
+//
+//            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+//                while (resultSet.next()) {
+//                    String namespace = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
+//                    String resourceId = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
+//                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
+//                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
+//
+//                    Resource.ResourceBuilder resource = new Resource.ResourceBuilder()
+//                            .setResourceNamespace(namespace)
+//                            .setResourceId(resourceId)
+//                            .setUserId(userId)
+//                            .setIdentityStoreId(identityStoreId)
+//                            .setAuthorizationStore(authorizationStoreId);
+//                    resources.add(resource);
+//                }
+//            }
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while retrieving the resources.", e);
+//        }
 
         return resources;
     }
@@ -423,99 +425,103 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public List<Permission.PermissionBuilder> getPermissionsForRole(String roleId, Resource resource)
             throws AuthorizationStoreException {
 
-        String resourceDomain = resource.getResourceNamespace().replace('*', '?');
-        String resourceName = resource.getResourceId().replace('*', '?');
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAMESPACE, resourceDomain);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourceName);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                List<Permission.PermissionBuilder> permissionBuilders = new ArrayList<>();
-                while (resultSet.next()) {
-
-                    String domain = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
-                    String name = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
-                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
-                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
-
-                    String actionDomain = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
-                    String actionName = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
-
-                    String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
-
-                    Resource res = new Resource(domain, name, userId, identityStoreId);
-                    Action action = new Action(actionDomain, actionName);
-
-                    permissionBuilders.add(new Permission.PermissionBuilder(res, action, permissionId,
-                            authorizationStoreId));
-                }
-
-                if (log.isDebugEnabled()) {
-                    log.debug("{} permissions retrieved successfully for role: {} from from authorization store: {}.",
-                            permissionBuilders.size(), roleId, authorizationStoreId);
-                }
-
-                return permissionBuilders;
-            }
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving permissions for role.", e);
-        }
+        //TODO Update the implementation with new domain model
+//        String resourceDomain = resource.getResourceNamespace().replace('*', '?');
+//        String resourceName = resource.getResourceId().replace('*', '?');
+//
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE));
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAMESPACE, resourceDomain);
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourceName);
+//
+//            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+//
+//                List<Permission.PermissionBuilder> permissionBuilders = new ArrayList<>();
+//                while (resultSet.next()) {
+//
+//                    String domain = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
+//                    String name = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
+//                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
+//                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
+//
+//                    String actionDomain = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
+//                    String actionName = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
+//
+//                    String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
+//
+//                    Resource res = new Resource(domain, name, userId, identityStoreId);
+//                    Action action = new Action(actionDomain, actionName);
+//
+//                    permissionBuilders.add(new Permission.PermissionBuilder(res, action, permissionId,
+//                            authorizationStoreId));
+//                }
+//
+//                if (log.isDebugEnabled()) {
+//                    log.debug("{} permissions retrieved successfully for role: {} from from authorization store: {}.",
+//                            permissionBuilders.size(), roleId, authorizationStoreId);
+//                }
+//
+//                return permissionBuilders;
+//            }
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while retrieving permissions for role.", e);
+//        }
+        return null;
     }
 
     @Override
     public List<Permission.PermissionBuilder> getPermissionsForRole(String roleId, Action action)
             throws AuthorizationStoreException {
 
-        String actionDomain = action.getActionNamespace().replace('*', '%');
-        String actionName = action.getAction().replace('*', '%');
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FROM_ACTION_FOR_ROLE));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAMESPACE, actionDomain);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME, actionName);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                List<Permission.PermissionBuilder> permissionBuilders = new ArrayList<>();
-                while (resultSet.next()) {
-
-                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
-                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
-
-                    String resourceDomain = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
-                    String resourceName = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
-
-                    String domain = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
-                    String name = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
-
-                    String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
-
-                    Action act = new Action(domain, name);
-                    Resource resource = new Resource(resourceDomain, resourceName, userId, identityStoreId);
-
-                    permissionBuilders.add(new Permission.PermissionBuilder(resource, act, permissionId,
-                            authorizationStoreId));
-                }
-
-                if (log.isDebugEnabled()) {
-                    log.debug("{} permissions retrieved successfully for role: {} from from authorization store: {}.",
-                            permissionBuilders.size(), roleId, authorizationStoreId);
-                }
-
-                return permissionBuilders;
-            }
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving permissions for role.", e);
-        }
+        //TODO Update the implementation with new domain model
+//        String actionDomain = action.getActionNamespace().replace('*', '%');
+//        String actionName = action.getAction().replace('*', '%');
+//
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FROM_ACTION_FOR_ROLE));
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAMESPACE, actionDomain);
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ACTION_NAME, actionName);
+//
+//            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+//
+//                List<Permission.PermissionBuilder> permissionBuilders = new ArrayList<>();
+//                while (resultSet.next()) {
+//
+//                    String identityStoreId = resultSet.getString(DatabaseColumnNames.Resource.IDENTITY_STORE_ID);
+//                    String userId = resultSet.getString(DatabaseColumnNames.Resource.USER_UNIQUE_ID);
+//
+//                    String resourceDomain = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
+//                    String resourceName = resultSet.getString(DatabaseColumnNames.Resource.RESOURCE_NAME);
+//
+//                    String domain = resultSet.getString(DatabaseColumnNames.ResourceNamespace.NAMESPACE);
+//                    String name = resultSet.getString(DatabaseColumnNames.Action.ACTION_NAME);
+//
+//                    String permissionId = resultSet.getString(DatabaseColumnNames.Permission.PERMISSION_ID);
+//
+//                    Action act = new Action(domain, name);
+//                    Resource resource = new Resource(resourceDomain, resourceName, userId, identityStoreId);
+//
+//                    permissionBuilders.add(new Permission.PermissionBuilder(resource, act, permissionId,
+//                            authorizationStoreId));
+//                }
+//
+//                if (log.isDebugEnabled()) {
+//                    log.debug("{} permissions retrieved successfully for role: {} from from authorization store: {}.",
+//                            permissionBuilders.size(), roleId, authorizationStoreId);
+//                }
+//
+//                return permissionBuilders;
+//            }
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while retrieving permissions for role.", e);
+//        }
+        return null;
     }
 
     @Override
@@ -563,63 +569,66 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public List<User.UserBuilder> getUsersOfRole(String roleId) throws AuthorizationStoreException {
 
+        //TODO Update the implementation with new domain model
         List<User.UserBuilder> userBuilders = new ArrayList<>();
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_ROLE));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-                while (resultSet.next()) {
-                    User.UserBuilder userBuilder = new User.UserBuilder();
-                    userBuilder.setUserId(resultSet.getString(DatabaseColumnNames.UserRole.USER_UNIQUE_ID))
-                            .setIdentityStoreId(resultSet.getString(DatabaseColumnNames.UserRole.IDENTITY_STORE_ID));
-                    userBuilders.add(userBuilder);
-                }
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("{} users of role: {} retrieved from from authorization store: {}.", userBuilders.size(),
-                        roleId, authorizationStoreId);
-            }
-
+//
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_ROLE));
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//
+//            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+//                while (resultSet.next()) {
+//                    User.UserBuilder userBuilder = new User.UserBuilder();
+//                    userBuilder.setUserId(resultSet.getString(DatabaseColumnNames.UserRole.USER_UNIQUE_ID))
+//                            .setIdentityStoreId(resultSet.getString(DatabaseColumnNames.UserRole.IDENTITY_STORE_ID));
+//                    userBuilders.add(userBuilder);
+//                }
+//            }
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug("{} users of role: {} retrieved from from authorization store: {}.", userBuilders.size(),
+//                        roleId, authorizationStoreId);
+//            }
+//
             return userBuilders;
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving users of the role.", e);
-        }
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while retrieving users of the role.", e);
+//        }
     }
 
     @Override
     public List<Group.GroupBuilder> getGroupsOfRole(String roleId) throws AuthorizationStoreException {
 
-        List<Group.GroupBuilder> groupBuilders = new ArrayList<>();
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_ROLE));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-                while (resultSet.next()) {
-                    Group.GroupBuilder groupBuilder = new Group.GroupBuilder();
-                    groupBuilder.setGroupId(resultSet.getString(DatabaseColumnNames.GroupRole.GROUP_UNIQUE_ID))
-                            .setIdentityStoreId(resultSet.getString(DatabaseColumnNames.GroupRole.IDENTITY_STORE_ID));
-                    groupBuilders.add(groupBuilder);
-                }
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("{} groups of role: {} retrieved from from authorization store: {}.", groupBuilders.size(),
-                        roleId, authorizationStoreId);
-            }
-
-            return groupBuilders;
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while retrieving groups of the role.", e);
-        }
+        //TODO Update the implementation with new domain model
+//        List<Group.GroupBuilder> groupBuilders = new ArrayList<>();
+//
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_ROLE));
+//            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//
+//            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+//                while (resultSet.next()) {
+//                    Group.GroupBuilder groupBuilder = new Group.GroupBuilder();
+//                    groupBuilder.setGroupId(resultSet.getString(DatabaseColumnNames.GroupRole.GROUP_UNIQUE_ID))
+//                            .setIdentityStoreId(resultSet.getString(DatabaseColumnNames.GroupRole.IDENTITY_STORE_ID));
+//                    groupBuilders.add(groupBuilder);
+//                }
+//            }
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug("{} groups of role: {} retrieved from from authorization store: {}.", groupBuilders.size(),
+//                        roleId, authorizationStoreId);
+//            }
+//
+//            return groupBuilders;
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while retrieving groups of the role.", e);
+//        }
+        return null;
     }
 
     @Override
@@ -678,26 +687,28 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public Resource addResource(String resourceNamespace, String resourceId, String userId, String identityStoreId)
             throws AuthorizationStoreException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            long namespaceId = addNamespaceIfNotExist(resourceNamespace, "", unitOfWork);
-
-            // Add the resource.
-            NamedPreparedStatement addResourcePreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_RESOURCE));
-            addResourcePreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.NAMESPACE_ID, namespaceId);
-            addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourceId);
-            addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
-            addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                    identityStoreId);
-
-            addResourcePreparedStatement.getPreparedStatement().executeUpdate();
-            return new Resource(resourceNamespace, resourceId, userId, identityStoreId);
-
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while adding the resource.", e);
-        }
+        //TODO Update the implementation with new domain model
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            long namespaceId = addNamespaceIfNotExist(resourceNamespace, "", unitOfWork);
+//
+//            // Add the resource.
+//            NamedPreparedStatement addResourcePreparedStatement = new NamedPreparedStatement(
+//                    unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_RESOURCE));
+//            addResourcePreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.NAMESPACE_ID, namespaceId);
+//            addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.RESOURCE_NAME, resourceId);
+//            addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+//            addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+//                    identityStoreId);
+//
+//            addResourcePreparedStatement.getPreparedStatement().executeUpdate();
+//            return new Resource(resourceNamespace, resourceId, userId, identityStoreId);
+//
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while adding the resource.", e);
+//        }
+        return null;
     }
 
     @Override
@@ -967,94 +978,96 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public void updateUsersInRole(String roleId, List<User> users) throws AuthorizationStoreException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-
-            NamedPreparedStatement deleteUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USERS_FROM_ROLE));
-
-            deleteUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-
-            if (log.isDebugEnabled()) {
-                log.debug("All users of the role: {} deleted from from authorization store: {}.", roleId,
-                        authorizationStoreId);
-            }
-
-            NamedPreparedStatement addUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
-
-            for (User user : users) {
-                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
-                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                        user.getIdentityStoreId());
-                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                addUsersPreparedStatement.getPreparedStatement().addBatch();
-            }
-
-            addUsersPreparedStatement.getPreparedStatement().executeBatch();
-            unitOfWork.endTransaction();
-
-            if (log.isDebugEnabled()) {
-                log.debug("{} users added to the role: {} in authorization store: {}.", users.size(), roleId,
-                        authorizationStoreId);
-            }
-
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while updating users in the role.", e);
-        }
+        //TODO Update the implementation with new domain model
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+//
+//          NamedPreparedStatement deleteUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USERS_FROM_ROLE));
+//
+//            deleteUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug("All users of the role: {} deleted from from authorization store: {}.", roleId,
+//                        authorizationStoreId);
+//            }
+//
+//            NamedPreparedStatement addUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
+//
+//            for (User user : users) {
+//                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+//                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+//                        user.getIdentityStoreId());
+//                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//                addUsersPreparedStatement.getPreparedStatement().addBatch();
+//            }
+//
+//            addUsersPreparedStatement.getPreparedStatement().executeBatch();
+//            unitOfWork.endTransaction();
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug("{} users added to the role: {} in authorization store: {}.", users.size(), roleId,
+//                        authorizationStoreId);
+//            }
+//
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while updating users in the role.", e);
+//        }
     }
 
     @Override
     public void updateUsersInRole(String roleId, List<User> addList, List<User> removeList)
             throws AuthorizationStoreException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-
-            if (removeList != null && !removeList.isEmpty()) {
-
-                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
-                        unitOfWork.getConnection(),
-                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
-
-                for (User user : removeList) {
-                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
-                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                            user.getIdentityStoreId());
-                    unAssingPreparedStatement.getPreparedStatement().addBatch();
-                }
-                unAssingPreparedStatement.getPreparedStatement().executeBatch();
-
-                if (log.isDebugEnabled()) {
-                    log.debug("{} users deleted from the role: {} in authorization store: {}.", removeList.size(),
-                            roleId, authorizationStoreId);
-                }
-            }
-
-            if (addList != null && !addList.isEmpty()) {
-
-                NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
-
-                for (User user : addList) {
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                            user.getIdentityStoreId());
-                    assignPreparedStatement.getPreparedStatement().addBatch();
-                }
-                assignPreparedStatement.getPreparedStatement().executeBatch();
-
-                if (log.isDebugEnabled()) {
-                    log.debug("{} users added to the role: {} in authorization store: {}.", addList.size(), roleId,
-                            authorizationStoreId);
-                }
-            }
-
-            unitOfWork.endTransaction();
-
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while updating users in the role.", e);
-        }
+        //TODO Update the implementation with new domain model
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+//
+//            if (removeList != null && !removeList.isEmpty()) {
+//
+//                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
+//                        unitOfWork.getConnection(),
+//                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER));
+//
+//                for (User user : removeList) {
+//                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+//                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+//                            user.getIdentityStoreId());
+//                    unAssingPreparedStatement.getPreparedStatement().addBatch();
+//                }
+//                unAssingPreparedStatement.getPreparedStatement().executeBatch();
+//
+//                if (log.isDebugEnabled()) {
+//                    log.debug("{} users deleted from the role: {} in authorization store: {}.", removeList.size(),
+//                            roleId, authorizationStoreId);
+//                }
+//            }
+//
+//            if (addList != null && !addList.isEmpty()) {
+//
+//               NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
+//
+//                for (User user : addList) {
+//                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+//                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+//                            user.getIdentityStoreId());
+//                    assignPreparedStatement.getPreparedStatement().addBatch();
+//                }
+//                assignPreparedStatement.getPreparedStatement().executeBatch();
+//
+//                if (log.isDebugEnabled()) {
+//                    log.debug("{} users added to the role: {} in authorization store: {}.", addList.size(), roleId,
+//                            authorizationStoreId);
+//                }
+//            }
+//
+//            unitOfWork.endTransaction();
+//
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while updating users in the role.", e);
+//        }
     }
 
     @Override
@@ -1160,96 +1173,99 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public void updateGroupsInRole(String roleId, List<Group> groups) throws AuthorizationStoreException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-
-            NamedPreparedStatement deleteGroupsPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUPS_FROM_ROLE));
-
-            deleteGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-
-            if (log.isDebugEnabled()) {
-                log.debug("All groups deleted from the role: {} in authorization store: {}.", roleId,
-                        authorizationStoreId);
-            }
-
-            NamedPreparedStatement addGroupsPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
-
-            for (Group group : groups) {
-                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
-                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                        group.getIdentityStoreId());
-                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                addGroupsPreparedStatement.getPreparedStatement().addBatch();
-            }
-
-            addGroupsPreparedStatement.getPreparedStatement().executeBatch();
-            unitOfWork.endTransaction();
-
-            if (log.isDebugEnabled()) {
-                log.debug("{} groups added to the role: {} in authorization store: {}.", groups.size(), roleId,
-                        authorizationStoreId);
-            }
-
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while updating groups in the role.", e);
-        }
+        //TODO Update the implementation with new domain model
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+//
+//            NamedPreparedStatement deleteGroupsPreparedStatement = new NamedPreparedStatement(
+//                    unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUPS_FROM_ROLE));
+//
+//            deleteGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug("All groups deleted from the role: {} in authorization store: {}.", roleId,
+//                        authorizationStoreId);
+//            }
+//
+//            NamedPreparedStatement addGroupsPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+//
+//            for (Group group : groups) {
+//                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
+//                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+//                        group.getIdentityStoreId());
+//                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//                addGroupsPreparedStatement.getPreparedStatement().addBatch();
+//            }
+//
+//            addGroupsPreparedStatement.getPreparedStatement().executeBatch();
+//            unitOfWork.endTransaction();
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug("{} groups added to the role: {} in authorization store: {}.", groups.size(), roleId,
+//                        authorizationStoreId);
+//            }
+//
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while updating groups in the role.", e);
+//        }
     }
 
     @Override
     public void updateGroupsInRole(String roleId, List<Group> addList, List<Group> removeList)
             throws AuthorizationStoreException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-
-            if (removeList != null && !removeList.isEmpty()) {
-
-                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
-                        unitOfWork.getConnection(),
-                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
-
-                for (Group group : removeList) {
-                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID,
-                            group.getGroupId());
-                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                            group.getIdentityStoreId());
-                    unAssingPreparedStatement.getPreparedStatement().addBatch();
-                }
-                unAssingPreparedStatement.getPreparedStatement().executeBatch();
-
-                if (log.isDebugEnabled()) {
-                    log.debug("{} groups removed from the role: {} in authorization store: {}.", removeList.size(),
-                            roleId, authorizationStoreId);
-                }
-            }
-
-            if (addList != null && !addList.isEmpty()) {
-
-                NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
-
-                for (Group group : addList) {
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                            group.getIdentityStoreId());
-                    assignPreparedStatement.getPreparedStatement().addBatch();
-                }
-                assignPreparedStatement.getPreparedStatement().executeBatch();
-
-                if (log.isDebugEnabled()) {
-                    log.debug("{} groups added to the role {} in authorization store: {}.", addList.size(), roleId,
-                            authorizationStoreId);
-                }
-            }
-
-            unitOfWork.endTransaction();
-
-        } catch (SQLException e) {
-            throw new AuthorizationStoreException("An error occurred while updating groups in the role.", e);
-        }
+        //TODO update the implementation with new domain model
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+//
+//            if (removeList != null && !removeList.isEmpty()) {
+//
+//                NamedPreparedStatement unAssingPreparedStatement = new NamedPreparedStatement(
+//                        unitOfWork.getConnection(),
+//                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP));
+//
+//                for (Group group : removeList) {
+//                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID,
+//                            group.getGroupId());
+//                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+//                            group.getIdentityStoreId());
+//                    unAssingPreparedStatement.getPreparedStatement().addBatch();
+//                }
+//                unAssingPreparedStatement.getPreparedStatement().executeBatch();
+//
+//                if (log.isDebugEnabled()) {
+//                    log.debug("{} groups removed from the role: {} in authorization store: {}.", removeList.size(),
+//                            roleId, authorizationStoreId);
+//                }
+//            }
+//
+//            if (addList != null && !addList.isEmpty()) {
+//
+//               NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+//                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
+//
+//                for (Group group : addList) {
+//                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
+//                   assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
+//                   assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
+//                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
+//                            group.getIdentityStoreId());
+//                    assignPreparedStatement.getPreparedStatement().addBatch();
+//                }
+//                assignPreparedStatement.getPreparedStatement().executeBatch();
+//
+//                if (log.isDebugEnabled()) {
+//                    log.debug("{} groups added to the role {} in authorization store: {}.", addList.size(), roleId,
+//                            authorizationStoreId);
+//                }
+//            }
+//
+//            unitOfWork.endTransaction();
+//
+//        } catch (SQLException e) {
+//            throw new AuthorizationStoreException("An error occurred while updating groups in the role.", e);
+//        }
     }
 
     @Override
@@ -1348,7 +1364,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public AuthorizationConnectorConfig getAuthorizationStoreConfig() {
+    public AuthorizationStoreConnectorConfig getAuthorizationStoreConfig() {
         return authorizationStoreConfig;
     }
 
