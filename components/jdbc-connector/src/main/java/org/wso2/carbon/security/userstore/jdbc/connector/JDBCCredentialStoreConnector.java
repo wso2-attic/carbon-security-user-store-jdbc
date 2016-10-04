@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.caas.api.CarbonCallback;
 import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.config.CredentialConnectorConfig;
+import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
 import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
@@ -52,10 +52,10 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     private static Logger log = LoggerFactory.getLogger(JDBCCredentialStoreConnector.class);
 
     private String credentialStoreId;
-    private CredentialConnectorConfig credentialStoreConfig;
+    private CredentialStoreConnectorConfig credentialStoreConfig;
     private DataSource dataSource;
 
-    public void init(String storeId, CredentialConnectorConfig configuration) throws CredentialStoreException {
+    public void init(String storeId, CredentialStoreConnectorConfig configuration) throws CredentialStoreException {
 
         Properties properties = configuration.getStoreProperties();
         this.credentialStoreConfig = configuration;
@@ -106,7 +106,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             getPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
                     userData.get(UserCoreConstants.USER_ID));
             getPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                    userData.get(UserCoreConstants.IDENTITY_STORE_ID));
+                    userData.get(UserCoreConstants.DOMAIN_ID));
 
             String hashAlgo;
             String salt;
@@ -150,7 +150,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
                     userData.get(UserCoreConstants.USER_ID));
             comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                    userData.get(UserCoreConstants.IDENTITY_STORE_ID));
+                    userData.get(UserCoreConstants.DOMAIN_ID));
 
             try (ResultSet resultSet = comparePasswordPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -159,10 +159,9 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                 }
 
                 String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                String identityStoreId = resultSet.getString(DatabaseColumnNames.User.IDENTITY_STORE_ID);
+//                String identityStoreId = resultSet.getString(DatabaseColumnNames.User.IDENTITY_STORE_ID);
 
-                return new User.UserBuilder().setUserId(userUniqueId)
-                        .setIdentityStoreId(identityStoreId).setCredentialStoreId(credentialStoreId);
+                return new User.UserBuilder().setUserId(userUniqueId);
             }
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);
@@ -188,7 +187,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public CredentialConnectorConfig getCredentialStoreConfig() {
+    public CredentialStoreConnectorConfig getCredentialStoreConfig() {
         return credentialStoreConfig;
     }
 }
