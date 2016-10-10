@@ -42,7 +42,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     public void testIsUserInGroupValid() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        assertTrue(identityStore.isUserInGroup(DEFAULT_USER_ID, DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE));
+        assertTrue(identityStore.isUserInGroup(DEFAULT_USER_ID, DEFAULT_GROUP_ID));
     }
 
     @Test(priority = 25)
@@ -76,7 +76,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     public void testGetUserAttributeValues() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<Attribute> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+        List<Attribute> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID);
 
         assertFalse(claims.isEmpty());
     }
@@ -89,8 +89,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         attributeNames.add("lastName");
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<Attribute> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, attributeNames,
-                DEFAULT_IDENTITY_STORE);
+        List<Attribute> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, attributeNames);
 
         assertFalse(claims.isEmpty());
     }
@@ -147,7 +146,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     public void testGetGroupsOfUser() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<Group> groups = identityStore.getGroupsOfUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+        List<Group> groups = identityStore.getGroupsOfUser(DEFAULT_USER_ID);
         assertFalse(groups.isEmpty());
     }
 
@@ -155,7 +154,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     public void testGetUsersOfGroup() throws IdentityStoreException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<User> users = identityStore.getUsersOfGroup(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE);
+        List<User> users = identityStore.getUsersOfGroup(DEFAULT_GROUP_ID);
         assertFalse(users.isEmpty());
     }
 }

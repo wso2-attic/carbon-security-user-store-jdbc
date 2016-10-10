@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.caas.api.CarbonCallback;
-import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
@@ -81,7 +80,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public User.UserBuilder authenticate(Callback[] callbacks) throws CredentialStoreException, AuthenticationFailure {
+    public void authenticate(Callback[] callbacks) throws CredentialStoreException, AuthenticationFailure {
 
         Map<String, String> userData = null;
         char [] password = null;
@@ -105,8 +104,6 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_INFO));
             getPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
                     userData.get(UserCoreConstants.USER_ID));
-            getPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                    userData.get(UserCoreConstants.DOMAIN_ID));
 
             String hashAlgo;
             String salt;
@@ -149,19 +146,12 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     hashedPassword);
             comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
                     userData.get(UserCoreConstants.USER_ID));
-            comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.IDENTITY_STORE_ID,
-                    userData.get(UserCoreConstants.DOMAIN_ID));
 
             try (ResultSet resultSet = comparePasswordPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 if (!resultSet.next()) {
                     throw new AuthenticationFailure("Invalid username or password");
                 }
-
-                String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-//                String identityStoreId = resultSet.getString(DatabaseColumnNames.User.IDENTITY_STORE_ID);
-
-                return new User.UserBuilder().setUserId(userUniqueId);
             }
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new CredentialStoreException("Exception occurred while authenticating the user", e);
