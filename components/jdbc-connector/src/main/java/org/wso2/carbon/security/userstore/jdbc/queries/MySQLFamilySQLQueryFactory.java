@@ -31,45 +31,37 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "AND PASSWORD = :hashed_password;";
 
     private static final String GET_USER_FROM_USERNAME =
-            "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_USER LEFT JOIN UM_TENANT " +
-            "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
+            "SELECT UM_USER.USER_UNIQUE_ID " +
+            "FROM UM_USER " +
             "WHERE UM_USER.USERNAME = :username;";
 
     private static final String GET_USER_FROM_ATTRIBUTE =
-            "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
-                    "FROM UM_USER LEFT JOIN UM_TENANT " +
-                    "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
-                    "LEFT JOIN UM_USER_ATTRIBUTES " +
+            "SELECT UM_USER.USER_UNIQUE_ID " +
+                    "FROM UM_USER LEFT JOIN UM_USER_ATTRIBUTES " +
                     "ON UM_USER_ATTRIBUTES.USER_ID = UM_USER.ID " +
                     "WHERE UM_USER_ATTRIBUTES.ATTR_NAME = :attr_name; " +
                     "AND UM_USER_ATTRIBUTES.ATTR_VALUE = :attr_value;";
 
     private static final String GET_USER_FROM_ID =
-            "SELECT UM_USER.USERNAME, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_USER LEFT JOIN UM_TENANT " +
-            "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
+            "SELECT UM_USER.USERNAME " +
+            "FROM UM_USER " +
             "WHERE UM_USER.USER_UNIQUE_ID = :user_id;";
 
     private static final String GET_GROUP_FROM_NAME =
-            "SELECT UM_GROUP.GROUP_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_GROUP LEFT JOIN UM_TENANT " +
-            "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
+            "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
+            "FROM UM_GROUP " +
             "WHERE UM_GROUP.GROUP_NAME = :group_name;";
 
     private static final String GET_GROUP_FROM_ATTRIBUTE =
-            "SELECT UM_GROUP.GROUP_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
-                    "FROM UM_GROUP LEFT JOIN UM_TENANT " +
-                    "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
-                    "LEFT JOIN UM_GROUP_ATTRIBUTES " +
+            "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
+                    "FROM UM_GROUP LEFT JOIN UM_GROUP_ATTRIBUTES " +
                     "ON UM_GROUP_ATTRIBUTES.GROUP_ID = UM_GROUP.ID " +
                     "WHERE UM_GROUP_ATTRIBUTES.ATTR_NAME = :attr_name; " +
                     "AND UM_GROUP_ATTRIBUTES.ATTR_VALUE = :attr_value;";
 
     private static final String GET_GROUP_FROM_ID =
-            "SELECT UM_GROUP.GROUP_NAME, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_GROUP LEFT JOIN UM_TENANT " +
-            "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
+            "SELECT UM_GROUP.GROUP_NAME " +
+            "FROM UM_GROUP " +
             "WHERE UM_GROUP.GROUP_UNIQUE_ID = :group_id;";
 
     private static final String GET_USER_ATTRIBUTES =
@@ -114,17 +106,15 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "VALUES (:group_name;, :group_id;)";
 
     private static final String LIST_USERS =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_USER LEFT JOIN UM_TENANT " +
-            "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
+            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID " +
+            "FROM UM_USER " +
             "WHERE UM_USER.USERNAME LIKE :username; " +
             "LIMIT :length; " +
             "OFFSET :offset;";
+
     private static final String LIST_USERS_BY_ATTRIBUTE =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
-                    "FROM UM_USER LEFT JOIN UM_TENANT " +
-                    "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
-                    "LEFT JOIN UM_USER_ATTRIBUTES " +
+            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID " +
+                    "FROM UM_USER LEFT JOIN UM_USER_ATTRIBUTES " +
                     "ON UM_USER_ATTRIBUTES.USER_ID = UM_USER.ID " +
                     "WHERE UM_USER_ATTRIBUTES.ATTR_NAME = :attr_name; " +
                     "AND UM_USER_ATTRIBUTES.ATTR_VALUE LIKE :attr_value; " +
@@ -132,9 +122,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "OFFSET :offset;";
 
     private static final String GET_GROUPS_OF_USER =
-            "SELECT UM_GROUP.GROUP_NAME, UM_GROUP.GROUP_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_GROUP LEFT JOIN UM_TENANT " +
-            "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
+            "SELECT UM_GROUP.GROUP_NAME, UM_GROUP.GROUP_UNIQUE_ID " +
+            "FROM UM_GROUP " +
             "WHERE UM_GROUP.ID IN (SELECT GROUP_ID " +
                         "FROM UM_USER_GROUP " +
                         "WHERE USER_ID = (SELECT ID " +
@@ -142,9 +131,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                          "WHERE USER_UNIQUE_ID = :user_id;))";
 
     private static final String GET_USERS_OF_GROUP =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_USER LEFT JOIN UM_TENANT " +
-            "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
+            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID " +
+            "FROM UM_USER " +
             "WHERE UM_USER.ID IN (SELECT USER_ID " +
                         "FROM UM_USER_GROUP " +
                         "WHERE GROUP_ID = (SELECT ID " +
@@ -239,9 +227,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                         "WHERE GROUP_UNIQUE_ID = :group_id;)";
 
     private static final String LIST_GROUP =
-            "SELECT UM_GROUP.GROUP_NAME, UM_GROUP.GROUP_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
-            "FROM UM_GROUP LEFT JOIN UM_TENANT " +
-            "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
+            "SELECT UM_GROUP.GROUP_NAME, UM_GROUP.GROUP_UNIQUE_ID " +
+            "FROM UM_GROUP " +
             "WHERE UM_GROUP.GROUP_NAME LIKE :group_name; " +
             "LIMIT :length; " +
             "OFFSET :offset;";

@@ -1,15 +1,28 @@
 enableCache: true # Optional. Default: True
 credentialStore:
- connector: "JDBCCredentialStore"
+ connector: "#JDBCCS1"
 identityStore:
- connector: "JDBCIdentityStore"
- caches: # Optional.
-     -
-      name: "cache_name_1" # Mandatory for a caches entry. should provide a valid cache name.
-      cacheConfig: # Optional. Default configs will be assigned to the caches entry.
-       enable: true # Optional. 'true' if not specified. enable/disable the specific cache.
-       maxCapacity: 100 # Optional. If not specified, default system maxCapacity will be applied.
-       expireTime: 10 # Optional. If not specified, default system expiryTime will be applied. Unit: minutes.
-       statisticsEnabled: false # Optional. 'false' if not specified.
+ connector: "#JDBCIS1"
 authorizationStore:
- connector: "JDBCAuthorizationStore"
+ connector: "#JDBCAS1"
+
+storeConnectors:
+ -
+  name: "JDBCCS1"
+  connectorType: "JDBCCredentialStore"
+  properties:
+   dataSource: "WSO2_CARBON_DB"
+   hashAlgorithm: "SHA256"
+   databaseType: "MySQL"
+ -
+  name: "JDBCIS1"
+  connectorType: "JDBCIdentityStore"
+  properties:
+   dataSource: "WSO2_CARBON_DB"
+   databaseType: "MySQL"
+ -
+  name: "JDBCAS1"
+  connectorType: "JDBCAuthorizationStore"
+  properties:
+   dataSource: "WSO2_CARBON_DB"
+   databaseType: "MySQL"

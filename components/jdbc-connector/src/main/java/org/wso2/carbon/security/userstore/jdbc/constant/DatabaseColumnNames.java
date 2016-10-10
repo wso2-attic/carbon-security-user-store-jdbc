@@ -40,7 +40,6 @@ public class DatabaseColumnNames {
         public static final String USER_UNIQUE_ID = "USER_UNIQUE_ID";
         public static final String IDENTITY_STORE_ID = "IDENTITY_STORE_ID";
         public static final String CREDENTIAL_STORE_ID = "CREDENTIAL_STORE_ID";
-        public static final String TENANT_ID = "TENANT_ID";
     }
 
     /**
@@ -125,12 +124,6 @@ public class DatabaseColumnNames {
         public static final String ACTION_NAME = "ACTION_NAME";
     }
 
-    /**
-     * Names of the Tenant table columns.
-     */
-    public static final class Tenant {
-        public static final String DOMAIN_NAME = "DOMAIN_NAME";
-    }
 
     /**
      * Names of the UserRole table columns.

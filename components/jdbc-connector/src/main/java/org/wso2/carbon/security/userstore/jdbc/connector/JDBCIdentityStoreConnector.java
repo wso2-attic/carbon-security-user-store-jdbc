@@ -99,16 +99,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
 
                 String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
-
-//                String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
 
                 if (log.isDebugEnabled()) {
                     log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
                 }
 
                 //TODO authorization store, claim manager and identity store are not set here
-                return new User.UserBuilder().setUserId(userId).setTenantDomain(tenantDomain);
+                return new User.UserBuilder().setUserId(userId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -130,15 +127,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
 
                 String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
-//                String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
 
                 if (log.isDebugEnabled()) {
                     log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
                 }
 
                 //TODO authorization store, claim manager and identity store are not set here
-                return new User.UserBuilder().setUserId(userId).setTenantDomain(tenantDomain);
+                return new User.UserBuilder().setUserId(userId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -192,15 +187,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
 
 //                String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-                String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
-//                String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
 
                 if (log.isDebugEnabled()) {
                     log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
                 }
 
                 //TODO authorization store, claim manager and identity store are not set here
-                return new User.UserBuilder().setUserId(userId).setTenantDomain(tenantDomain);
+                return new User.UserBuilder().setUserId(userId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -236,10 +229,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 while (resultSet.next()) {
                     String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
 //                    String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-                    String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
-//                    String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
                     //TODO authorization store, claim manager and identity store are not set here
-                    userList.add(new User.UserBuilder().setUserId(userUniqueId).setTenantDomain(tenantDomain));
+                    userList.add(new User.UserBuilder().setUserId(userUniqueId));
                 }
             }
 
@@ -280,10 +271,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 while (resultSet.next()) {
                     String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
 //                    String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-                    String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
-//                    String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
                     //TODO authorization store, claim manager and identity store are not set here
-                    userList.add(new User.UserBuilder().setUserId(userUniqueId).setTenantDomain(tenantDomain));
+                    userList.add(new User.UserBuilder().setUserId(userUniqueId));
                 }
             }
 
@@ -383,14 +372,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
 
                 String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-                String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
 
                 if (log.isDebugEnabled()) {
                     log.debug("Group with attribute {}: {} retrieved from identity store: {}.", attributeName,
                             attributeValue, identityStoreId);
                 }
 
-                return new Group.GroupBuilder().setGroupId(groupId).setTenantDomain(tenantDomain);
+                return new Group.GroupBuilder().setGroupId(groupId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving group.", e);
@@ -412,13 +400,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
 
                 String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-                String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
 
                 if (log.isDebugEnabled()) {
                     log.debug("Group with name: {} retrieved from identity store: {}.", groupName, identityStoreId);
                 }
 
-                return new Group.GroupBuilder().setGroupId(groupId).setTenantDomain(tenantDomain);
+                return new Group.GroupBuilder().setGroupId(groupId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving group.", e);
@@ -459,14 +446,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
 
 //                String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
-                String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
 
                 if (log.isDebugEnabled()) {
                     log.debug("Group with id: {} retrieved from identity store: {}.", groupId, identityStoreId);
                 }
 
                 //TODO authorization store and identity store are not set here
-                return new Group.GroupBuilder().setGroupId(groupId).setTenantDomain(tenantDomain);
+                return new Group.GroupBuilder().setGroupId(groupId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving group.", e);
@@ -501,8 +487,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 while (resultSet.next()) {
                     String groupUniqueId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
 //                    String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
-                    String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
-                    groups.add(new Group.GroupBuilder().setGroupId(groupUniqueId).setTenantDomain(tenantDomain));
+                    groups.add(new Group.GroupBuilder().setGroupId(groupUniqueId));
                 }
             }
 
@@ -593,10 +578,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 while (resultSet.next()) {
 //                    String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
                     String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-                    String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
                     //TODO authorization store and identity store are not set here
-                    Group.GroupBuilder group = new Group.GroupBuilder().setGroupId(groupId)
-                            .setTenantDomain(tenantDomain);
+                    Group.GroupBuilder group = new Group.GroupBuilder().setGroupId(groupId);
                     groupList.add(group);
                 }
 
@@ -627,10 +610,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 while (resultSet.next()) {
 //                    String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
                     String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                    String tenantDomain = resultSet.getString(DatabaseColumnNames.Tenant.DOMAIN_NAME);
 //                    String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
                     //TODO authorization store, identity store and claim manager are not set here
-                    User.UserBuilder user = new User.UserBuilder().setUserId(userId).setTenantDomain(tenantDomain);
+                    User.UserBuilder user = new User.UserBuilder().setUserId(userId);
                     userList.add(user);
                 }
 
