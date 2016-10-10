@@ -25,10 +25,9 @@ import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String COMPARE_PASSWORD_HASH =
-            "SELECT USER_UNIQUE_ID, IDENTITY_STORE_ID " +
+            "SELECT USER_UNIQUE_ID " +
             "FROM UM_PASSWORD " +
             "WHERE USER_UNIQUE_ID = :user_id; " +
-            "AND IDENTITY_STORE_ID = :identity_store_id; " +
             "AND PASSWORD = :hashed_password;";
 
     private static final String GET_USER_FROM_USERNAME =
@@ -36,6 +35,15 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "FROM UM_USER LEFT JOIN UM_TENANT " +
             "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_USER.USERNAME = :username;";
+
+    private static final String GET_USER_FROM_ATTRIBUTE =
+            "SELECT UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
+                    "FROM UM_USER LEFT JOIN UM_TENANT " +
+                    "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
+                    "LEFT JOIN UM_USER_ATTRIBUTES " +
+                    "ON UM_USER_ATTRIBUTES.USER_ID = UM_USER.ID " +
+                    "WHERE UM_USER_ATTRIBUTES.ATTR_NAME = :attr_name; " +
+                    "AND UM_USER_ATTRIBUTES.ATTR_VALUE = :attr_value;";
 
     private static final String GET_USER_FROM_ID =
             "SELECT UM_USER.USERNAME, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
@@ -48,6 +56,15 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "FROM UM_GROUP LEFT JOIN UM_TENANT " +
             "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
             "WHERE UM_GROUP.GROUP_NAME = :group_name;";
+
+    private static final String GET_GROUP_FROM_ATTRIBUTE =
+            "SELECT UM_GROUP.GROUP_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
+                    "FROM UM_GROUP LEFT JOIN UM_TENANT " +
+                    "ON UM_GROUP.TENANT_ID = UM_TENANT.ID " +
+                    "LEFT JOIN UM_GROUP_ATTRIBUTES " +
+                    "ON UM_GROUP_ATTRIBUTES.GROUP_ID = UM_GROUP.ID " +
+                    "WHERE UM_GROUP_ATTRIBUTES.ATTR_NAME = :attr_name; " +
+                    "AND UM_GROUP_ATTRIBUTES.ATTR_VALUE = :attr_value;";
 
     private static final String GET_GROUP_FROM_ID =
             "SELECT UM_GROUP.GROUP_NAME, UM_TENANT.DOMAIN_NAME " +
@@ -103,6 +120,16 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "WHERE UM_USER.USERNAME LIKE :username; " +
             "LIMIT :length; " +
             "OFFSET :offset;";
+    private static final String LIST_USERS_BY_ATTRIBUTE =
+            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID, UM_USER.CREDENTIAL_STORE_ID, UM_TENANT.DOMAIN_NAME " +
+                    "FROM UM_USER LEFT JOIN UM_TENANT " +
+                    "ON UM_USER.TENANT_ID = UM_TENANT.ID " +
+                    "LEFT JOIN UM_USER_ATTRIBUTES " +
+                    "ON UM_USER_ATTRIBUTES.USER_ID = UM_USER.ID " +
+                    "WHERE UM_USER_ATTRIBUTES.ATTR_NAME = :attr_name; " +
+                    "AND UM_USER_ATTRIBUTES.ATTR_VALUE LIKE :attr_value; " +
+                    "LIMIT :length; " +
+                    "OFFSET :offset;";
 
     private static final String GET_GROUPS_OF_USER =
             "SELECT UM_GROUP.GROUP_NAME, UM_GROUP.GROUP_UNIQUE_ID, UM_TENANT.DOMAIN_NAME " +
@@ -127,7 +154,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String GET_PASSWORD_INFO =
             "SELECT PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH " +
             "FROM UM_PASSWORD_INFO " +
-            "WHERE USER_UNIQUE_ID = :user_id; AND IDENTITY_STORE_ID = :identity_store_id;";
+            "WHERE USER_UNIQUE_ID = :user_id;";
 
     private static final String ADD_PASSWORD_INFO =
             "INSERT INTO UM_PASSWORD_INFO (USER_ID, PASSWORD_SALT, HASH_ALGO) " +
@@ -185,8 +212,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE =
             "SELECT RESOURCE_NAMESPACE.NAMESPACE, UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, " +
-                    "UM_RESOURCE.IDENTITY_STORE_ID, ACTION_NAMESPACE.NAMESPACE, UM_ACTION.ACTION_NAME, " +
-                    "UM_PERMISSION.PERMISSION_UNIQUE_ID " +
+                    "ACTION_NAMESPACE.NAMESPACE, UM_ACTION.ACTION_NAME, UM_PERMISSION.PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
             "LEFT JOIN UM_RESOURCE ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
             "LEFT JOIN UM_RESOURCE_NAMESPACE AS RESOURCE_NAMESPACE ON UM_RESOURCE.NAMESPACE_ID = " +
@@ -229,21 +255,21 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "VALUES (:role_name;, :role_unique_id;)";
 
     private static final String ADD_PERMISSION_TO_ROLE =
-            "INSERT INTO UM_ROLE_PERMISSION (ROLE_ID, PERMISSION_ID)" +
+            "INSERT INTO UM_ROLE_PERMISSION (ROLE_ID, PERMISSION_ID) " +
             "VALUES (:role_id;, " +
                     "(SELECT ID " +
                     "FROM UM_PERMISSION " +
                     "WHERE PERMISSION_UNIQUE_ID = :permission_id;))";
 
     private static final String GET_USERS_OF_ROLE =
-            "SELECT USER_UNIQUE_ID, IDENTITY_STORE_ID " +
+            "SELECT USER_UNIQUE_ID " +
             "FROM UM_USER_ROLE " +
             "WHERE ROLE_ID = (SELECT ID " +
                              "FROM UM_ROLE " +
                              "WHERE ROLE_UNIQUE_ID = :role_id;)";
 
     private static final String GET_GROUPS_OF_ROLE =
-            "SELECT GROUP_UNIQUE_ID, IDENTITY_STORE_ID " +
+            "SELECT GROUP_UNIQUE_ID " +
             "FROM UM_GROUP_ROLE " +
             "WHERE ROLE_ID = (SELECT ID " +
                              "FROM UM_ROLE " +
@@ -261,7 +287,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "SELECT ID " +
             "FROM UM_USER_ROLE " +
             "WHERE USER_UNIQUE_ID = :user_id; " +
-            "AND IDENTITY_STORE_ID = :identity_store_id; " +
             "AND ROLE_ID = (SELECT ID " +
                            "FROM UM_ROLE " +
                            "WHERE ROLE_NAME = :role_name;)";
@@ -270,23 +295,21 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "SELECT ID " +
             "FROM UM_GROUP_ROLE " +
             "WHERE GROUP_UNIQUE_ID = :group_id; " +
-            "AND IDENTITY_STORE_ID = :identity_store_id; " +
             "AND ROLE_ID = (SELECT ID " +
                            "FROM UM_ROLE " +
                            "WHERE ROLE_NAME = :role_name;)";
 
     private static final String DELETE_ROLES_OF_USER =
             "DELETE FROM UM_USER_ROLE " +
-            "WHERE USER_UNIQUE_ID = :user_id; " +
-            "AND IDENTITY_STORE_ID = :identity_store_id; ";
+            "WHERE USER_UNIQUE_ID = :user_id; ";
 
     private static final String ADD_ROLES_TO_USER =
-            "INSERT INTO UM_USER_ROLE(USER_UNIQUE_ID, IDENTITY_STORE_ID, ROLE_ID) " +
-            "VALUES (:user_id;, :identity_store_id;, (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;))";
+            "INSERT INTO UM_USER_ROLE(USER_UNIQUE_ID, ROLE_ID) " +
+            "VALUES (:user_id;, (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;))";
 
     private static final String ADD_ROLES_TO_GROUP =
-            "INSERT INTO UM_GROUP_ROLE(GROUP_UNIQUE_ID, IDENTITY_STORE_ID, ROLE_ID) " +
-            "VALUES (:group_id;, :identity_store_id;, (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;))";
+            "INSERT INTO UM_GROUP_ROLE(GROUP_UNIQUE_ID, ROLE_ID) " +
+            "VALUES (:group_id;, (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;))";
 
     private static final String ADD_PERMISSION_TO_ROLE_BY_UNIQUE_ID =
             "INSERT INTO UM_ROLE_PERMISSION (ROLE_ID, PERMISSION_ID)" +
@@ -300,8 +323,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String DELETE_ROLES_FROM_GROUP =
             "DELETE FROM UM_GROUP_ROLE " +
-            "WHERE GROUP_UNIQUE_ID = :group_id; " +
-            "AND IDENTITY_STORE_ID = :identity_store_id;";
+            "WHERE GROUP_UNIQUE_ID = :group_id; ";
 
     private static final String DELETE_GROUPS_FROM_ROLE =
             "DELETE FROM UM_GROUP_ROLE WHERE ROLE_ID = :role_id;";
@@ -317,13 +339,11 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String DELETE_GIVEN_ROLES_FROM_USER =
             "DELETE FROM UM_USER_ROLE " +
             "WHERE USER_UNIQUE_ID = :user_id; " +
-            "AND IDENTITY_STORE_ID = :identity_store_id; " +
             "AND ROLE_ID = (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;)";
 
     private static final String DELETE_GIVEN_ROLES_FROM_GROUP =
             "DELETE FROM UM_GROUP_ROLE " +
             "WHERE GROUP_UNIQUE_ID = :group_id; " +
-            "AND IDENTITY_STORE_ID = :identity_store_id; " +
             "AND ROLE_ID = (SELECT ID FROM UM_ROLE WHERE ROLE_UNIQUE_ID = :role_id;)";
 
     private static final String DELETE_GIVEN_PERMISSIONS_FROM_ROLE =
@@ -332,7 +352,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "AND PERMISSION_ID = (SELECT ID FROM UM_PERMISSION WHERE PERMISSION_UNIQUE_ID = :permission_id;)";
 
     private static final String GET_PERMISSION =
-            "SELECT UM_PERMISSION.PERMISSION_UNIQUE_ID, UM_RESOURCE.USER_UNIQUE_ID, UM_RESOURCE.IDENTITY_STORE_ID " +
+            "SELECT UM_PERMISSION.PERMISSION_UNIQUE_ID, UM_RESOURCE.USER_UNIQUE_ID " +
             "FROM UM_PERMISSION LEFT JOIN UM_RESOURCE " +
             "ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
             "WHERE RESOURCE_ID = (SELECT ID " +
@@ -357,8 +377,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "WHERE NAMESPACE = :namespace;";
 
     private static final String ADD_RESOURCE =
-            "INSERT INTO UM_RESOURCE(NAMESPACE_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID) " +
-            "VALUES (:namespace_id;, :resource_name;, :user_id;, :identity_store_id;)";
+            "INSERT INTO UM_RESOURCE(NAMESPACE_ID, RESOURCE_NAME, USER_UNIQUE_ID) " +
+            "VALUES (:namespace_id;, :resource_name;, :user_id;)";
 
     private static final String ADD_ACTION =
             "INSERT INTO UM_ACTION(NAMESPACE_ID, ACTION_NAME) " +
@@ -396,8 +416,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String GET_PERMISSIONS_FROM_ACTION_FOR_ROLE =
             "SELECT RESOURCE_NAMESPACE.NAMESPACE, UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, " +
-                    "UM_RESOURCE.IDENTITY_STORE_ID, ACTION_NAMESPACE.NAMESPACE, UM_ACTION.ACTION_NAME, " +
-                    "UM_PERMISSION.PERMISSION_UNIQUE_ID " +
+                    "ACTION_NAMESPACE.NAMESPACE, UM_ACTION.ACTION_NAME, UM_PERMISSION.PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
             "LEFT JOIN UM_RESOURCE ON UM_PERMISSION.RESOURCE_ID = UM_RESOURCE.ID " +
             "LEFT JOIN UM_RESOURCE_NAMESPACE AS RESOURCE_NAMESPACE ON UM_RESOURCE.NAMESPACE_ID = " +
@@ -425,7 +444,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String COUNT_GROUPS = "SELECT COUNT(*) FROM UM_GROUP";
 
     private static final String GET_RESOURCES =
-            "SELECT UM_RESOURCE_N.NAMESPACE, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID " +
+            "SELECT UM_RESOURCE_N.NAMESPACE, RESOURCE_NAME, USER_UNIQUE_ID " +
             "FROM UM_RESOURCE " +
             "JOIN UM_RESOURCE_NAMESPACE AS UM_RESOURCE_N ON UM_RESOURCE_N.ID = UM_RESOURCE.NAMESPACE_ID " +
             "WHERE RESOURCE_NAME LIKE :resource_name;";
@@ -444,7 +463,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     private static final String LIST_PERMISSIONS =
             "SELECT RESOURCE_N.NAMESPACE AS RESOURCE_NAMESPACE, " +
-                    "UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, UM_RESOURCE.IDENTITY_STORE_ID, " +
+                    "UM_RESOURCE.RESOURCE_NAME, UM_RESOURCE.USER_UNIQUE_ID, " +
                     "ACTION_N.NAMESPACE AS ACTION_NAMESPACE, UM_ACTION.ACTION_NAME, " +
                     "UM_PERMISSION.PERMISSION_UNIQUE_ID " +
             "FROM UM_PERMISSION " +
@@ -472,8 +491,10 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH, COMPARE_PASSWORD_HASH);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_USERNAME, GET_USER_FROM_USERNAME);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE, GET_USER_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ID, GET_USER_FROM_ID);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_NAME, GET_GROUP_FROM_NAME);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE, GET_GROUP_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ID, GET_GROUP_FROM_ID);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES, GET_USER_ATTRIBUTES);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER, DELETE_USER);
@@ -485,6 +506,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS, GET_USER_IDS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP, ADD_GROUP);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS, LIST_USERS);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE, LIST_USERS_BY_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER, GET_GROUPS_OF_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_GROUP, GET_USERS_OF_GROUP);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_INFO, GET_PASSWORD_INFO);

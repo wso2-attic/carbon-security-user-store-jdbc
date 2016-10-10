@@ -35,6 +35,8 @@ public class ConnectorConstants {
         public static final String PERMISSION_ID = "permission_id";
         public static final String ACTION_NAMESPACE = "action_namespace";
         public static final String USERNAME = "username";
+        public static final String ATTRIBUTE_NAME = "attr_name";
+        public static final String ATTRIBUTE_VALUE = "attr_value";
         public static final String USER_ID = "user_id";
         public static final String GROUP_NAME = "group_name";
         public static final String GROUP_ID = "group_id";
@@ -60,10 +62,12 @@ public class ConnectorConstants {
     public static final class QueryTypes {
 
         public static final String SQL_QUERY_GET_GROUP_FROM_NAME = "sql_query_get_group_from_name";
+        public static final String SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE = "sql_query_get_group_from_attribute";
         public static final String SQL_QUERY_GET_GROUP_FROM_ID = "sql_query_get_group_from_id";
         public static final String SQL_QUERY_COMPARE_PASSWORD_HASH = "sql_query_compare_password_hash";
         public static final String SQL_QUERY_GET_USER_FROM_ID = "sql_query_get_user_from_id";
         public static final String SQL_QUERY_GET_USER_FROM_USERNAME = "sql_query_get_user_from_username";
+        public static final String SQL_QUERY_GET_USER_FROM_ATTRIBUTE = "sql_query_get_user_from_attribute";
         public static final String SQL_QUERY_GET_USER_ATTRIBUTES = "sql_query_get_user_attributes";
         public static final String SQL_QUERY_GET_GROUPS_OF_USER = "sql_query_get_groups_of_user";
         public static final String SQL_QUERY_GET_USERS_OF_GROUP = "sql_query_get_users_of_group";
@@ -76,6 +80,7 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_USER_IDS = "sql_query_get_user_ids";
         public static final String SQL_QUERY_ADD_GROUP = "sql_query_add_group";
         public static final String SQL_QUERY_LIST_USERS = "sql_query_list_users";
+        public static final String SQL_QUERY_LIST_USERS_BY_ATTRIBUTE = "sql_query_list_users_by_attribute";
         public static final String SQL_QUERY_GET_PASSWORD_INFO = "sql_query_get_password_info";
         public static final String SQL_QUERY_ADD_PASSWORD_INFO = "sql_query_add_password_info";
         public static final String SQL_QUERY_UPDATE_CREDENTIAL = "sql_query_update_credential";

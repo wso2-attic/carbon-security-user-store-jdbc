@@ -108,7 +108,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         Resource resource = authorizationStore.addResource("reg", "root/resource/test-resource",
-                DEFAULT_AUTHORIZATION_STORE, DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+                DEFAULT_AUTHORIZATION_STORE, DEFAULT_USER_ID);
 
         assertNotNull(resource);
     }
@@ -128,7 +128,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         Permission permission = authorizationStore.addPermission(new Resource("reg", "root/resource/test-resource",
-                DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE), new Action("reg", "test-action"));
+                DEFAULT_USER_ID), new Action("reg", "test-action"));
 
         assertNotNull(permission.getPermissionId());
     }
@@ -138,7 +138,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         Permission permission = authorizationStore.addPermission(new Resource("reg", "root/resource/test-resource-1",
-                        DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE), new Action("reg", "test-action-1"),
+                        DEFAULT_USER_ID), new Action("reg", "test-action-1"),
                 DEFAULT_AUTHORIZATION_STORE);
 
         assertNotNull(permission.getPermissionId());
@@ -148,7 +148,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
     public void testIsUserInRoleValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        assertTrue(authorizationStore.isUserInRole(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, DEFAULT_ROLE));
+        assertTrue(authorizationStore.isUserInRole(DEFAULT_USER_ID, DEFAULT_ROLE));
     }
 
     @Test(priority = 6)
@@ -213,14 +213,14 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
     public void testGetUsersOfRole() throws AuthorizationStoreException, IdentityStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        assertNotNull(authorizationStore.getUsersOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE));
+        assertNotNull(authorizationStore.getUsersOfRole(DEFAULT_ROLE_ID));
     }
 
     @Test(priority = 10)
     public void testGetGroupsOfRole() throws AuthorizationStoreException, IdentityStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        assertNotNull(authorizationStore.getGroupsOfRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE));
+        assertNotNull(authorizationStore.getGroupsOfRole(DEFAULT_ROLE_ID));
     }
 
     @Test(priority = 10)
@@ -276,7 +276,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
                 .setAuthorizationStore(DEFAULT_AUTHORIZATION_STORE)
                 .setResourceNamespace("reg")
                 .setResourceId("root/resource/delete")
-                .setUserId(DEFAULT_USER_ID)
+                .setOwnerId(DEFAULT_USER_ID)
                 .build());
     }
 

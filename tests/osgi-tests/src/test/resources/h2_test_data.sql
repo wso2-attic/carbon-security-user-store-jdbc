@@ -49,10 +49,10 @@ VALUES ('admin', '985b79ecfcdf11e586aa5e5517507c66'),
 INSERT INTO UM_RESOURCE_NAMESPACE (NAMESPACE, DESCRIPTION)
 VALUES ('reg', 'Represents a registry resource/action');
 
-INSERT INTO UM_RESOURCE (NAMESPACE_ID, RESOURCE_NAME, USER_UNIQUE_ID, IDENTITY_STORE_ID)
-VALUES (1, 'root/resource/id', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore'),
-  (1, 'root/resource/name', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore'),
-  (1, 'root/resource/delete', '41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore');
+INSERT INTO UM_RESOURCE (NAMESPACE_ID, RESOURCE_NAME, USER_UNIQUE_ID)
+VALUES (1, 'root/resource/id', '41dadd2aea6e11e59ce95e5517507c66'),
+  (1, 'root/resource/name', '41dadd2aea6e11e59ce95e5517507c66'),
+  (1, 'root/resource/delete', '41dadd2aea6e11e59ce95e5517507c66');
 
 INSERT INTO UM_ACTION (NAMESPACE_ID, ACTION_NAME)
 VALUES (1, 'add'),
@@ -81,12 +81,12 @@ VALUES ('1', '1'), ('1', '2'), ('1', '3'), ('1', '4'),
   ('3', '3'), ('3', '1'), ('3', '2'), ('3', '4'),
   ('4', '4'), ('4', '1'), ('4', '2'), ('4', '3');
 
-INSERT INTO UM_USER_ROLE (USER_UNIQUE_ID, IDENTITY_STORE_ID, ROLE_ID)
-VALUES ('41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore', '1'),
-  ('41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore', '2'),
-  ('41dadd2aea6e11e59ce95e5517507c66', 'JDBCIdentityStore', '3');
+INSERT INTO UM_USER_ROLE (USER_UNIQUE_ID, ROLE_ID)
+VALUES ('41dadd2aea6e11e59ce95e5517507c66', '1'),
+  ('41dadd2aea6e11e59ce95e5517507c66', '2'),
+  ('41dadd2aea6e11e59ce95e5517507c66', '3');
 
-INSERT INTO UM_GROUP_ROLE (GROUP_UNIQUE_ID, IDENTITY_STORE_ID, ROLE_ID)
-VALUES ('a422aa98ecf411e59ce95e5517507c66', 'JDBCIdentityStore', '1'),
-  ('a422aa98ecf411e59ce95e5517507c66', 'JDBCIdentityStore', '2'),
-  ('a422aa98ecf411e59ce95e5517507c66', 'JDBCIdentityStore', '3');
+INSERT INTO UM_GROUP_ROLE (GROUP_UNIQUE_ID, ROLE_ID)
+VALUES ('a422aa98ecf411e59ce95e5517507c66', '1'),
+  ('a422aa98ecf411e59ce95e5517507c66', '2'),
+  ('a422aa98ecf411e59ce95e5517507c66', '3');
