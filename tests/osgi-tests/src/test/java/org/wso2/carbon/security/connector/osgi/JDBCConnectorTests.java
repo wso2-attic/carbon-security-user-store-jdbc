@@ -52,13 +52,19 @@ class JDBCConnectorTests {
     static final String DEFAULT_ROLE_ID = "985b79ecfcdf11e586aa5e5517507c66";
     static final String DEFAULT_GROUP_ID = "a422aa98ecf411e59ce95e5517507c66";
     static final String DEFAULT_PERMISSION_ID = "f61a1c240df011e6a1483e1d05defe78";
-    static final Domain DEFAULT_IDENTITY_STORE = new Domain("JDBCIdentityStore");
+
+    //Domain constructor throws exception
+    static Domain defaultDomain;
     static final String DEFAULT_CREDENTIAL_STORE = "JDBCCredentialStore";
     static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAuthorizationStore";
     static final Resource DEFAULT_RESOURCE = new Resource("reg", "root/resource/id",
             "41dadd2aea6e11e59ce95e5517507c66");
     static final Action ACTION_ADD = new Action("reg", "add");
     static final Permission DEFAULT_PERMISSION = new Permission(DEFAULT_RESOURCE, ACTION_ADD);
+
+    public JDBCConnectorTests() throws Exception {
+        defaultDomain = new Domain("A", 1);
+    }
 
     @Inject
     protected BundleContext bundleContext;

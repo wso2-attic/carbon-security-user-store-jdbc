@@ -44,19 +44,23 @@ import static org.testng.Assert.assertTrue;
  */
 public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
 
+    public JDBCAuthorizationConnectorTests() throws Exception {
+        super();
+    }
+
     @Test(priority = 1)
     public void testIsUserAuthorizedValid() throws AuthorizationStoreException,
             IdentityStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        assertTrue(authorizationStore.isUserAuthorized(DEFAULT_USER_ID, DEFAULT_PERMISSION, DEFAULT_IDENTITY_STORE));
+        assertTrue(authorizationStore.isUserAuthorized(DEFAULT_USER_ID, DEFAULT_PERMISSION, defaultDomain));
     }
 
     @Test(priority = 2)
     public void testIsGroupAuthorizedValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        authorizationStore.isGroupAuthorized(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE, DEFAULT_PERMISSION);
+        authorizationStore.isGroupAuthorized(DEFAULT_GROUP_ID, defaultDomain, DEFAULT_PERMISSION);
     }
 
     @Test(priority = 3)
@@ -118,7 +122,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         Resource resource = authorizationStore.addResource("reg", "root/resource/test-resource-1", DEFAULT_USER_ID,
-                DEFAULT_IDENTITY_STORE);
+                defaultDomain);
 
         assertNotNull(resource);
     }
@@ -155,7 +159,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
     public void testIsGroupInRoleValid() throws AuthorizationStoreException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
-        assertTrue(authorizationStore.isGroupInRole(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE, DEFAULT_ROLE));
+        assertTrue(authorizationStore.isGroupInRole(DEFAULT_GROUP_ID, defaultDomain, DEFAULT_ROLE));
     }
 
     @Test(priority = 7)
@@ -316,7 +320,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
                 .setRoleName("general")
                 .build());
 
-        authorizationStore.updateRolesInUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, roles);
+        authorizationStore.updateRolesInUser(DEFAULT_USER_ID, defaultDomain, roles);
     }
 
     @Test(priority = 14)
@@ -344,7 +348,7 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
                 .setRoleName("general")
                 .build());
 
-        authorizationStore.updateRolesInUser(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE, roles, roles);
+        authorizationStore.updateRolesInUser(DEFAULT_USER_ID, defaultDomain, roles, roles);
     }
 
     @Test(priority = 15)
@@ -355,7 +359,6 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
         List<User> users = new ArrayList<>();
         users.add(new User.UserBuilder()
                 .setUserId("b5572242139d11e6a1483e1d05defe78")
-                .setTenantDomain("wso2.com")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
                 .setClaimManager(realmService.getClaimManager())
@@ -363,7 +366,6 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
 
         users.add(new User.UserBuilder()
                 .setUserId("b5572580139d11e6a1483e1d05defe78")
-                .setTenantDomain("wso2.com")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
                 .setClaimManager(realmService.getClaimManager())
@@ -380,7 +382,6 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
         List<User> users = new ArrayList<>();
         users.add(new User.UserBuilder()
                 .setUserId("b5572242139d11e6a1483e1d05defe78")
-                .setTenantDomain("wso2.com")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
                 .setClaimManager(realmService.getClaimManager())
@@ -388,7 +389,6 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
 
         users.add(new User.UserBuilder()
                 .setUserId("b5572580139d11e6a1483e1d05defe78")
-                .setTenantDomain("wso2.com")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
                 .setClaimManager(realmService.getClaimManager())
@@ -461,7 +461,6 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
         List<Group> groups = new ArrayList<>();
         groups.add(new Group.GroupBuilder()
                 .setGroupId("a422aa98ecf411e59ce95e5517507c66")
-                .setTenantDomain("wso2.com")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
                 .build());
@@ -483,7 +482,6 @@ public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
         List<Group> groups = new ArrayList<>();
         groups.add(new Group.GroupBuilder()
                 .setGroupId("a422aa98ecf411e59ce95e5517507c66")
-                .setTenantDomain("wso2.com")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
                 .build());

@@ -61,12 +61,8 @@ public class ConnectorConstants {
      */
     public static final class QueryTypes {
 
-        public static final String SQL_QUERY_GET_GROUP_FROM_NAME = "sql_query_get_group_from_name";
         public static final String SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE = "sql_query_get_group_from_attribute";
-        public static final String SQL_QUERY_GET_GROUP_FROM_ID = "sql_query_get_group_from_id";
         public static final String SQL_QUERY_COMPARE_PASSWORD_HASH = "sql_query_compare_password_hash";
-        public static final String SQL_QUERY_GET_USER_FROM_ID = "sql_query_get_user_from_id";
-        public static final String SQL_QUERY_GET_USER_FROM_USERNAME = "sql_query_get_user_from_username";
         public static final String SQL_QUERY_GET_USER_FROM_ATTRIBUTE = "sql_query_get_user_from_attribute";
         public static final String SQL_QUERY_GET_USER_ATTRIBUTES = "sql_query_get_user_attributes";
         public static final String SQL_QUERY_GET_GROUPS_OF_USER = "sql_query_get_groups_of_user";
@@ -75,11 +71,7 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_DELETE_GROUP = "sql_query_delete_group";
         public static final String SQL_QUERY_ADD_USER = "sql_query_add_user";
         public static final String SQL_QUERY_ADD_USER_CLAIMS = "sql_query_add_user_claims";
-        public static final String SQL_QUERY_GET_GROUP_IDS = "sql_query_get_group_ids";
         public static final String SQL_QUERY_ADD_USER_GROUPS = "sql_query_add_user_groups";
-        public static final String SQL_QUERY_GET_USER_IDS = "sql_query_get_user_ids";
-        public static final String SQL_QUERY_ADD_GROUP = "sql_query_add_group";
-        public static final String SQL_QUERY_LIST_USERS = "sql_query_list_users";
         public static final String SQL_QUERY_LIST_USERS_BY_ATTRIBUTE = "sql_query_list_users_by_attribute";
         public static final String SQL_QUERY_GET_PASSWORD_INFO = "sql_query_get_password_info";
         public static final String SQL_QUERY_ADD_PASSWORD_INFO = "sql_query_add_password_info";
@@ -89,13 +81,12 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME = "sql_query_get_user_attributes_from_uri";
         public static final String SQL_QUERY_IS_USER_IN_GROUP = "sql_query_is_user_in_group";
         public static final String SQL_QUERY_REMOVE_GROUP_FROM_USER = "sql_query_remove_group_from_user";
-        public static final String SQL_QUERY_RENAME_USER = "sql_query_rename_user";
         public static final String SQL_QUERY_GET_ROLE = "sql_query_get_role";
         public static final String SQL_QUERY_GET_ROLES_FOR_USER = "sql_query_get_roles_for_user";
         public static final String SQL_QUERY_GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE =
                 "sql_query_get_permissions_from_resource_for_role";
         public static final String SQL_QUERY_GET_ROLES_FOR_GROUP = "sql_query_get_roles_for_group";
-        public static final String SQL_QUERY_LIST_GROUP = "sql_query_list_group";
+        public static final String SQL_QUERY_LIST_GROUP_BY_ATTRIBUTE = "sql_query_list_group_by_attribute";
         public static final String SQL_QUERY_ADD_PERMISSION = "sql_query_add_permission";
         public static final String SQL_QUERY_ADD_ROLE = "sql_query_add_role";
         public static final String SQL_QUERY_ADD_PERMISSIONS_TO_ROLE = "sql_query_add_role_permission";

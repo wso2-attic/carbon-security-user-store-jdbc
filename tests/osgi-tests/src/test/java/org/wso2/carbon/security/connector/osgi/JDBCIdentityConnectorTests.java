@@ -57,7 +57,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
 //    public void testGetUserFromUserId() throws IdentityStoreException {
 //
 //        IdentityStore identityStore = realmService.getIdentityStore();
-//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, defaultDomain);
 //        assertNotNull(user);
 //    }
 
@@ -98,7 +98,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
 //    public void testGetClaims() throws IdentityStoreException, ClaimManagerException {
 //
 //        IdentityStore identityStore = realmService.getIdentityStore();
-//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, defaultDomain);
 //        List<Claim> claims = user.getClaims();
 //        assertTrue(claims != null && claims.size() > 0);
 //    }
@@ -107,7 +107,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
 //    public void testGetClaimsFromClaimURIs() throws IdentityStoreException, ClaimManagerException {
 //
 //        IdentityStore identityStore = realmService.getIdentityStore();
-//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, DEFAULT_IDENTITY_STORE);
+//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, defaultDomain);
 //        List<String> claimURIs = Arrays.asList("http://wso2.org/claims/firstName", "http://wso2.org/claims/lastName");
 //        List<Claim> claims = user.getClaims(claimURIs);
 //        assertTrue(claims != null && claims.size() == 2);
@@ -126,7 +126,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
 //    public void testGetGroupFromId() throws IdentityStoreException {
 //
 //        IdentityStore identityStore = realmService.getIdentityStore();
-//        Group group = identityStore.getGroupFromId(DEFAULT_GROUP_ID, DEFAULT_IDENTITY_STORE);
+//        Group group = identityStore.getGroupFromId(DEFAULT_GROUP_ID, defaultDomain);
 //
 //        assertNotNull(group);
 //    }

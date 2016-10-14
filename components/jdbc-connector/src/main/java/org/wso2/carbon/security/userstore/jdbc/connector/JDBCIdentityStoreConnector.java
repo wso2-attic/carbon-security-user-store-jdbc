@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.NameCallback;
 import javax.sql.DataSource;
 
 /**
@@ -104,35 +103,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
                 }
 
-                //TODO authorization store, claim manager and identity store are not set here
-                return new User.UserBuilder().setUserId(userId);
-            }
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
-        }
-    }
-
-    public User.UserBuilder getUser(String username) throws IdentityStoreException, UserNotFoundException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_USERNAME));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USERNAME, username);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                if (!resultSet.next()) {
-                    throw new UserNotFoundException("User not found for the given user name in " + identityStoreId);
-                }
-
-                String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-
-                if (log.isDebugEnabled()) {
-                    log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
-                }
-
-                //TODO authorization store, claim manager and identity store are not set here
                 return new User.UserBuilder().setUserId(userId);
             }
         } catch (SQLException e) {
@@ -143,12 +113,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public User.UserBuilder getUserBuilder(Callback [] callbacks) throws IdentityStoreException, UserNotFoundException {
 
-        for (Callback callback : callbacks) {
-            if (callback instanceof NameCallback) {
-                String username = ((NameCallback) callback).getName();
-                return this.getUser(username);
-            }
-        }
+        //TODO Change the implementation
+//        for (Callback callback : callbacks) {
+//            if (callback instanceof NameCallback) {
+//                String username = ((NameCallback) callback).getName();
+//                return this.getUser(username);
+//            }
+//        }
 
         throw new IdentityStoreException("No name callback present in the callback array.");
     }
@@ -172,33 +143,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         }
     }
 
-    public User.UserBuilder getUserFromId(String userId) throws IdentityStoreException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ID));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                if (!resultSet.next()) {
-                    return null;
-                }
-
-//                String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-
-                if (log.isDebugEnabled()) {
-                    log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
-                }
-
-                //TODO authorization store, claim manager and identity store are not set here
-                return new User.UserBuilder().setUserId(userId);
-            }
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
-        }
-    }
 
     @Override
     public List<User.UserBuilder> getUserBuilderList(String attributeName, String filterPattern, int offset, int
@@ -228,8 +172,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
                 while (resultSet.next()) {
                     String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-//                    String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-                    //TODO authorization store, claim manager and identity store are not set here
                     userList.add(new User.UserBuilder().setUserId(userUniqueId));
                 }
             }
@@ -244,46 +186,10 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         }
     }
 
-    public List<User.UserBuilder> listUsers(String filterPattern, int offset, int length)
-            throws IdentityStoreException {
-
-        // Get the max allowed row count if the length is -1.
-        if (length == -1) {
-            length = getMaxRowRetrievalCount();
-        }
-
-        // We are using SQL filters. So replace the '*' with '%'.
-        filterPattern = filterPattern.replace('*', '%');
-
-        List<User.UserBuilder> userList = new ArrayList<>();
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS));
-            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USERNAME, filterPattern);
-            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
-
-            try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                while (resultSet.next()) {
-                    String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-//                    String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
-                    //TODO authorization store, claim manager and identity store are not set here
-                    userList.add(new User.UserBuilder().setUserId(userUniqueId));
-                }
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("{} users retrieved from identity store: {}.", userList.size(), identityStoreId);
-            }
-
-            return userList;
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while listing users.", e);
-        }
+    @Override
+    public List<User.UserBuilder> getAllUserBuilderList(String attributeName, String filterPattern) throws
+            IdentityStoreException {
+        return getUserBuilderList(attributeName, filterPattern, 0, -1);
     }
 
     @Override
@@ -385,33 +291,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         }
     }
 
-
-    public Group.GroupBuilder getGroup(String groupName) throws IdentityStoreException, GroupNotFoundException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_NAME));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_NAME, groupName);
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                if (!resultSet.next()) {
-                    throw new GroupNotFoundException("No group found for the given group name in " + identityStoreId);
-                }
-
-                String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Group with name: {} retrieved from identity store: {}.", groupName, identityStoreId);
-                }
-
-                return new Group.GroupBuilder().setGroupId(groupId);
-            }
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving group.", e);
-        }
-    }
-
     @Override
     public int getGroupCount() throws IdentityStoreException {
 
@@ -431,37 +310,55 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         }
     }
 
-    public Group.GroupBuilder getGroupById(String groupId) throws IdentityStoreException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ID));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                if (!resultSet.next()) {
-                    throw new IdentityStoreException("No group for given id.");
-                }
-
-//                String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Group with id: {} retrieved from identity store: {}.", groupId, identityStoreId);
-                }
-
-                //TODO authorization store and identity store are not set here
-                return new Group.GroupBuilder().setGroupId(groupId);
-            }
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving group.", e);
-        }
-    }
-
     @Override
     public List<Group.GroupBuilder> getGroupBuilderList(String filterPattern, int offset, int length)
             throws IdentityStoreException {
+
+        //TODO Check whether method is needed. If so need to change the implementation
+        // Get the max allowed row count if the length is -1.
+//        if (length == -1) {
+//            length = getMaxRowRetrievalCount();
+//        }
+//
+//        // We are using SQL filters. So replace the '*' with '%'.
+//        filterPattern = filterPattern.replace('*', '%');
+//
+//        List<Group.GroupBuilder> groups = new ArrayList<>();
+//
+//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+//
+//            NamedPreparedStatement listGroupsNamedPreparedStatement = new NamedPreparedStatement(
+//                    unitOfWork.getConnection(),
+//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP));
+//            listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_NAME, filterPattern);
+//            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+//            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+//
+//            try (ResultSet resultSet = listGroupsNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+//
+//                while (resultSet.next()) {
+//                    String groupUniqueId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
+////                    String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
+//                    groups.add(new Group.GroupBuilder().setGroupId(groupUniqueId));
+//                }
+//            }
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug("{} groups retrieved for filter pattern {} from identity store: {}.", groups.size(),
+//                        filterPattern, identityStoreId);
+//            }
+//
+//            return groups;
+//
+//        } catch (SQLException e) {
+//            throw new IdentityStoreException("Error occurred while retrieving group list.");
+//        }
+        return new ArrayList<>();
+    }
+
+    //TODO This should be added to the interface
+    public List<Group.GroupBuilder> getGroupBuilderList(String attributeName, String filterPattern, int offset, int
+            length) throws IdentityStoreException {
 
         // Get the max allowed row count if the length is -1.
         if (length == -1) {
@@ -477,8 +374,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement listGroupsNamedPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP));
-            listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_NAME, filterPattern);
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP_BY_ATTRIBUTE));
+            listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
+                    attributeName);
+            listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
+                    filterPattern);
             listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
             listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
 
@@ -578,7 +478,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 while (resultSet.next()) {
 //                    String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
                     String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-                    //TODO authorization store and identity store are not set here
                     Group.GroupBuilder group = new Group.GroupBuilder().setGroupId(groupId);
                     groupList.add(group);
                 }
@@ -611,7 +510,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 //                    String username = resultSet.getString(DatabaseColumnNames.User.USERNAME);
                     String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
 //                    String credentialStoreId = resultSet.getString(DatabaseColumnNames.User.CREDENTIAL_STORE_ID);
-                    //TODO authorization store, identity store and claim manager are not set here
                     User.UserBuilder user = new User.UserBuilder().setUserId(userId);
                     userList.add(user);
                 }

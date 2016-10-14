@@ -30,11 +30,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "WHERE USER_UNIQUE_ID = :user_id; " +
             "AND PASSWORD = :hashed_password;";
 
-    private static final String GET_USER_FROM_USERNAME =
-            "SELECT UM_USER.USER_UNIQUE_ID " +
-            "FROM UM_USER " +
-            "WHERE UM_USER.USERNAME = :username;";
-
     private static final String GET_USER_FROM_ATTRIBUTE =
             "SELECT UM_USER.USER_UNIQUE_ID " +
                     "FROM UM_USER LEFT JOIN UM_USER_ATTRIBUTES " +
@@ -42,27 +37,12 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "WHERE UM_USER_ATTRIBUTES.ATTR_NAME = :attr_name; " +
                     "AND UM_USER_ATTRIBUTES.ATTR_VALUE = :attr_value;";
 
-    private static final String GET_USER_FROM_ID =
-            "SELECT UM_USER.USERNAME " +
-            "FROM UM_USER " +
-            "WHERE UM_USER.USER_UNIQUE_ID = :user_id;";
-
-    private static final String GET_GROUP_FROM_NAME =
-            "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
-            "FROM UM_GROUP " +
-            "WHERE UM_GROUP.GROUP_NAME = :group_name;";
-
     private static final String GET_GROUP_FROM_ATTRIBUTE =
             "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
                     "FROM UM_GROUP LEFT JOIN UM_GROUP_ATTRIBUTES " +
                     "ON UM_GROUP_ATTRIBUTES.GROUP_ID = UM_GROUP.ID " +
                     "WHERE UM_GROUP_ATTRIBUTES.ATTR_NAME = :attr_name; " +
                     "AND UM_GROUP_ATTRIBUTES.ATTR_VALUE = :attr_value;";
-
-    private static final String GET_GROUP_FROM_ID =
-            "SELECT UM_GROUP.GROUP_NAME " +
-            "FROM UM_GROUP " +
-            "WHERE UM_GROUP.GROUP_UNIQUE_ID = :group_id;";
 
     private static final String GET_USER_ATTRIBUTES =
             "SELECT ATTR_NAME, ATTR_VALUE " +
@@ -79,14 +59,9 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "DELETE FROM UM_GROUP " +
             "WHERE GROUP_UNIQUE_ID = :groupId;";
 
-    private static final String GET_GROUP_IDS =
-            "SELECT ID " +
-            "FROM UM_GROUP " +
-            "WHERE GROUP_NAME IN (:groupnames;)";
-
     private static final String ADD_USER =
-            "INSERT INTO UM_USER (USER_UNIQUE_ID, USERNAME, PASSWORD) " +
-            "VALUES (:user_unique_id;, :username;, :password;)";
+            "INSERT INTO UM_USER (USER_UNIQUE_ID) " +
+            "VALUES (:user_unique_id;)";
 
     private static final String ADD_USER_ATTRIBUTES =
             "INSERT INTO UM_USER_ATTRIBUTES (ATTR_NAME, ATTR_VALUE, USER_ID) " +
@@ -96,24 +71,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "INSERT INTO UM_USER_GROUP (USER_ID, GROUP_ID) " +
             "VALUES (:user_id;, :group_id;)";
 
-    private static final String GET_USER_IDS =
-            "SELECT ID " +
-            "FROM UM_USER " +
-            "WHERE USERNAME IN (:usernames;)";
-
-    private static final String ADD_GROUP =
-            "INSERT INTO (GROUP_NAME, GROUP_UNIQUE_ID) " +
-            "VALUES (:group_name;, :group_id;)";
-
-    private static final String LIST_USERS =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID " +
-            "FROM UM_USER " +
-            "WHERE UM_USER.USERNAME LIKE :username; " +
-            "LIMIT :length; " +
-            "OFFSET :offset;";
-
     private static final String LIST_USERS_BY_ATTRIBUTE =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID " +
+            "SELECT UM_USER.USER_UNIQUE_ID " +
                     "FROM UM_USER LEFT JOIN UM_USER_ATTRIBUTES " +
                     "ON UM_USER_ATTRIBUTES.USER_ID = UM_USER.ID " +
                     "WHERE UM_USER_ATTRIBUTES.ATTR_NAME = :attr_name; " +
@@ -122,7 +81,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "OFFSET :offset;";
 
     private static final String GET_GROUPS_OF_USER =
-            "SELECT UM_GROUP.GROUP_NAME, UM_GROUP.GROUP_UNIQUE_ID " +
+            "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
             "FROM UM_GROUP " +
             "WHERE UM_GROUP.ID IN (SELECT GROUP_ID " +
                         "FROM UM_USER_GROUP " +
@@ -131,7 +90,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                                          "WHERE USER_UNIQUE_ID = :user_id;))";
 
     private static final String GET_USERS_OF_GROUP =
-            "SELECT UM_USER.USERNAME, UM_USER.USER_UNIQUE_ID " +
+            "SELECT UM_USER.USER_UNIQUE_ID " +
             "FROM UM_USER " +
             "WHERE UM_USER.ID IN (SELECT USER_ID " +
                         "FROM UM_USER_GROUP " +
@@ -167,6 +126,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                              "WHERE USER_UNIQUE_ID = :user_id;) " +
             "AND ATTR_NAME IN (:attr_names;)";
 
+    //TODO Need to check
     private static final String UPDATE_CREDENTIALS =
             "UPDATE UM_USER " +
             "SET PASSWORD = :credential; " +
@@ -175,11 +135,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String REMOVE_GROUP_FROM_USER =
             "DELETE FROM UM_USER_GROUP " +
             "WHERE USER_ID = :user_id; AND GROUP_ID = :group_id;";
-
-    private static final String RENAME_USER =
-            "UPDATE UM_USER " +
-            "SET USERNAME = :new_name; " +
-            "WHERE USER_UNIQUE_ID = :user_id;";
 
     private static final String IS_USER_IN_GROUP =
             "SELECT ID " +
@@ -226,12 +181,14 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                         "FROM UM_GROUP_ROLE " +
                         "WHERE GROUP_UNIQUE_ID = :group_id;)";
 
-    private static final String LIST_GROUP =
-            "SELECT UM_GROUP.GROUP_NAME, UM_GROUP.GROUP_UNIQUE_ID " +
-            "FROM UM_GROUP " +
-            "WHERE UM_GROUP.GROUP_NAME LIKE :group_name; " +
-            "LIMIT :length; " +
-            "OFFSET :offset;";
+    private static final String LIST_GROUP_BY_ATTRIBUTE =
+            "SELECT UM_GROUP.USER_UNIQUE_ID " +
+                    "FROM UM_GROUP LEFT JOIN UM_GROUP_ATTRIBUTES " +
+                    "ON UM_GROUP_ATTRIBUTES.USER_ID = UM_GROUP.ID " +
+                    "WHERE UM_GROUP_ATTRIBUTES.ATTR_NAME = :attr_name; " +
+                    "AND UM_GROUP_ATTRIBUTES.ATTR_VALUE LIKE :attr_value; " +
+                    "LIMIT :length; " +
+                    "OFFSET :offset;";
 
     private static final String ADD_PERMISSION =
             "INSERT INTO UM_PERMISSION (RESOURCE_ID, ACTION_ID, PERMISSION_UNIQUE_ID) " +
@@ -477,22 +434,14 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     public MySQLFamilySQLQueryFactory() {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH, COMPARE_PASSWORD_HASH);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_USERNAME, GET_USER_FROM_USERNAME);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE, GET_USER_FROM_ATTRIBUTE);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ID, GET_USER_FROM_ID);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_NAME, GET_GROUP_FROM_NAME);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE, GET_GROUP_FROM_ATTRIBUTE);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ID, GET_GROUP_FROM_ID);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES, GET_USER_ATTRIBUTES);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER, DELETE_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP, DELETE_GROUP);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_IDS, GET_GROUP_IDS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER, ADD_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS, ADD_USER_ATTRIBUTES);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS, ADD_USER_GROUPS);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_IDS, GET_USER_IDS);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP, ADD_GROUP);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS, LIST_USERS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE, LIST_USERS_BY_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER, GET_GROUPS_OF_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_GROUP, GET_USERS_OF_GROUP);
@@ -504,14 +453,13 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                 GET_USER_ATTRIBUTES_FROM_NAME);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL, UPDATE_CREDENTIALS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_FROM_USER, REMOVE_GROUP_FROM_USER);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_RENAME_USER, RENAME_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_IS_USER_IN_GROUP, IS_USER_IN_GROUP);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLE, GET_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_USER, GET_ROLES_FOR_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE,
                 GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLES_FOR_GROUP, GET_ROLES_FOR_GROUP);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP, LIST_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP_BY_ATTRIBUTE, LIST_GROUP_BY_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSION, ADD_PERMISSION);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE, ADD_ROLE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSIONS_TO_ROLE, ADD_PERMISSION_TO_ROLE);
