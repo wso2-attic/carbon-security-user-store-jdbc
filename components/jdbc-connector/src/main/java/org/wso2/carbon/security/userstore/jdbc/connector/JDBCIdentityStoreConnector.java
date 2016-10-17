@@ -58,7 +58,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public void init(String storeId, IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
 
-        Properties properties = identityStoreConfig.getStoreProperties();
+        Properties properties = identityStoreConfig.getProperties();
         this.identityStoreId = storeId;
         this.identityStoreConfig = identityStoreConfig;
 
@@ -562,7 +562,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
         int length;
 
-        String maxValue = identityStoreConfig.getStoreProperties().getProperty(ConnectorConstants.MAX_ROW_LIMIT);
+        String maxValue = identityStoreConfig.getProperties().getProperty(ConnectorConstants.MAX_ROW_LIMIT);
 
         if (maxValue == null) {
             length = Integer.MAX_VALUE;

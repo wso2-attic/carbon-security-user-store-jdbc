@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.security.caas.api.CarbonCallback;
-import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConnectorConfig;
+import org.wso2.carbon.security.caas.internal.config.CredentialStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
 import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
@@ -56,7 +56,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
     public void init(String storeId, CredentialStoreConnectorConfig configuration) throws CredentialStoreException {
 
-        Properties properties = configuration.getStoreProperties();
+        Properties properties = configuration.getProperties();
         this.credentialStoreConfig = configuration;
         this.credentialStoreId = storeId;
 
@@ -124,7 +124,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
             // Get a password handler if there is a one. Otherwise use the default one.
             PasswordHandler passwordHandler = DatabaseUtil.getInstance().getPasswordHandler(credentialStoreConfig
-                    .getStoreProperties().getProperty(UserCoreConstants.PASSWORD_HANDLER_NAME));
+                    .getProperties().getProperty(UserCoreConstants.PASSWORD_HANDLER_NAME));
 
             if (passwordHandler == null) {
                 passwordHandler = new DefaultPasswordHandler();
