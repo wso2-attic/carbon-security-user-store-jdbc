@@ -89,7 +89,7 @@
         </org.osgi.service.component.annotations.version.range>
         <org.osgi.service.jndi.version.range>[1.0.0, 1.1.0)</org.osgi.service.jndi.version.range>
         <org.wso2.carbon.datasource.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.datasource.version.range>
-        <org.wso2.carbon.security.version.range>[1.0.0-SNAPSHOT, 1.1.0)</org.wso2.carbon.security.version.range>
+        <org.wso2.carbon.security.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.security.version.range>
 
         <!-- Dependency package version ranges -->
 
