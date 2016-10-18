@@ -40,7 +40,7 @@
 
     <modules>
         <module>components/jdbc-connector</module>
-        <module>components/jdbc-privileged-connector</module>
+        <!--<module>components/jdbc-privileged-connector</module>-->
         <module>feature</module>
         <module>tests</module>
     </modules>
@@ -125,11 +125,11 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.api.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity.user.mgt</groupId>
-                <artifactId>org.wso2.carbon.identity.user.mgt</artifactId>
-                <version>${org.wso2.carbon.identity.user.mgt.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon.identity.user.mgt</groupId>-->
+                <!--<artifactId>org.wso2.carbon.identity.user.mgt</artifactId>-->
+                <!--<version>${org.wso2.carbon.identity.user.mgt.version}</version>-->
+            <!--</dependency>-->
 
             <!-- OSGI Tests-->
             <dependency>
