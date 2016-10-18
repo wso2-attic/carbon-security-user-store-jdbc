@@ -208,7 +208,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     Attribute attribute = new Attribute();
                     attribute.setAttributeName(resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_NAME));
                     attribute.setAttributeValue(resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_VALUE));
-                    attribute.setIdentityStoreId(identityStoreId);
+//                    attribute.setIdentityStoreId(identityStoreId);
                     userClaims.add(attribute);
                 }
 
@@ -246,7 +246,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     Attribute attribute = new Attribute();
                     attribute.setAttributeName(resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_NAME));
                     attribute.setAttributeValue(resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_VALUE));
-                    attribute.setIdentityStoreId(identityStoreId);
+//                    attribute.setIdentityStoreId(identityStoreId);
                     userClaims.add(attribute);
                 }
 
@@ -419,7 +419,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     Attribute attribute = new Attribute();
                     attribute.setAttributeName(resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_NAME));
                     attribute.setAttributeValue(resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_VALUE));
-                    attribute.setIdentityStoreId(identityStoreId);
+//                    attribute.setIdentityStoreId(identityStoreId);
                     groupAttributes.add(attribute);
                 }
 
@@ -452,7 +452,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     Attribute attribute = new Attribute();
                     attribute.setAttributeName(resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_NAME));
                     attribute.setAttributeValue(resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_VALUE));
-                    attribute.setIdentityStoreId(identityStoreId);
+//                    attribute.setIdentityStoreId(identityStoreId);
                     groupAttributes.add(attribute);
                 }
 

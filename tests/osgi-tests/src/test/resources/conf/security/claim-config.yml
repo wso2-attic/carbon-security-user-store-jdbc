@@ -37,4 +37,17 @@ claims:
    description: "Email Address"
    required: "false"
    supportedByDefault: "true"
-
+ -
+  claimURI: "http://wso2.org/claims/username"
+  properties:
+   displayName: "Username"
+   description: "Username"
+   required: "false"
+   supportedByDefault: "true"
+ -
+  claimURI: "http://wso2.org/claims/telephone"
+  properties:
+   displayName: "Telephone Number"
+   description: "Telephone Number"
+   required: "false"
+   supportedByDefault: "true"
