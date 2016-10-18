@@ -17,9 +17,11 @@
 package org.wso2.carbon.security.connector.osgi;
 
 import org.testng.annotations.Test;
-import org.wso2.carbon.security.caas.user.core.bean.Attribute;
 import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.bean.User;
+import org.wso2.carbon.security.caas.user.core.claim.Claim;
+import org.wso2.carbon.security.caas.user.core.claim.MetaClaim;
+import org.wso2.carbon.security.caas.user.core.exception.ClaimManagerException;
 import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
@@ -37,6 +39,10 @@ import static org.testng.Assert.assertTrue;
  */
 public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
 
+
+    public JDBCIdentityConnectorTests() throws Exception {
+        super();
+    }
 
     @Test(priority = 24)
     public void testIsUserInGroupValid() throws IdentityStoreException {
@@ -65,31 +71,36 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     public void testListUsers() throws IdentityStoreException {
 
         String filterPattern = "*";
+        MetaClaim metaClaim = new MetaClaim();
+        metaClaim.setClaimURI("http://wso2.org/claims/username");
+        metaClaim.setDialectURI("http://wso2.org/claims");
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<User> users = identityStore.listUsers(filterPattern, 0, -1);
+        List<User> users = identityStore.listUsers(metaClaim, filterPattern, 0, -1);
 
         assertFalse(users.isEmpty());
     }
 
     @Test(priority = 28)
-    public void testGetUserAttributeValues() throws IdentityStoreException {
+    public void testGetUserAttributeValues() throws IdentityStoreException, UserNotFoundException,
+            ClaimManagerException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<Attribute> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID);
+        List<Claim> claims = identityStore.getUser(DEFAULT_USER_ID).getClaims();
 
         assertFalse(claims.isEmpty());
     }
 
     @Test(priority = 29)
-    public void testGetUserAttributeValuesFromAttributeNames() throws IdentityStoreException {
+    public void testGetUserAttributeValuesFromAttributeNames() throws IdentityStoreException, UserNotFoundException,
+            ClaimManagerException {
 
         List<String> attributeNames = new ArrayList<>();
-        attributeNames.add("firstName");
-        attributeNames.add("lastName");
+        attributeNames.add("http://wso2.org/claims/username");
+        attributeNames.add("http://wso2.org/claims/firstName");
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<Attribute> claims = identityStore.getUserAttributeValues(DEFAULT_USER_ID, attributeNames);
+        List<Claim> claims = identityStore.getUser(DEFAULT_USER_ID).getClaims();
 
         assertFalse(claims.isEmpty());
     }
@@ -135,9 +146,12 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     public void testListGroups() throws IdentityStoreException {
 
         String filterPattern = "*";
+        MetaClaim metaClaim = new MetaClaim();
+        metaClaim.setClaimURI("http://wso2.org/claims/username");
+        metaClaim.setDialectURI("http://wso2.org/claims");
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        List<Group> groups = identityStore.listGroups(filterPattern, 0, -1);
+        List<Group> groups = identityStore.listGroups(metaClaim, filterPattern, 0, -1);
 
         assertFalse(groups.isEmpty());
     }

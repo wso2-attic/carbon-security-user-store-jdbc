@@ -34,6 +34,10 @@ import static org.testng.Assert.assertNotNull;
  */
 public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
 
+    public JDBCCredentialConnectorTest() throws Exception {
+        super();
+    }
+
     @Test
     public void testAuthentication() throws CredentialStoreException, IdentityStoreException, AuthenticationFailure {
 
