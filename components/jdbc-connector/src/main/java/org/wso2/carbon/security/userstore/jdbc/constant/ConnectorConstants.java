@@ -54,6 +54,7 @@ public class ConnectorConstants {
         public static final String NAMESPACE = "namespace";
         public static final String DESCRIPTION = "description";
         public static final String NAMESPACE_ID = "namespace_id";
+        public static final String USER_UNIQUE_ID = "user_unique_id";
     }
 
     /**
@@ -69,7 +70,6 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_USERS_OF_GROUP = "sql_query_get_users_of_group";
         public static final String SQL_QUERY_DELETE_USER = "sql_query_delete_user";
         public static final String SQL_QUERY_DELETE_GROUP = "sql_query_delete_group";
-        public static final String SQL_QUERY_ADD_USER = "sql_query_add_user";
 //        public static final String SQL_QUERY_ADD_USER_CLAIMS = "sql_query_add_user_claims";
         public static final String SQL_QUERY_ADD_USER_GROUPS = "sql_query_add_user_groups";
         public static final String SQL_QUERY_LIST_USERS_BY_ATTRIBUTE = "sql_query_list_users_by_attribute";

@@ -26,14 +26,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
-import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory;
 import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnectorFactory;
 import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
 import org.wso2.carbon.security.caas.user.core.util.PasswordHandler;
-import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCAuthorizationStoreConnectorFactory;
-import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCCredentialStoreConnectorFactory;
-import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCIdentityStoreConnectorFactory;
-import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
+import org.wso2.carbon.security.userstore.jdbc.privileged.connector.factory
+        .JDBCPrivilegedCredentialStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.privileged.connector.factory.JDBCPrivilegedIdentityStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.privileged.util.DatabaseUtil;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -60,18 +59,15 @@ public class ConnectorComponent {
 
         Dictionary<String, String> connectorProperties = new Hashtable<>();
 
-        connectorProperties.put("connector-type", "JDBCIdentityStore");
-        bundleContext.registerService(IdentityStoreConnectorFactory.class, new JDBCIdentityStoreConnectorFactory(),
+        connectorProperties.put("connector-type", "JDBCPrivilegedIdentityStore");
+        bundleContext.registerService(IdentityStoreConnectorFactory.class, new
+                        JDBCPrivilegedIdentityStoreConnectorFactory(),
                 connectorProperties);
 
         connectorProperties = new Hashtable<>();
-        connectorProperties.put("connector-type", "JDBCAuthorizationStore");
-        bundleContext.registerService(AuthorizationStoreConnectorFactory.class,
-                new JDBCAuthorizationStoreConnectorFactory(), connectorProperties);
-
-        connectorProperties = new Hashtable<>();
-        connectorProperties.put("connector-type", "JDBCCredentialStore");
-        bundleContext.registerService(CredentialStoreConnectorFactory.class, new JDBCCredentialStoreConnectorFactory(),
+        connectorProperties.put("connector-type", "JDBCPrivilegedCredentialStore");
+        bundleContext.registerService(CredentialStoreConnectorFactory.class, new
+                        JDBCPrivilegedCredentialStoreConnectorFactory(),
                 connectorProperties);
 
         log.info("JDBC user store bundle successfully activated.");

@@ -53,8 +53,8 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String GET_USER_ATTRIBUTES =
             "SELECT ATTR_NAME, ATTR_VALUE " +
             "FROM UM_USER_ATTRIBUTES LEFT JOIN UM_ATTRIBUTES " +
-            "ON UM_USER_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID" +
-            "WHERE USER_ID = (SELECT USER_ID " +
+            "ON UM_USER_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID " +
+            "WHERE USER_ID = (SELECT ID " +
                              "FROM UM_USER " +
                              "WHERE USER_UNIQUE_ID = :user_id;)";
 
@@ -65,14 +65,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String DELETE_GROUP =
             "DELETE FROM UM_GROUP " +
             "WHERE GROUP_UNIQUE_ID = :groupId;";
-
-    private static final String ADD_USER =
-            "INSERT INTO UM_USER (USER_UNIQUE_ID) " +
-            "VALUES (:user_unique_id;)";
-
-//    private static final String ADD_USER_ATTRIBUTES =
-//            "INSERT INTO UM_USER_ATTRIBUTES (ATTR_ID, ATTR_VALUE, USER_ID) " +
-//            "SELECT ID, :attr_val;, :user_id; FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;";
 
     private static final String ADD_USER_GROUPS =
             "INSERT INTO UM_USER_GROUP (USER_ID, GROUP_ID) " +
@@ -461,7 +453,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES, GET_USER_ATTRIBUTES);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER, DELETE_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP, DELETE_GROUP);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER, ADD_USER);
 //        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS, ADD_USER_ATTRIBUTES);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS, ADD_USER_GROUPS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE, LIST_USERS_BY_ATTRIBUTE);

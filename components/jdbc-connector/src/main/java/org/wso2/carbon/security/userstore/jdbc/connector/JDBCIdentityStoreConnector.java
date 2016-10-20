@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.security.auth.callback.Callback;
 import javax.sql.DataSource;
 
 /**
@@ -51,9 +50,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     private static Logger log = LoggerFactory.getLogger(JDBCIdentityStoreConnector.class);
 
-    private DataSource dataSource;
-    private IdentityStoreConnectorConfig identityStoreConfig;
-    private String identityStoreId;
+    protected DataSource dataSource;
+    protected IdentityStoreConnectorConfig identityStoreConfig;
+    protected String identityStoreId;
 
     @Override
     public void init(String storeId, IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
@@ -108,20 +107,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
         }
-    }
-
-    @Override
-    public User.UserBuilder getUserBuilder(Callback [] callbacks) throws IdentityStoreException, UserNotFoundException {
-
-        //TODO Change the implementation
-//        for (Callback callback : callbacks) {
-//            if (callback instanceof NameCallback) {
-//                String username = ((NameCallback) callback).getName();
-//                return this.getUser(username);
-//            }
-//        }
-
-        throw new IdentityStoreException("No name callback present in the callback array.");
     }
 
     @Override
