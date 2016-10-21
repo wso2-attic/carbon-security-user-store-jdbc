@@ -53,7 +53,7 @@
         <private.package>org.wso2.carbon.security.userstore.jdbc.internal</private.package>
         <export.package>
             !org.wso2.carbon.security.userstore.jdbc.internal,
-            org.wso2.carbon.security.userstore.jdbc.*
+            org.wso2.carbon.security.caas.*;version="${project.version}"
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
