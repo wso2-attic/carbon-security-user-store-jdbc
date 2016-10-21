@@ -129,7 +129,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String GET_USER_ATTRIBUTES_FROM_NAME =
             "SELECT ATTR_NAME, ATTR_VALUE " +
             "FROM UM_USER_ATTRIBUTES LEFT JOIN UM_ATTRIBUTES " +
-            "ON UM_USER_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID" +
+            "ON UM_USER_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID " +
             "WHERE USER_ID = (SELECT ID " +
                              "FROM UM_USER " +
                              "WHERE USER_UNIQUE_ID = :user_id;) " +
@@ -358,7 +358,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String GET_GROUP_ATTRIBUTES =
             "SELECT ATTR_NAME, ATTR_VALUE " +
             "FROM UM_GROUP_ATTRIBUTES LEFT JOIN UM_ATTRIBUTES " +
-            "ON UM_GROUP_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID" +
+            "ON UM_GROUP_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID " +
             "WHERE GROUP_ID = (SELECT GROUP_ID " +
                               "FROM UM_GROUP " +
                               "WHERE GROUP_UNIQUE_ID = :group_id;)";
@@ -366,7 +366,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String GET_GROUP_ATTRIBUTES_FROM_NAME =
             "SELECT ATTR_NAME, ATTR_VALUE " +
             "FROM UM_GROUP_ATTRIBUTES LEFT JOIN UM_ATTRIBUTES " +
-            "ON UM_GROUP_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID" +
+            "ON UM_GROUP_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID " +
             "WHERE GROUP_ID = (SELECT ID " +
                               "FROM UM_GROUP " +
                               "WHERE GROUP_UNIQUE_ID = :group_id;) " +

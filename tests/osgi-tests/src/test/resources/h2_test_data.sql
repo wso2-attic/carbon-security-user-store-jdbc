@@ -21,10 +21,11 @@ VALUES ('41dadd2aea6e11e59ce95e5517507c66'),
   ('b5572580139d11e6a1483e1d05defe78');
 
 INSERT INTO UM_ATTRIBUTES (ATTR_NAME)
-    VALUES ('username'),
-     ('email'),
-      ('firstname'),
-      ('lastname');
+VALUES ('username'),
+  ('email'),
+  ('firstname'),
+  ('lastname'),
+  ('reportsto');
 
 
 INSERT INTO UM_PASSWORD (PASSWORD, USER_UNIQUE_ID)
@@ -62,7 +63,7 @@ VALUES (1, 'root/resource/id', '41dadd2aea6e11e59ce95e5517507c66'),
 INSERT INTO UM_ACTION (NAMESPACE_ID, ACTION_NAME)
 VALUES (1, 'add'),
   (1, 'delete'),
-  (1,'update'),
+  (1, 'update'),
   (1, 'action1'),
   (1, 'action2'),
   (1, 'action3');
@@ -78,8 +79,12 @@ INSERT INTO UM_USER_GROUP (USER_ID, GROUP_ID)
 VALUES ('1', '1');
 
 INSERT INTO UM_USER_ATTRIBUTES (ATTR_ID, ATTR_VALUE, USER_ID)
-VALUES ((SELECT ID FROM UM_ATTRIBUTES WHERE UM_ATTRIBUTES.ATTR_NAME = 'firstname'), 'Jayanga', 1),
-  ((SELECT ID FROM UM_ATTRIBUTES WHERE UM_ATTRIBUTES.ATTR_NAME = 'lastname'), 'Kaushalya', 1);
+VALUES ((SELECT ID
+         FROM UM_ATTRIBUTES
+         WHERE UM_ATTRIBUTES.ATTR_NAME = 'firstname'), 'Jayanga', 1),
+  ((SELECT ID
+    FROM UM_ATTRIBUTES
+    WHERE UM_ATTRIBUTES.ATTR_NAME = 'lastname'), 'Kaushalya', 1);
 
 INSERT INTO UM_ROLE_PERMISSION (ROLE_ID, PERMISSION_ID)
 VALUES ('1', '1'), ('1', '2'), ('1', '3'), ('1', '4'),

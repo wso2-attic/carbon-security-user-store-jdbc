@@ -55,6 +55,7 @@ public class ConnectorConstants {
         public static final String DESCRIPTION = "description";
         public static final String NAMESPACE_ID = "namespace_id";
         public static final String USER_UNIQUE_ID = "user_unique_id";
+        public static final String GROUP_UNIQUE_ID = "group_unique_id";
     }
 
     /**

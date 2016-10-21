@@ -103,4 +103,27 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
         Assert.assertTrue(attributeRetrieved.size() > 0);
         Assert.assertTrue(attributeRetrieved.size() == 3);
     }
+
+    @Test(priority = 3)
+    public void testAddGroup() throws IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+
+        List<Attribute> attributes = new ArrayList<>();
+        Attribute attribute1 = new Attribute();
+        attribute1.setAttributeName("username");
+        attribute1.setAttributeValue("engineering");
+        attributes.add(attribute1);
+        Attribute attribute2 = new Attribute();
+        attribute2.setAttributeName("reportsto");
+        attribute2.setAttributeValue("director@wso2.com");
+        attributes.add(attribute2);
+
+        privilegedIdentityStoreConnector.addGroup(attributes);
+
+        List<Attribute> attributeRetrieved = privilegedIdentityStoreConnector.getGroupAttributeValues("engineering");
+        Assert.assertNotNull(attributeRetrieved);
+        Assert.assertTrue(attributeRetrieved.size() > 0);
+        Assert.assertTrue(attributeRetrieved.size() == 1);
+    }
 }
