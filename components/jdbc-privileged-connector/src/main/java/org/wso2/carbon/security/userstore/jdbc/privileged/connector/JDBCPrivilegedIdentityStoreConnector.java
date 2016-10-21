@@ -19,13 +19,21 @@ package org.wso2.carbon.security.userstore.jdbc.privileged.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.user.mgt.store.connector.PrivilegedIdentityStoreConnector;
+import org.wso2.carbon.kernel.utils.StringUtils;
 import org.wso2.carbon.security.caas.user.core.bean.Attribute;
 import org.wso2.carbon.security.caas.user.core.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.StoreException;
 import org.wso2.carbon.security.userstore.jdbc.connector.JDBCIdentityStoreConnector;
+import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.security.userstore.jdbc.privileged.constant.PrivilegedConnectorConstants;
+import org.wso2.carbon.security.userstore.jdbc.privileged.queries.PrivilegedMySQLFamilySQLQueryFactory;
+import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
+import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
 
+import java.sql.SQLException;
 import java.util.List;
-import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Identity store connector for JDBC based stores.
@@ -36,25 +44,113 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
         PrivilegedIdentityStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCPrivilegedIdentityStoreConnector.class);
-
-    private DataSource dataSource;
-    private IdentityStoreConnectorConfig identityStoreConfig;
-    private String identityStoreId;
-
+    String primaryAttributeName;
 
     @Override
-    public void addUser(List<Attribute> list) throws IdentityStoreException {
+    public void init(String storeId, IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
+        super.init(storeId, identityStoreConfig);
+        primaryAttributeName = identityStoreConfig.getPrimaryAttributeName();
+    }
+
+    @Override
+    public void addUser(List<Attribute> attributes) throws IdentityStoreException {
+
+        String primaryAttributeValue = attributes.stream()
+                .filter(attribute -> attribute.getAttributeName().equals(primaryAttributeName))
+                .map(attribute -> attribute.getAttributeValue())
+                .findFirst()
+                .orElse(null);
+
+        if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+            throw new IdentityStoreException("Primary Attribute " + primaryAttributeName + " is not found among the " +
+                    "attribute list");
+        }
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER));
+            addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                    primaryAttributeValue);
+            addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS));
+            for (Attribute attribute : attributes) {
+                if (!attribute.getAttributeName().equals(primaryAttributeName)) {
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
+                            .getAttributeName());
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
+                            .getAttributeValue());
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                            primaryAttributeValue);
+                    namedPreparedStatement.getPreparedStatement().addBatch();
+                }
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while storing user.", e);
+        }
 
     }
 
     @Override
-    public void addUsers(List<List<Attribute>> list) throws IdentityStoreException {
+    public void addUsers(List<List<Attribute>> attributes) throws IdentityStoreException {
+        IdentityStoreException identityStoreException = new IdentityStoreException();
+        attributes.stream().forEach(attributes1 -> {
+            try {
+                addUser(attributes1);
+            } catch (IdentityStoreException e) {
+                identityStoreException.addSuppressed(e);
+            }
+        });
 
+        if (identityStoreException.getSuppressed().length > 0) {
+            throw identityStoreException;
+        }
     }
 
     @Override
-    public void updateUserAttributes(String s, List<Attribute> list) throws IdentityStoreException {
+    public void updateUserAttributes(String userIdentifier, List<Attribute> attributes) throws IdentityStoreException {
 
+        String primaryAttributeValue = attributes.stream()
+                .filter(attribute -> attribute.getAttributeName().equals(primaryAttributeName))
+                .map(attribute -> attribute.getAttributeValue())
+                .findFirst()
+                .orElse(null);
+
+        if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+            throw new IdentityStoreException("Primary Attribute " + primaryAttributeName + " is not found among the " +
+                    "attribute list");
+        }
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_USER));
+            addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                    userIdentifier);
+            addUserNamedPreparedStatement.setString(PrivilegedConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID_UPDATE,
+                    primaryAttributeValue);
+            addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS));
+            for (Attribute attribute : attributes) {
+                if (!attribute.getAttributeName().equals(primaryAttributeName)) {
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
+                            .getAttributeName());
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
+                            .getAttributeValue());
+                    namedPreparedStatement.getPreparedStatement().addBatch();
+                }
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while updating user.", e);
+        }
     }
 
     @Override
@@ -112,5 +208,24 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
     @Override
     public void updateUsersOfGroup(String s, List<String> list, List<String> list1) throws IdentityStoreException {
 
+    }
+
+    protected void loadQueries(Properties properties) {
+
+        String databaseType = properties.getProperty(ConnectorConstants.DATABASE_TYPE);
+
+        if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") || databaseType.equalsIgnoreCase("H2"))) {
+            sqlQueries = new PrivilegedMySQLFamilySQLQueryFactory().getQueries();
+            if (log.isDebugEnabled()) {
+                log.debug("{} sql queries loaded for database type: {}.", sqlQueries.size(), databaseType);
+            }
+        } else {
+            throw new StoreException("Invalid or unsupported database type specified in the configuration.");
+        }
+
+        // If there are matching queries in the properties, we have to override the default and replace with them.
+        sqlQueries.keySet().stream()
+                .filter(properties::containsKey)
+                .forEach(key -> sqlQueries.put(key, properties.getProperty(key)));
     }
 }

@@ -26,14 +26,16 @@ public class PrivilegedConnectorConstants {
      * Placeholders related to the named prepared statement.
      */
     public static final class SQLPlaceholders {
-
+        public static final String USER_UNIQUE_ID_UPDATE = "user_unique_id_update";
     }
 
     /**
      * Query type related constants.
      */
     public static final class QueryTypes {
-
+        public static final String SQL_QUERY_ADD_USER_CLAIMS = "sql_query_add_user_claims";
+        public static final String SQL_QUERY_ADD_USER = "sql_query_add_user";
+        public static final String SQL_QUERY_UPDATE_USER = "sql_query_update_user";
 
     }
 }

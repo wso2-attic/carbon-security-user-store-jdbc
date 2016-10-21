@@ -50,10 +50,10 @@
     </dependencies>
 
     <properties>
-        <private.package>org.wso2.carbon.security.userstore.internal</private.package>
+        <private.package>org.wso2.carbon.security.userstore.jdbc.internal</private.package>
         <export.package>
-            !org.wso2.carbon.security.userstore.internal,
-            org.wso2.carbon.security.userstore.*
+            !org.wso2.carbon.security.userstore.jdbc.internal,
+            org.wso2.carbon.security.userstore.jdbc.*
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",

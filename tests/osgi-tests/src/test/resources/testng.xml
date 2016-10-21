@@ -25,6 +25,7 @@
             <!--<class name="org.wso2.carbon.security.connector.osgi.JDBCCredentialConnectorTest"/>-->
             <!--<class name="org.wso2.carbon.security.connector.osgi.JDBCIdentityConnectorTests"/>-->
             <!--<class name="org.wso2.carbon.security.connector.osgi.JDBCAuthorizationConnectorTests"/>-->
+            <class name="org.wso2.carbon.security.connector.osgi.JDBCPrivilegedIdentityConnectorTests"/>
         </classes>
     </test>
 </suite>

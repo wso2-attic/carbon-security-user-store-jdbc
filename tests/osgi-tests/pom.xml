@@ -151,6 +151,15 @@
             <groupId>org.wso2.carbon.caching</groupId>
             <artifactId>org.wso2.carbon.caching</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.wso2.carbon.identity.mgt</groupId>
+            <artifactId>org.wso2.carbon.identity.user.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.security.userstore</groupId>
+            <artifactId>org.wso2.carbon.security.userstore.jdbc.privileged</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -233,6 +242,7 @@
                             <systemPropertyVariables>
                                 <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}</org.ops4j.pax.url.mvn.localRepository>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
+                                <!--<org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>-->
                             </systemPropertyVariables>
                             <systemProperties>
                                 <property>

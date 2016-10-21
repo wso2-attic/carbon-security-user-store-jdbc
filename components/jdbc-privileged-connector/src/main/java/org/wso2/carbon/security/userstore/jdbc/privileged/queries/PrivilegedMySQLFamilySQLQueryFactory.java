@@ -16,17 +16,32 @@
 
 package org.wso2.carbon.security.userstore.jdbc.privileged.queries;
 
+import org.wso2.carbon.security.userstore.jdbc.privileged.constant.PrivilegedConnectorConstants;
+import org.wso2.carbon.security.userstore.jdbc.queries.MySQLFamilySQLQueryFactory;
 
 /**
  * SQL queries for MySQL family based databases.
  * @since 1.0.0
  */
-public class PrivilegedMySQLFamilySQLQueryFactory extends SQLQueryFactory {
+public class PrivilegedMySQLFamilySQLQueryFactory extends MySQLFamilySQLQueryFactory {
 
+    private static final String ADD_USER_ATTRIBUTES =
+            "INSERT INTO UM_USER_ATTRIBUTES (ATTR_ID, ATTR_VALUE, USER_ID) " +
+                    "VALUES ((SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;), :attr_value;, " +
+                    "(SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;)) ";
+
+    private static final String ADD_USER =
+            "INSERT INTO UM_USER (USER_UNIQUE_ID) " +
+                    "VALUES (:user_unique_id;)";
+
+    //TODO check whether this is possible in mysql
+    private static final String UPDATE_USER = "UPDATE UM_USER USER_TEMP SET USER_UNIQUE_ID = :user_unique_id_update; " +
+            "WHERE USER_TEMP.USER_UNIQUE_ID = :user_unique_id;";
 
 
     public PrivilegedMySQLFamilySQLQueryFactory() {
-
-
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS, ADD_USER_ATTRIBUTES);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER, ADD_USER);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_USER, UPDATE_USER);
     }
 }

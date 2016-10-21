@@ -40,7 +40,7 @@
 
     <modules>
         <module>components/jdbc-connector</module>
-        <!--<module>components/jdbc-privileged-connector</module>-->
+        <module>components/jdbc-privileged-connector</module>
         <module>feature</module>
         <module>tests</module>
     </modules>
@@ -125,11 +125,16 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.api.version}</version>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon.identity.user.mgt</groupId>-->
-                <!--<artifactId>org.wso2.carbon.identity.user.mgt</artifactId>-->
-                <!--<version>${org.wso2.carbon.identity.user.mgt.version}</version>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>org.wso2.carbon.identity.mgt</groupId>
+                <artifactId>org.wso2.carbon.identity.user.mgt</artifactId>
+                <version>${org.wso2.carbon.identity.user.mgt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.security.userstore</groupId>
+                <artifactId>org.wso2.carbon.security.userstore.jdbc.privileged</artifactId>
+                <version>${carbon.security.userstore.jdbc.version}</version>
+            </dependency>
 
             <!-- OSGI Tests-->
             <dependency>
@@ -279,6 +284,12 @@
                 <groupId>org.wso2.carbon.security.userstore</groupId>
                 <artifactId>org.wso2.carbon.security.userstore.jdbc.feature</artifactId>
                 <version>${carbon.security.userstore.jdbc.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.mgt</groupId>
+                <artifactId>org.wso2.carbon.identity.mgt.feature</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
                 <type>zip</type>
             </dependency>
 

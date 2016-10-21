@@ -52,16 +52,16 @@
             <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity.user.mgt</groupId>
+            <groupId>org.wso2.carbon.identity.mgt</groupId>
             <artifactId>org.wso2.carbon.identity.user.mgt</artifactId>
         </dependency>
     </dependencies>
 
     <properties>
-        <private.package>org.wso2.carbon.security.userstore.internal</private.package>
+        <private.package>org.wso2.carbon.security.userstore.jdbc.privileged.internal</private.package>
         <export.package>
-            !org.wso2.carbon.security.userstore.internal,
-            org.wso2.carbon.security.userstore.*
+            !org.wso2.carbon.security.userstore.jdbc.privileged.internal,
+            org.wso2.carbon.security.userstore.jdbc.privileged.*
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
@@ -75,7 +75,10 @@
             org.osgi.service.component.annotations.*;version="${org.osgi.service.component.annotations.version.range}",
             org.osgi.service.jndi.*;version="${org.osgi.service.jndi.version.range}",
             org.wso2.carbon.datasource.core.*;version="${org.wso2.carbon.datasource.version.range}",
-            org.wso2.carbon.security.*;version="${org.wso2.carbon.security.version.range}"
+            org.wso2.carbon.security.*;version="${org.wso2.carbon.security.version.range}",
+            org.wso2.carbon.identity.user.mgt.*,
+            org.wso2.carbon.security.userstore.jdbc.*;version="${org.wso2.carbon.security.userstore.jdbc.version.range}",
+            org.wso2.carbon.kernel.*,
         </import.package>
 
         <carbon.component>
@@ -98,6 +101,8 @@
         <org.osgi.service.jndi.version.range>[1.0.0, 1.1.0)</org.osgi.service.jndi.version.range>
         <org.wso2.carbon.datasource.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.datasource.version.range>
         <org.wso2.carbon.security.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.security.version.range>
+        <org.wso2.carbon.identity.user.mgt.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.identity.user.mgt.version.range>
+        <org.wso2.carbon.security.userstore.jdbc.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.security.userstore.jdbc.version.range>
 
         <!-- Dependency package version ranges -->
 
