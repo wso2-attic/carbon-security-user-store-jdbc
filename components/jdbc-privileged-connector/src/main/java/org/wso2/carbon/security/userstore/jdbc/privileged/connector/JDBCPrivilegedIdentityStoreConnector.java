@@ -175,13 +175,62 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
     }
 
     @Override
-    public void addGroup(List<Attribute> list) throws IdentityStoreException {
+    public void addGroup(List<Attribute> attributes) throws IdentityStoreException {
 
+        //TODO Change the primaryAttribute to primary attribute of the group
+        String primaryAttributeValue = attributes.stream()
+                .filter(attribute -> attribute.getAttributeName().equals(primaryAttributeName))
+                .map(attribute -> attribute.getAttributeValue())
+                .findFirst()
+                .orElse(null);
+
+        if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+            throw new IdentityStoreException("Primary Attribute " + primaryAttributeName + " is not found among the " +
+                    "attribute list");
+        }
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            NamedPreparedStatement addGroupNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP));
+            addGroupNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                    primaryAttributeValue);
+            addGroupNamedPreparedStatement.getPreparedStatement().executeUpdate();
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP_CLAIMS));
+            for (Attribute attribute : attributes) {
+                if (!attribute.getAttributeName().equals(primaryAttributeName)) {
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
+                            .getAttributeName());
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
+                            .getAttributeValue());
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                            primaryAttributeValue);
+                    namedPreparedStatement.getPreparedStatement().addBatch();
+                }
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while storing group.", e);
+        }
     }
 
     @Override
-    public void addGroups(List<List<Attribute>> list) throws IdentityStoreException {
+    public void addGroups(List<List<Attribute>> attributes) throws IdentityStoreException {
+        IdentityStoreException identityStoreException = new IdentityStoreException();
+        attributes.stream().forEach(attributes1 -> {
+            try {
+                addGroup(attributes1);
+            } catch (IdentityStoreException e) {
+                identityStoreException.addSuppressed(e);
+            }
+        });
 
+        if (identityStoreException.getSuppressed().length > 0) {
+            throw identityStoreException;
+        }
     }
 
     @Override

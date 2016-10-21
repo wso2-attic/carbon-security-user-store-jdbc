@@ -36,6 +36,8 @@ public class PrivilegedConnectorConstants {
         public static final String SQL_QUERY_ADD_USER_CLAIMS = "sql_query_add_user_claims";
         public static final String SQL_QUERY_ADD_USER = "sql_query_add_user";
         public static final String SQL_QUERY_UPDATE_USER = "sql_query_update_user";
+        public static final String SQL_QUERY_ADD_GROUP_CLAIMS = "sql_query_add_group_claims";
+        public static final String SQL_QUERY_ADD_GROUP = "sql_query_add_group";
 
     }
 }
