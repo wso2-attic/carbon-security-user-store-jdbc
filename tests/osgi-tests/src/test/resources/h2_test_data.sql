@@ -18,7 +18,8 @@
 INSERT INTO UM_USER (USER_UNIQUE_ID)
 VALUES ('41dadd2aea6e11e59ce95e5517507c66'),
   ('b5572242139d11e6a1483e1d05defe78'),
-  ('b5572580139d11e6a1483e1d05defe78');
+  ('b5572580139d11e6a1483e1d05defe78'),
+  ('darshana');
 
 INSERT INTO UM_ATTRIBUTES (ATTR_NAME)
 VALUES ('username'),
@@ -26,7 +27,6 @@ VALUES ('username'),
   ('firstname'),
   ('lastname'),
   ('reportsto');
-
 
 INSERT INTO UM_PASSWORD (PASSWORD, USER_UNIQUE_ID)
 VALUES ('3opCozpRixH6BvSXyr0513v1nyFWpdcQy7F6r6P/LFE=', '41dadd2aea6e11e59ce95e5517507c66'),
@@ -40,7 +40,9 @@ INSERT INTO UM_GROUP (GROUP_UNIQUE_ID)
 VALUES ('a422aa98ecf411e59ce95e5517507c66'),
   ('16231aee15a711e6a1483e1d05defe78'),
   ('16231f8a15a711e6a1483e1d05defe78'),
-  ('162321d815a711e6a1483e1d05defe78');
+  ('162321d815a711e6a1483e1d05defe78'),
+  ('sales'),
+  ('productleads');
 
 INSERT INTO UM_ROLE (ROLE_NAME, ROLE_UNIQUE_ID)
 VALUES ('admin', '985b79ecfcdf11e586aa5e5517507c66'),

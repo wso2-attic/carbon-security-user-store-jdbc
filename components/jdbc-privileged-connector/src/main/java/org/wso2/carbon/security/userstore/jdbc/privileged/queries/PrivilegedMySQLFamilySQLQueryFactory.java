@@ -21,6 +21,7 @@ import org.wso2.carbon.security.userstore.jdbc.queries.MySQLFamilySQLQueryFactor
 
 /**
  * SQL queries for MySQL family based databases.
+ *
  * @since 1.0.0
  */
 public class PrivilegedMySQLFamilySQLQueryFactory extends MySQLFamilySQLQueryFactory {
@@ -43,18 +44,58 @@ public class PrivilegedMySQLFamilySQLQueryFactory extends MySQLFamilySQLQueryFac
             "INSERT INTO UM_GROUP (GROUP_UNIQUE_ID) " +
                     "VALUES (:group_unique_id;)";
 
-
     //TODO check whether this is possible in mysql
     private static final String UPDATE_USER = "UPDATE UM_USER USER_TEMP SET USER_UNIQUE_ID = :user_unique_id_update; " +
             "WHERE USER_TEMP.USER_UNIQUE_ID = :user_unique_id;";
 
+    private static final String ADD_USER_GROUPS =
+            "INSERT INTO UM_USER_GROUP (USER_ID, GROUP_ID) " +
+                    "VALUES ((SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;), " +
+                    "(SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;))";
+
+    private static final String REMOVE_ALL_GROUPS_OF_USER = "DELETE FROM UM_USER_GROUP " +
+            "WHERE USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;)";
+
+    private static final String REMOVE_ALL_USERS_OF_GROUP = "DELETE FROM UM_USER_GROUP " +
+            "WHERE GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
+
+    private static final String REMOVE_GROUP_OF_USER = "DELETE FROM UM_USER_GROUP " +
+            "WHERE USER_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;) " +
+            "AND GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
+
+    private static final String REMOVE_ALL_ATTRIBUTES_OF_USER = "DELETE FROM UM_USER_ATTRIBUTES " +
+            "WHERE USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;)";
+
+    private static final String REMOVE_ATTRIBUTE_OF_USER =
+            "DELETE FROM UM_USER_ATTRIBUTES " +
+                    "WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;) AND " +
+                    "USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;)) ";
+
+    private static final String DELETE_USER =
+            "DELETE FROM UM_USER " +
+                    "WHERE USER_UNIQUE_ID = :user_unique_id;";
+
+    private static final String DELETE_GROUP =
+            "DELETE FROM UM_GROUP " +
+                    "WHERE GROUP_UNIQUE_ID = :group_unique_id;";
 
     public PrivilegedMySQLFamilySQLQueryFactory() {
-        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS, ADD_USER_ATTRIBUTES);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES, ADD_USER_ATTRIBUTES);
         sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER, ADD_USER);
         sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_USER, UPDATE_USER);
         sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP_CLAIMS, ADD_GROUP_ATTRIBUTES);
         sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP, ADD_GROUP);
-
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUP, ADD_USER_GROUPS);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ALL_GROUPS_OF_USER,
+                REMOVE_ALL_GROUPS_OF_USER);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ALL_USERS_OF_GROUP,
+                REMOVE_ALL_USERS_OF_GROUP);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_OF_USER, REMOVE_GROUP_OF_USER);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ALL_ATTRIBUTES_OF_USER,
+                REMOVE_ALL_ATTRIBUTES_OF_USER);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ATTRIBUTE_OF_USER,
+                REMOVE_ATTRIBUTE_OF_USER);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER, DELETE_USER);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP, DELETE_GROUP);
     }
 }

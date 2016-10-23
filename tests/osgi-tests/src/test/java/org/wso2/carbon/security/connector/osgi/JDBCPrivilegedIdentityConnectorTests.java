@@ -25,6 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.user.mgt.store.connector.PrivilegedIdentityStoreConnector;
 import org.wso2.carbon.security.caas.user.core.bean.Attribute;
+import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
@@ -124,6 +125,33 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
         List<Attribute> attributeRetrieved = privilegedIdentityStoreConnector.getGroupAttributeValues("engineering");
         Assert.assertNotNull(attributeRetrieved);
         Assert.assertTrue(attributeRetrieved.size() > 0);
-        Assert.assertTrue(attributeRetrieved.size() == 1);
+        Assert.assertEquals(attributeRetrieved.size(), 1);
     }
+
+    @Test(priority = 4)
+    public void testGroupsOfUser() throws IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+
+        List<String> groups = new ArrayList();
+        groups.add("engineering");
+
+        privilegedIdentityStoreConnector.updateGroupsOfUser("maduranga", groups);
+
+        List<Group.GroupBuilder> groupBuilders = privilegedIdentityStoreConnector.getGroupBuildersOfUser("maduranga");
+        List<Group> groupListOfUser = new ArrayList<>();
+        for (Group.GroupBuilder groupBuilder : groupBuilders){
+            groupBuilder.setDomain(defaultDomain);
+            groupBuilder.setIdentityStore(privilegedRealmService.getIdentityStore());
+            groupBuilder.setAuthorizationStore(privilegedRealmService.getAuthorizationStore());
+            //TODO need to remove tenant domain from group object
+            groupBuilder.setTenantDomain("TENANT");
+            groupListOfUser.add(groupBuilder.build());
+        }
+
+        Assert.assertEquals(groupBuilders.size(), 1);
+        //TODO need to check the correct group is assigned
+    }
+
+
 }

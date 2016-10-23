@@ -48,6 +48,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
 
     @Override
     public void init(String storeId, IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
+
         super.init(storeId, identityStoreConfig);
         primaryAttributeName = identityStoreConfig.getPrimaryAttributeName();
     }
@@ -75,7 +76,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
                     .getConnection(),
-                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS));
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES));
             for (Attribute attribute : attributes) {
                 if (!attribute.getAttributeName().equals(primaryAttributeName)) {
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
@@ -97,6 +98,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
 
     @Override
     public void addUsers(List<List<Attribute>> attributes) throws IdentityStoreException {
+
         IdentityStoreException identityStoreException = new IdentityStoreException();
         attributes.stream().forEach(attributes1 -> {
             try {
@@ -114,35 +116,53 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
     @Override
     public void updateUserAttributes(String userIdentifier, List<Attribute> attributes) throws IdentityStoreException {
 
+        //PUT operation
         String primaryAttributeValue = attributes.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(primaryAttributeName))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
 
-        if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
-            throw new IdentityStoreException("Primary Attribute " + primaryAttributeName + " is not found among the " +
-                    "attribute list");
-        }
+        String userIdentifierNew = userIdentifier;
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-            NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
-                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_USER));
-            addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
-                    userIdentifier);
-            addUserNamedPreparedStatement.setString(PrivilegedConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID_UPDATE,
-                    primaryAttributeValue);
-            addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
-                    .getConnection(),
-                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS));
+            //Update the primary attribute of the connector
+            if (!StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+                NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                        .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes
+                        .SQL_QUERY_UPDATE_USER));
+                addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        userIdentifier);
+                addUserNamedPreparedStatement.setString(PrivilegedConnectorConstants.SQLPlaceholders
+                                .USER_UNIQUE_ID_UPDATE, primaryAttributeValue);
+                addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
+
+                //If the primary attribute of the connector is also going to be updated, new value should be used for
+                // the other queries.
+                userIdentifierNew = primaryAttributeValue;
+            }
+
+            //Delete the existing attributes
+            NamedPreparedStatement removeAttributesNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes
+                    .SQL_QUERY_REMOVE_ALL_ATTRIBUTES_OF_USER));
+            removeAttributesNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                    userIdentifierNew);
+            removeAttributesNamedPreparedStatement.getPreparedStatement().executeUpdate();
+
+            //Add new user attributes
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES));
             for (Attribute attribute : attributes) {
                 if (!attribute.getAttributeName().equals(primaryAttributeName)) {
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
                             .getAttributeName());
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
                             .getAttributeValue());
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                            userIdentifierNew);
                     namedPreparedStatement.getPreparedStatement().addBatch();
                 }
             }
@@ -154,24 +174,161 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
     }
 
     @Override
-    public void updateUserAttributes(String s, List<Attribute> list, List<Attribute> list1) throws
-            IdentityStoreException {
+    public void updateUserAttributes(String userIdentifier, List<Attribute> attributesToAdd,
+                                     List<Attribute> attributesToRemove) throws IdentityStoreException {
+        //PATCH operation
 
+        String primaryAttributeToRemove = attributesToRemove.stream()
+                .filter(attribute -> attribute.getAttributeName().equals(primaryAttributeName))
+                .map(attribute -> attribute.getAttributeValue())
+                .findFirst()
+                .orElse(null);
+
+        String primaryAttributeValue = attributesToAdd.stream()
+                .filter(attribute -> attribute.getAttributeName().equals(primaryAttributeName))
+                .map(attribute -> attribute.getAttributeValue())
+                .findFirst()
+                .orElse(null);
+
+        //If primary attribute is in the remove list, new value should be in the add list.
+        if (!StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) && StringUtils.isNullOrEmptyAfterTrim
+                (primaryAttributeValue)) {
+            throw new IdentityStoreException("Primary attribute of the connector cannot be removed");
+        }
+
+        String userIdentifierNew = userIdentifier;
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            //Update the primary attribute of the connector
+            if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) || !StringUtils.isNullOrEmptyAfterTrim
+                    (primaryAttributeValue)) {
+                NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                        .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes
+                        .SQL_QUERY_UPDATE_USER));
+                addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        userIdentifier);
+                addUserNamedPreparedStatement.setString(PrivilegedConnectorConstants.SQLPlaceholders
+                        .USER_UNIQUE_ID_UPDATE, primaryAttributeValue);
+                addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
+
+                //If the primary attribute of the connector is also going to be updated, new value should be used for
+                // the other queries.
+                userIdentifierNew = primaryAttributeValue;
+            }
+
+            //Delete the existing attributes
+            NamedPreparedStatement removeAttributesNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes
+                    .SQL_QUERY_REMOVE_ATTRIBUTE_OF_USER));
+            for (Attribute attribute : attributesToRemove) {
+                if (!attribute.getAttributeName().equals(primaryAttributeName)) {
+                    removeAttributesNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
+                            .ATTRIBUTE_NAME, attribute.getAttributeName());
+                    removeAttributesNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
+                            .USER_UNIQUE_ID, userIdentifierNew);
+                    removeAttributesNamedPreparedStatement.getPreparedStatement().addBatch();
+                }
+            }
+            removeAttributesNamedPreparedStatement.getPreparedStatement().executeBatch();
+
+            //Add new user attributes
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES));
+            for (Attribute attribute : attributesToAdd) {
+                if (!attribute.getAttributeName().equals(primaryAttributeName)) {
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
+                            .getAttributeName());
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
+                            .getAttributeValue());
+                    namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                            userIdentifierNew);
+                    namedPreparedStatement.getPreparedStatement().addBatch();
+                }
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while updating user.", e);
+        }
     }
 
     @Override
-    public void deleteUser(String s) throws IdentityStoreException {
-
+    public void deleteUser(String userIdentifier) throws IdentityStoreException {
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER));
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, userIdentifier);
+            namedPreparedStatement.getPreparedStatement().executeUpdate();
+            unitOfWork.endTransaction();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while deleting user.", e);
+        }
     }
 
     @Override
-    public void updateGroupsOfUser(String s, List<String> list) throws IdentityStoreException {
+    public void updateGroupsOfUser(String userIdentifier, List<String> groupIdentifiers) throws IdentityStoreException {
 
+        //PUT operation
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            //remove already existing groups
+            NamedPreparedStatement deleteNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes
+                    .SQL_QUERY_REMOVE_ALL_GROUPS_OF_USER));
+            deleteNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, userIdentifier);
+            deleteNamedPreparedStatement.getPreparedStatement().executeUpdate();
+
+            //add new groups
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUP));
+            for (String groupIdentifier : groupIdentifiers) {
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        userIdentifier);
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                        groupIdentifier);
+                namedPreparedStatement.getPreparedStatement().addBatch();
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while updating groups of user.", e);
+        }
     }
 
     @Override
-    public void updateGroupsOfUser(String s, List<String> list, List<String> list1) throws IdentityStoreException {
+    public void updateGroupsOfUser(String userIdentifier, List<String> groupIdentifiersToAdd,
+                                   List<String> groupIdentifiersToRemove) throws IdentityStoreException {
 
+        //PATCH operation
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            //remove already existing groups
+            NamedPreparedStatement deleteNamedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_OF_USER));
+            for (String groupIdentifier : groupIdentifiersToAdd) {
+                deleteNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        userIdentifier);
+                deleteNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                        userIdentifier);
+                deleteNamedPreparedStatement.getPreparedStatement().addBatch();
+            }
+            deleteNamedPreparedStatement.getPreparedStatement().executeBatch();
+
+            //add new groups
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUP));
+            for (String groupIdentifier : groupIdentifiersToAdd) {
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        userIdentifier);
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                        groupIdentifier);
+                namedPreparedStatement.getPreparedStatement().addBatch();
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while updating groups of user.", e);
+        }
     }
 
     @Override
@@ -220,9 +377,9 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
     @Override
     public void addGroups(List<List<Attribute>> attributes) throws IdentityStoreException {
         IdentityStoreException identityStoreException = new IdentityStoreException();
-        attributes.stream().forEach(attributes1 -> {
+        attributes.stream().forEach(attribute -> {
             try {
-                addGroup(attributes1);
+                addGroup(attribute);
             } catch (IdentityStoreException e) {
                 identityStoreException.addSuppressed(e);
             }
@@ -234,29 +391,93 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
     }
 
     @Override
-    public void updateGroupAttributes(String s, List<Attribute> list) throws IdentityStoreException {
-
-    }
-
-    @Override
-    public void updateGroupAttributes(String s, List<Attribute> list, List<Attribute> list1) throws
+    public void updateGroupAttributes(String groupIdentifier, List<Attribute> attributes) throws
             IdentityStoreException {
 
     }
 
     @Override
-    public void deleteGroup(String s) throws IdentityStoreException {
+    public void updateGroupAttributes(String groupIdentifier, List<Attribute> attributesToAdd,
+                                      List<Attribute> attributesToRemove) throws IdentityStoreException {
 
     }
 
     @Override
-    public void updateUsersOfGroup(String s, List<String> list) throws IdentityStoreException {
+    public void deleteGroup(String groupIdentifier) throws IdentityStoreException {
 
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP));
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, groupIdentifier);
+            namedPreparedStatement.getPreparedStatement().executeUpdate();
+            unitOfWork.endTransaction();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while deleting user.", e);
+        }
     }
 
     @Override
-    public void updateUsersOfGroup(String s, List<String> list, List<String> list1) throws IdentityStoreException {
+    public void updateUsersOfGroup(String groupIdentifier, List<String> userIdentifiers) throws IdentityStoreException {
 
+        //PUT operation
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            //remove already existing users
+            NamedPreparedStatement deleteNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes
+                    .SQL_QUERY_REMOVE_ALL_USERS_OF_GROUP));
+            deleteNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID, groupIdentifier);
+            deleteNamedPreparedStatement.getPreparedStatement().executeUpdate();
+
+            //add new users
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUP));
+            for (String userIdentifier : userIdentifiers) {
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        userIdentifier);
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                        groupIdentifier);
+                namedPreparedStatement.getPreparedStatement().addBatch();
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while updating groups of user.", e);
+        }
+    }
+
+    @Override
+    public void updateUsersOfGroup(String groupIdentifier, List<String> userIdentifiersToAdd,
+                                   List<String> userIdentifiersToRemove) throws IdentityStoreException {
+
+        //PATCH operation
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            //remove already existing groups
+            NamedPreparedStatement deleteNamedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_OF_USER));
+            for (String userIdentifier : userIdentifiersToAdd) {
+                deleteNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        userIdentifier);
+                deleteNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                        groupIdentifier);
+                deleteNamedPreparedStatement.getPreparedStatement().addBatch();
+            }
+            deleteNamedPreparedStatement.getPreparedStatement().executeBatch();
+
+            //add new groups
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUP));
+            for (String userIdentifier : userIdentifiersToRemove) {
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        userIdentifier);
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                        groupIdentifier);
+                namedPreparedStatement.getPreparedStatement().addBatch();
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+        } catch (SQLException e) {
+            throw new IdentityStoreException("Error occurred while updating groups of user.", e);
+        }
     }
 
     protected void loadQueries(Properties properties) {

@@ -33,11 +33,18 @@ public class PrivilegedConnectorConstants {
      * Query type related constants.
      */
     public static final class QueryTypes {
-        public static final String SQL_QUERY_ADD_USER_CLAIMS = "sql_query_add_user_claims";
+        public static final String SQL_QUERY_ADD_USER_ATTRIBUTES = "sql_query_add_user_attributes";
         public static final String SQL_QUERY_ADD_USER = "sql_query_add_user";
         public static final String SQL_QUERY_UPDATE_USER = "sql_query_update_user";
         public static final String SQL_QUERY_ADD_GROUP_CLAIMS = "sql_query_add_group_claims";
         public static final String SQL_QUERY_ADD_GROUP = "sql_query_add_group";
-
+        public static final String SQL_QUERY_ADD_USER_GROUP = "sql_query_add_user_group";
+        public static final String SQL_QUERY_REMOVE_ALL_GROUPS_OF_USER = "sql_query_remove_all_groups_of_user";
+        public static final String SQL_QUERY_REMOVE_ALL_USERS_OF_GROUP = "sql_query_remove_all_users_of_group";
+        public static final String SQL_QUERY_REMOVE_GROUP_OF_USER = "sql_query_remove_group_of_user";
+        public static final String SQL_QUERY_REMOVE_ALL_ATTRIBUTES_OF_USER = "sql_query_remove_all_attributes_of_user";
+        public static final String SQL_QUERY_REMOVE_ATTRIBUTE_OF_USER = "sql_query_remove_attribute_of_user";
+        public static final String SQL_QUERY_DELETE_USER = "sql_query_delete_user";
+        public static final String SQL_QUERY_DELETE_GROUP = "sql_query_delete_group";
     }
 }
