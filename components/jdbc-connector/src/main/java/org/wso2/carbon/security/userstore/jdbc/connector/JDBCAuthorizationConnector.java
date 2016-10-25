@@ -56,11 +56,11 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     private AuthorizationStoreConnectorConfig authorizationStoreConfig;
     private DataSource dataSource;
 
-    public void init(String storeId, AuthorizationStoreConnectorConfig authorizationStoreConfig)
+    public void init(AuthorizationStoreConnectorConfig authorizationStoreConfig)
             throws AuthorizationStoreException {
 
-        Properties properties = authorizationStoreConfig.getStoreProperties();
-        this.authorizationStoreId = storeId;
+        Properties properties = authorizationStoreConfig.getProperties();
+        this.authorizationStoreId = authorizationStoreConfig.getConnectorId();
         this.authorizationStoreConfig = authorizationStoreConfig;
 
         try {
@@ -1373,7 +1373,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     private int getMaxRowRetrievalCount() {
 
         int length;
-        String maxValue = authorizationStoreConfig.getStoreProperties().getProperty(ConnectorConstants.MAX_ROW_LIMIT);
+        String maxValue = authorizationStoreConfig.getProperties().getProperty(ConnectorConstants.MAX_ROW_LIMIT);
 
         if (maxValue == null) {
 

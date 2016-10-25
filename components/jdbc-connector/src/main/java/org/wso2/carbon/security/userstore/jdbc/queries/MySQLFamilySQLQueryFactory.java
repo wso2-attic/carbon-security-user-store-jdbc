@@ -80,13 +80,12 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "OFFSET :offset;";
 
     private static final String GET_GROUPS_OF_USER =
-            "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
-            "FROM UM_GROUP " +
-            "WHERE UM_GROUP.ID IN (SELECT GROUP_ID " +
-                        "FROM UM_USER_GROUP " +
-                        "WHERE USER_ID = (SELECT ID " +
-                                         "FROM UM_USER " +
-                                         "WHERE USER_UNIQUE_ID = :user_id;))";
+            "SELECT GROUP_UNIQUE_ID " +
+                    "FROM UM_GROUP LEFT JOIN UM_USER_GROUP " +
+                    "ON UM_GROUP.ID = UM_USER_GROUP.GROUP_ID " +
+                    "LEFT JOIN UM_USER " +
+                    "ON UM_USER.ID = UM_USER_GROUP.USER_ID " +
+                    "WHERE USER_UNIQUE_ID = :user_unique_id;";
 
     private static final String GET_USERS_OF_GROUP =
             "SELECT UM_USER.USER_UNIQUE_ID " +

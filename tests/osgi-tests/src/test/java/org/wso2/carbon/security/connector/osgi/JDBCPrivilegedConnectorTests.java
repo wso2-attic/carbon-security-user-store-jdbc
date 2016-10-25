@@ -25,14 +25,12 @@ import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.BundleContext;
 import org.testng.annotations.Listeners;
-import org.wso2.carbon.identity.user.mgt.service.PrivilegedRealmService;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.security.caas.user.core.bean.Action;
 import org.wso2.carbon.security.caas.user.core.bean.Domain;
 import org.wso2.carbon.security.caas.user.core.bean.Permission;
 import org.wso2.carbon.security.caas.user.core.bean.Resource;
-import org.wso2.carbon.security.caas.user.core.store.IdentityStore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,9 +68,6 @@ class JDBCPrivilegedConnectorTests {
 
     @Inject
     protected BundleContext bundleContext;
-
-    @Inject
-    protected PrivilegedRealmService privilegedRealmService;
 
     @Configuration
     public Option[] createConfiguration() {

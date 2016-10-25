@@ -47,10 +47,11 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
     String primaryAttributeName;
 
     @Override
-    public void init(String storeId, IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
+    public void init(IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
 
-        super.init(storeId, identityStoreConfig);
-        primaryAttributeName = identityStoreConfig.getPrimaryAttributeName();
+        super.init(identityStoreConfig);
+        //TODO check whether this is okay to be a property
+        primaryAttributeName = identityStoreConfig.getProperties().getProperty("primaryAttribute");
     }
 
     @Override
@@ -135,7 +136,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                 addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
                         userIdentifier);
                 addUserNamedPreparedStatement.setString(PrivilegedConnectorConstants.SQLPlaceholders
-                                .USER_UNIQUE_ID_UPDATE, primaryAttributeValue);
+                        .USER_UNIQUE_ID_UPDATE, primaryAttributeValue);
                 addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
                 //If the primary attribute of the connector is also going to be updated, new value should be used for
@@ -291,6 +292,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                 namedPreparedStatement.getPreparedStatement().addBatch();
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while updating groups of user.", e);
         }
@@ -310,7 +312,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                 deleteNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
                         userIdentifier);
                 deleteNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
-                        userIdentifier);
+                        groupIdentifier);
                 deleteNamedPreparedStatement.getPreparedStatement().addBatch();
             }
             deleteNamedPreparedStatement.getPreparedStatement().executeBatch();
@@ -326,6 +328,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                 namedPreparedStatement.getPreparedStatement().addBatch();
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while updating groups of user.", e);
         }
@@ -440,6 +443,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                 namedPreparedStatement.getPreparedStatement().addBatch();
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while updating groups of user.", e);
         }
@@ -475,6 +479,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                 namedPreparedStatement.getPreparedStatement().addBatch();
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while updating groups of user.", e);
         }

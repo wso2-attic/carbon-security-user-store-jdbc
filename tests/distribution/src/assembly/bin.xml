@@ -26,7 +26,7 @@
 
     <fileSets>
         <fileSet>
-            <directory>target/WSO2Carbon</directory>
+            <directory>target/wso2carbon-kernel-${project.version}</directory>
             <outputDirectory></outputDirectory>
             <fileMode>644</fileMode>
             <excludes>
@@ -42,7 +42,7 @@
         </fileSet>
 
         <fileSet>
-            <directory>target/WSO2Carbon</directory>
+            <directory>target/wso2carbon-kernel-${project.version}</directory>
             <outputDirectory></outputDirectory>
             <includes>
                 <include>**/*.sh</include>
@@ -65,13 +65,13 @@
 
     <files>
         <file>
-            <source>target/WSO2Carbon/conf/carbon.yml</source>
+            <source>target/wso2carbon-kernel-${project.version}/conf/carbon.yml</source>
             <outputDirectory>conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
         <file>
-            <source>target/WSO2Carbon/bin/kernel-version.txt</source>
+            <source>target/wso2carbon-kernel-${project.version}/bin/kernel-version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>

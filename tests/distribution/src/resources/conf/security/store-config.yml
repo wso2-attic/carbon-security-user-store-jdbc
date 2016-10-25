@@ -13,14 +13,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 ###############################################################################
-
-enableCache: true # Optional. Default: True
+enableCache: true
 credentialStore:
  connector: "#JDBCCS1"
 identityStore:
  connector: "#JDBCIS1"
- connector: "#JDBCIS2"
- connector: "#JDBCIS3"
 authorizationStore:
  connector: "#JDBCAS1"
 
@@ -28,12 +25,12 @@ storeConnectors:
 
  identityStoreConnectors:
  -
-    connectorName: "JDBCIS1"
+    connectorId: "JDBCIS1"
     connectorType: "JDBCIdentityStore"
     domainName: "A"
-    primaryAttribute: "username"
     uniqueAttributes:
       - username
+      - email
     otherAttributes:
       - firstName
       - lastName
@@ -41,49 +38,20 @@ storeConnectors:
       dataSource: "WSO2_CARBON_DB"
       hashAlgorithm: "SHA256"
       databaseType: "MySQL"
- -
-    connectorName: "JDBCIS2"
-    connectorType: "JDBCIdentityStore"
-    domainName: "A"
-    primaryAttribute: "email"
-    uniqueAttributes:
-      - email
-    otherAttributes:
-      - telephone
-    properties:
-      dataSource: "WSO2_CARBON_DB"
-      hashAlgorithm: "SHA256"
-      databaseType: "MySQL"
- -
-    connectorName: "JDBCIS3"
-    connectorType: "JDBCIdentityStore"
-    domainName: "B"
-    primaryAttribute: "username"
-    uniqueAttributes:
-      - email
-      - username
-    otherAttributes:
-      - telephone
-      - firstname
-      - lastname
-    properties:
-      dataSource: "WSO2_CARBON_DB"
-      hashAlgorithm: "SHA256"
-      databaseType: "MySQL"
+      primaryAttribute: "username"
 
  credentialStoreConnectors:
   -
-    connectorName: "JDBCCS1"
+    connectorId: "JDBCCS1"
     connectorType: "JDBCCredentialStore"
     domainName: "A"
-    primaryAttribute: "username"
     properties:
       dataSource: "WSO2_CARBON_DB"
       databaseType: "MySQL"
 
  authorizationStoreConnectors:
   -
-    connectorName: "JDBCAS1"
+    connectorId: "JDBCAS1"
     connectorType: "JDBCAuthorizationStore"
     properties:
       dataSource: "WSO2_CARBON_DB"

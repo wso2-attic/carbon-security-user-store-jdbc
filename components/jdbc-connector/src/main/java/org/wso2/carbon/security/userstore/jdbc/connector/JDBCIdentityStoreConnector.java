@@ -55,10 +55,10 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     protected String identityStoreId;
 
     @Override
-    public void init(String storeId, IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
+    public void init(IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
 
         Properties properties = identityStoreConfig.getProperties();
-        this.identityStoreId = storeId;
+        this.identityStoreId = identityStoreConfig.getConnectorId();
         this.identityStoreConfig = identityStoreConfig;
 
         try {
@@ -455,13 +455,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, userId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
                 List<Group.GroupBuilder> groupList = new ArrayList<>();
                 while (resultSet.next()) {
-//                    String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
                     String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
                     Group.GroupBuilder group = new Group.GroupBuilder().setGroupId(groupId);
                     groupList.add(group);
