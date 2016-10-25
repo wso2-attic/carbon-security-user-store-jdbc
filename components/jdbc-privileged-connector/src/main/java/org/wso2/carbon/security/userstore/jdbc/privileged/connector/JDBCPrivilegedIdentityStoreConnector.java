@@ -32,6 +32,7 @@ import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -55,7 +56,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
     }
 
     @Override
-    public void addUser(List<Attribute> attributes) throws IdentityStoreException {
+    public String addUser(List<Attribute> attributes) throws IdentityStoreException {
 
         String primaryAttributeValue = attributes.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(primaryAttributeName))
@@ -94,16 +95,18 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while storing user.", e);
         }
-
+        return primaryAttributeValue;
     }
 
     @Override
-    public void addUsers(List<List<Attribute>> attributes) throws IdentityStoreException {
+    public List<String> addUsers(List<List<Attribute>> attributes) throws IdentityStoreException {
 
         IdentityStoreException identityStoreException = new IdentityStoreException();
+        List<String> userIds = new ArrayList<>();
         attributes.stream().forEach(attributes1 -> {
             try {
-                addUser(attributes1);
+                String userId = addUser(attributes1);
+                userIds.add(userId);
             } catch (IdentityStoreException e) {
                 identityStoreException.addSuppressed(e);
             }
@@ -112,6 +115,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
         if (identityStoreException.getSuppressed().length > 0) {
             throw identityStoreException;
         }
+        return userIds;
     }
 
     @Override
