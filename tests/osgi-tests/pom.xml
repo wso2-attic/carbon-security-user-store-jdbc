@@ -223,7 +223,7 @@
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.directory}/wso2carbon-kernel-${project.version}/conf/</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/wso2carbon-kernel-${project.version}/conf</outputDirectory>
                                     <overwrite>true</overwrite>
                                     <resources>
                                         <resource>

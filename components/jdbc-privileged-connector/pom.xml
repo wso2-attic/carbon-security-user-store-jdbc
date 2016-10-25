@@ -83,8 +83,6 @@
 
         <carbon.component>
             osgi.service;
-            objectClass="org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory",
-            osgi.service;
             objectClass="org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnectorFactory",
             osgi.service;
             objectClass="org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory"

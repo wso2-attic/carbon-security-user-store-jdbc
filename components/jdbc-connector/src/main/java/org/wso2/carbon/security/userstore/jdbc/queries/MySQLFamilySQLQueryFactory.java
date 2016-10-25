@@ -58,9 +58,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                              "FROM UM_USER " +
                              "WHERE USER_UNIQUE_ID = :user_id;)";
 
-    private static final String DELETE_USER =
-            "DELETE FROM UM_USER " +
-            "WHERE USER_UNIQUE_ID = :userId;";
 
     private static final String DELETE_GROUP =
             "DELETE FROM UM_GROUP " +
@@ -83,13 +80,12 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "OFFSET :offset;";
 
     private static final String GET_GROUPS_OF_USER =
-            "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
-            "FROM UM_GROUP " +
-            "WHERE UM_GROUP.ID IN (SELECT GROUP_ID " +
-                        "FROM UM_USER_GROUP " +
-                        "WHERE USER_ID = (SELECT ID " +
-                                         "FROM UM_USER " +
-                                         "WHERE USER_UNIQUE_ID = :user_id;))";
+            "SELECT GROUP_UNIQUE_ID " +
+                    "FROM UM_GROUP LEFT JOIN UM_USER_GROUP " +
+                    "ON UM_GROUP.ID = UM_USER_GROUP.GROUP_ID " +
+                    "LEFT JOIN UM_USER " +
+                    "ON UM_USER.ID = UM_USER_GROUP.USER_ID " +
+                    "WHERE USER_UNIQUE_ID = :user_unique_id;";
 
     private static final String GET_USERS_OF_GROUP =
             "SELECT UM_USER.USER_UNIQUE_ID " +
@@ -451,9 +447,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE, GET_USER_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE, GET_GROUP_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES, GET_USER_ATTRIBUTES);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER, DELETE_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP, DELETE_GROUP);
-//        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_CLAIMS, ADD_USER_ATTRIBUTES);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS, ADD_USER_GROUPS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE, LIST_USERS_BY_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER, GET_GROUPS_OF_USER);

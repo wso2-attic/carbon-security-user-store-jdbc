@@ -25,8 +25,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.user.mgt.store.connector.PrivilegedIdentityStoreConnector;
 import org.wso2.carbon.security.caas.user.core.bean.Attribute;
+import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
+import org.wso2.carbon.security.caas.user.core.service.RealmService;
 import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.privileged.connector.factory.JDBCPrivilegedIdentityStoreConnectorFactory;
 
@@ -42,6 +44,10 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
     @Filter("(connector-type=JDBCPrivilegedIdentityStore)")
     protected IdentityStoreConnectorFactory identityStoreConnectorFactory;
 
+    //TODO change this to PrivilegedRealmService
+    @Inject
+    protected RealmService privilegedRealmService;
+
     private PrivilegedIdentityStoreConnector privilegedIdentityStoreConnector;
 
     public JDBCPrivilegedIdentityConnectorTests() throws Exception {
@@ -53,10 +59,9 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
         privilegedIdentityStoreConnector = (PrivilegedIdentityStoreConnector)
                 identityStoreConnectorFactory.getConnector();
         IdentityStoreConnectorConfig identityStoreConnectorConfig = new IdentityStoreConnectorConfig();
-        identityStoreConnectorConfig.setConnectorName("JDBCISC1");
+        identityStoreConnectorConfig.setConnectorId("JDBCIS1");
         identityStoreConnectorConfig.setConnectorType("JDBCPrivilegedIdentityStore");
         identityStoreConnectorConfig.setDomainName("A");
-        identityStoreConnectorConfig.setPrimaryAttributeName("username");
         List<String> uniqueAttributes = new ArrayList<>();
         uniqueAttributes.add("username");
         uniqueAttributes.add("email");
@@ -69,8 +74,9 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
         properties.setProperty("dataSource", "WSO2_CARBON_DB");
         properties.setProperty("hashAlgorithm", "SHA256");
         properties.setProperty("databaseType", "MySQL");
+        properties.setProperty("primaryAttribute", "username");
         identityStoreConnectorConfig.setProperties(properties);
-        privilegedIdentityStoreConnector.init("JDBCISC1", identityStoreConnectorConfig);
+        privilegedIdentityStoreConnector.init(identityStoreConnectorConfig);
     }
 
     @Test(priority = 2)
@@ -124,6 +130,33 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
         List<Attribute> attributeRetrieved = privilegedIdentityStoreConnector.getGroupAttributeValues("engineering");
         Assert.assertNotNull(attributeRetrieved);
         Assert.assertTrue(attributeRetrieved.size() > 0);
-        Assert.assertTrue(attributeRetrieved.size() == 1);
+        Assert.assertEquals(attributeRetrieved.size(), 1);
     }
+
+    @Test(priority = 4)
+    public void testGroupsOfUser() throws IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+
+        List<String> groups = new ArrayList();
+        groups.add("engineering");
+
+        privilegedIdentityStoreConnector.updateGroupsOfUser("maduranga", groups);
+
+        List<Group.GroupBuilder> groupBuilders = privilegedIdentityStoreConnector.getGroupBuildersOfUser("maduranga");
+        List<Group> groupListOfUser = new ArrayList<>();
+        for (Group.GroupBuilder groupBuilder : groupBuilders) {
+            groupBuilder.setDomain(defaultDomain);
+            groupBuilder.setIdentityStore(privilegedRealmService.getIdentityStore());
+            groupBuilder.setAuthorizationStore(privilegedRealmService.getAuthorizationStore());
+            //TODO need to remove tenant domain from group object
+            groupBuilder.setTenantDomain("TENANT");
+            groupListOfUser.add(groupBuilder.build());
+        }
+
+        Assert.assertEquals(groupListOfUser.size(), 1);
+        //TODO need to check the correct group is assigned
+    }
+
+
 }

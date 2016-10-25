@@ -19,7 +19,7 @@ package org.wso2.carbon.security.userstore.jdbc.privileged.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.user.mgt.store.connector.PrivilegedCredentialStoreConnector;
-import org.wso2.carbon.security.caas.internal.config.CredentialStoreConnectorConfig;
+import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
 import org.wso2.carbon.security.userstore.jdbc.connector.JDBCCredentialStoreConnector;
 
