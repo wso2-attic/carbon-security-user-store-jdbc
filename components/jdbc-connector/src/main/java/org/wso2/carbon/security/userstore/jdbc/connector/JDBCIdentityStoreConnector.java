@@ -44,6 +44,7 @@ import javax.sql.DataSource;
 
 /**
  * Identity store connector for JDBC based stores.
+ *
  * @since 1.0.0
  */
 public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements IdentityStoreConnector {
@@ -53,6 +54,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     protected DataSource dataSource;
     protected IdentityStoreConnectorConfig identityStoreConfig;
     protected String identityStoreId;
+    protected String connectorUserId;
+    protected String connectorGroupId;
 
     @Override
     public void init(IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
@@ -73,6 +76,10 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         if (log.isDebugEnabled()) {
             log.debug("JDBC identity store with id: {} initialized successfully.", identityStoreId);
         }
+
+        //TODO check whether this is okay to be a property
+        connectorUserId = identityStoreConfig.getProperties().getProperty("connectorUserId");
+        connectorGroupId = identityStoreConfig.getProperties().getProperty("connectorGroupId");
     }
 
     @Override
@@ -85,24 +92,44 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             IdentityStoreException {
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attributeValue);
+            if (!attributeName.equals(connectorUserId)) {
+                NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE));
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attributeValue);
 
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-                if (!resultSet.next()) {
-                    throw new UserNotFoundException("User not found for the given user name in " + identityStoreId);
+                    if (!resultSet.next()) {
+                        throw new UserNotFoundException("User not found for the given user name in " + identityStoreId);
+                    }
+
+                    String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
+                    }
+
+                    return new User.UserBuilder().setUserId(userId);
                 }
+            } else {
+                NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_SEARCH_USER));
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, attributeValue);
 
-                String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-                if (log.isDebugEnabled()) {
-                    log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
+                    if (!resultSet.next()) {
+                        throw new UserNotFoundException("User not found for the given user name in " + identityStoreId);
+                    }
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("User with user id: {} retrieved from identity store: {}.", attributeValue,
+                                identityStoreId);
+                    }
+
+                    return new User.UserBuilder().setUserId(attributeValue);
                 }
-
-                return new User.UserBuilder().setUserId(userId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
@@ -128,7 +155,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         }
     }
 
-
     @Override
     public List<User.UserBuilder> getUserBuilderList(String attributeName, String filterPattern, int offset, int
             length) throws IdentityStoreException {
@@ -144,20 +170,41 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
-            NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE));
-            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
-            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
-                    filterPattern);
-            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+            if (attributeName.equals(connectorUserId)) {
+                NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE));
+                listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
+                        attributeName);
 
-            try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+                listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
+                        filterPattern);
+                listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+                listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
 
-                while (resultSet.next()) {
-                    String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                    userList.add(new User.UserBuilder().setUserId(userUniqueId));
+                try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                    while (resultSet.next()) {
+                        String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                        userList.add(new User.UserBuilder().setUserId(userUniqueId));
+                    }
+                }
+            } else {
+                NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_USER_ID));
+
+                listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
+                        filterPattern);
+                listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+                listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+
+                try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                    while (resultSet.next()) {
+                        String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                        userList.add(new User.UserBuilder().setUserId(userUniqueId));
+                    }
                 }
             }
 
@@ -193,9 +240,14 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     Attribute attribute = new Attribute();
                     attribute.setAttributeName(resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_NAME));
                     attribute.setAttributeValue(resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_VALUE));
-//                    attribute.setIdentityStoreId(identityStoreId);
                     userClaims.add(attribute);
                 }
+
+                //TODO need to check the user exists?
+                Attribute attribute = new Attribute();
+                attribute.setAttributeValue(userId);
+                attribute.setAttributeName(connectorUserId);
+                userClaims.add(attribute);
 
                 if (log.isDebugEnabled()) {
                     log.debug("{} attributes of user: {} retrieved from identity store: {}.", userClaims.size(),
@@ -231,9 +283,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     Attribute attribute = new Attribute();
                     attribute.setAttributeName(resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_NAME));
                     attribute.setAttributeValue(resultSet.getString(DatabaseColumnNames.UserAttributes.ATTR_VALUE));
-//                    attribute.setIdentityStoreId(identityStoreId);
                     userClaims.add(attribute);
                 }
+                //TODO set the primary attribute of the connector as well
 
                 if (log.isDebugEnabled()) {
                     log.debug("{} attributes of user: {} retrieved from identity store: {}.", userClaims.size(),
@@ -250,26 +302,48 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public Group.GroupBuilder getGroupBuilder(String attributeName, String attributeValue) throws
             GroupNotFoundException, IdentityStoreException {
+
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+            if (!attributeName.equals(connectorGroupId)) {
+                NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE));
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attributeValue);
+                try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attributeValue);
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                    if (!resultSet.next()) {
+                        throw new GroupNotFoundException("No group found for the given group name in " +
+                                identityStoreId);
+                    }
 
-                if (!resultSet.next()) {
-                    throw new GroupNotFoundException("No group found for the given group name in " + identityStoreId);
+                    String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Group with attribute {}: {} retrieved from identity store: {}.", attributeName,
+                                attributeValue, identityStoreId);
+                    }
+
+                    return new Group.GroupBuilder().setGroupId(groupId);
                 }
+            } else {
+                NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_SEARCH_GROUP));
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID, attributeValue);
 
-                String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
+                try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Group with attribute {}: {} retrieved from identity store: {}.", attributeName,
-                            attributeValue, identityStoreId);
+                    if (!resultSet.next()) {
+                        throw new GroupNotFoundException("Group not found for the given group name in " +
+                                identityStoreId);
+                    }
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Group with group id: {} retrieved from identity store: {}.", attributeValue,
+                                identityStoreId);
+                    }
+
+                    return new Group.GroupBuilder().setGroupId(attributeValue);
                 }
-
-                return new Group.GroupBuilder().setGroupId(groupId);
             }
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while retrieving group.", e);
@@ -398,15 +472,20 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
                 List<Attribute> groupAttributes = new ArrayList<>();
+
                 while (resultSet.next()) {
                     Attribute attribute = new Attribute();
                     attribute.setAttributeName(resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_NAME));
                     attribute.setAttributeValue(resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_VALUE));
-//                    attribute.setIdentityStoreId(identityStoreId);
                     groupAttributes.add(attribute);
                 }
+
+                //TODO need to check the user exists?
+                Attribute attribute = new Attribute();
+                attribute.setAttributeValue(groupId);
+                attribute.setAttributeName(connectorGroupId);
+                groupAttributes.add(attribute);
 
                 return groupAttributes;
             }
@@ -437,7 +516,6 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     Attribute attribute = new Attribute();
                     attribute.setAttributeName(resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_NAME));
                     attribute.setAttributeValue(resultSet.getString(DatabaseColumnNames.GroupAttributes.ATTR_VALUE));
-//                    attribute.setIdentityStoreId(identityStoreId);
                     groupAttributes.add(attribute);
                 }
 
@@ -540,6 +618,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     /**
      * Get the maximum number of rows allowed to retrieve in a single query.
+     *
      * @return Max allowed number of rows.
      */
     private int getMaxRowRetrievalCount() {

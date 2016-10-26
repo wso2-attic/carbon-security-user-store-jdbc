@@ -14,7 +14,7 @@
 #   limitations under the License.
 ################################################################################
 
-name: "JDBCAuthorizationStore"
+connectorId: "JDBCAuthorizationStore"
 connectorType: "JDBCAuthorizationStore"
 properties:
  dataSource: "WSO2_CARBON_DB"

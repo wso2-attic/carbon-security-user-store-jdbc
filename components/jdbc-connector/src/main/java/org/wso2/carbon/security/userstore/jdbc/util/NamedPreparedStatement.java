@@ -34,8 +34,9 @@ public class NamedPreparedStatement {
 
     /**
      * Create a named prepared statement with repeated indexes.
+     *
      * @param connection Database connection to be used.
-     * @param sqlQuery Underlying SQL query.
+     * @param sqlQuery   Underlying SQL query.
      * @param repetition Repetition of given index.
      * @throws SQLException SQL Exception.
      */
@@ -69,8 +70,9 @@ public class NamedPreparedStatement {
 
     /**
      * Create a named prepared statement.
+     *
      * @param connection Database connection to be used.
-     * @param sqlQuery Underlying SQL query.
+     * @param sqlQuery   Underlying SQL query.
      * @throws SQLException SQL Exception.
      */
     public NamedPreparedStatement(Connection connection, String sqlQuery) throws SQLException {
@@ -79,6 +81,7 @@ public class NamedPreparedStatement {
 
     /**
      * Get underlying prepared statement.
+     *
      * @return Prepared Statement.
      */
     public PreparedStatement getPreparedStatement() {
@@ -87,7 +90,8 @@ public class NamedPreparedStatement {
 
     /**
      * Set <code>long</code> value for the named index.
-     * @param name Name of the index.
+     *
+     * @param name  Name of the index.
      * @param value Value to be replaced.
      * @throws SQLException SQL Exception.
      */
@@ -97,7 +101,8 @@ public class NamedPreparedStatement {
 
     /**
      * Set <code>int</code> value for the named index.
-     * @param name Name of the index.
+     *
+     * @param name  Name of the index.
      * @param value Value to be replaced.
      * @throws SQLException SQL Exception.
      */
@@ -107,7 +112,8 @@ public class NamedPreparedStatement {
 
     /**
      * Set <code>String</code> value for the named index.
-     * @param name Name of the index.
+     *
+     * @param name  Name of the index.
      * @param value Value to be replaced.
      * @throws SQLException SQL Exception
      */
@@ -117,7 +123,8 @@ public class NamedPreparedStatement {
 
     /**
      * Replace repeated indexes with the list of values.
-     * @param name Name of the index.
+     *
+     * @param name   Name of the index.
      * @param values Values to be replaced.
      * @throws SQLException SQL Exception.
      */

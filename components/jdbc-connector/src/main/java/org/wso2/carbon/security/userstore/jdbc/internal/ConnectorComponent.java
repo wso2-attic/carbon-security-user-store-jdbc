@@ -41,6 +41,7 @@ import java.util.Map;
 
 /**
  * OSGi component for carbon security connectors.
+ *
  * @since 1.0.0
  */
 @Component(
@@ -53,6 +54,7 @@ public class ConnectorComponent {
 
     /**
      * Register user store connectors as OSGi services.
+     *
      * @param bundleContext Bundle Context.
      */
     @Activate
