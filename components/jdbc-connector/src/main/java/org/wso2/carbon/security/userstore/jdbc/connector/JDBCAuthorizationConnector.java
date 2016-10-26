@@ -46,6 +46,7 @@ import javax.sql.DataSource;
 
 /**
  * JDBC connector for authorization store.
+ *
  * @since 1.0.0
  */
 public class JDBCAuthorizationConnector extends JDBCStoreConnector implements AuthorizationStoreConnector {
@@ -104,8 +105,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                             roleName, roleId, authorizationStoreId);
                 }
 
-                return new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId)
-                        .setAuthorizationStoreId(authorizationStoreId);
+                return new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId);
             }
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while retrieving the role.", e);
@@ -159,8 +159,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
                     String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                    roles.add(new Role.RoleBuilder().setRoleId(roleId).setRoleName(roleName)
-                            .setAuthorizationStoreId(authorizationStoreId));
+                    roles.add(new Role.RoleBuilder().setRoleId(roleId).setRoleName(roleName));
                 }
             }
 
@@ -306,8 +305,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     Resource.ResourceBuilder resource = new Resource.ResourceBuilder()
                             .setResourceNamespace(namespace)
                             .setResourceId(resourceId)
-                            .setOwnerId(userId)
-                            .setAuthorizationStore(authorizationStoreId);
+                            .setOwnerId(userId);
                     resources.add(resource);
                 }
             }
@@ -366,8 +364,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
                     String roleUniqueId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleUniqueId)
-                            .setAuthorizationStoreId(authorizationStoreId));
+                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleUniqueId));
                 }
 
                 if (log.isDebugEnabled()) {
@@ -399,8 +396,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
-                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId)
-                            .setAuthorizationStoreId(authorizationStoreId));
+                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId));
                 }
 
                 if (log.isDebugEnabled()) {
@@ -660,8 +656,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                         permissions.size(), roleId, authorizationStoreId);
             }
 
-            return new Role.RoleBuilder().setAuthorizationStoreId(authorizationStoreId).setRoleName(roleName)
-                    .setRoleId(roleUniqueId);
+            return new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleUniqueId);
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while adding the role.", e);
@@ -956,7 +951,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
         //TODO Update the implementation with new domain model
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-          NamedPreparedStatement deleteUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+            NamedPreparedStatement deleteUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USERS_FROM_ROLE));
 
             deleteUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
@@ -1016,7 +1011,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
             if (addList != null && !addList.isEmpty()) {
 
-               NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                NamedPreparedStatement assignPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                         sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
 
                 for (User user : addList) {
@@ -1325,9 +1320,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
     /**
      * Add the namespace if it does not exist.
-     * @param namespace Name of the namespace.
+     *
+     * @param namespace   Name of the namespace.
      * @param description Description.
-     * @param unitOfWork Unit of work used.
+     * @param unitOfWork  Unit of work used.
      * @return Id of the namespace.
      * @throws SQLException
      * @throws AuthorizationStoreException
@@ -1368,6 +1364,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
     /**
      * Get the maximum number of rows allowed to retrieve in a single query.
+     *
      * @return Max allowed number of rows.
      */
     private int getMaxRowRetrievalCount() {

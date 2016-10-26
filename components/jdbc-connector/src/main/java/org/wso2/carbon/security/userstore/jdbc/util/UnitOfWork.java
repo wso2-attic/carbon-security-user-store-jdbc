@@ -40,6 +40,7 @@ public class UnitOfWork implements AutoCloseable {
 
     /**
      * Begin the transaction process.
+     *
      * @param connection Database connection.
      * @param autoCommit Set auto commit status of this transaction.
      * @return Instance of @see UnitOfWork.
@@ -53,6 +54,7 @@ public class UnitOfWork implements AutoCloseable {
 
     /**
      * Begin the transaction process.
+     *
      * @param connection Database connection
      * @return Instance of UnitOfWork
      * @throws SQLException SQL Exception.
@@ -67,6 +69,7 @@ public class UnitOfWork implements AutoCloseable {
 
     /**
      * Queue any auto closable to close at the end.
+     *
      * @param closeable Auto closable to be closed.
      */
     public void queueToClose(AutoCloseable closeable) {
@@ -75,6 +78,7 @@ public class UnitOfWork implements AutoCloseable {
 
     /**
      * End the transaction by committing to the database.
+     *
      * @throws SQLException SQL Exception.
      */
     public void endTransaction() throws SQLException {
@@ -83,6 +87,7 @@ public class UnitOfWork implements AutoCloseable {
 
     /**
      * Get the underlying connection object.
+     *
      * @return instance of Connection.
      */
     public Connection getConnection() {
@@ -91,6 +96,7 @@ public class UnitOfWork implements AutoCloseable {
 
     /**
      * Commit and close connection.
+     *
      * @throws SQLException SQL Exception.
      */
     @Override

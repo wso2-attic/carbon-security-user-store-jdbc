@@ -15,11 +15,8 @@
 ###############################################################################
 enableCache: true
 credentialStore:
- connector: "#JDBCCS1"
 identityStore:
- connector: "#JDBCIS1"
 authorizationStore:
- connector: "#JDBCAS1"
 
 storeConnectors:
 
@@ -27,7 +24,7 @@ storeConnectors:
  -
     connectorId: "JDBCIS1"
     connectorType: "JDBCIdentityStore"
-    domainName: "A"
+    domainName: "carbon"
     uniqueAttributes:
       - username
       - email
@@ -38,13 +35,14 @@ storeConnectors:
       dataSource: "WSO2_CARBON_DB"
       hashAlgorithm: "SHA256"
       databaseType: "MySQL"
-      primaryAttribute: "username"
+      connectorGroupId: "groupname"
+      connectorUserId: "username"
 
  credentialStoreConnectors:
   -
     connectorId: "JDBCCS1"
     connectorType: "JDBCCredentialStore"
-    domainName: "A"
+    domainName: "carbon"
     properties:
       dataSource: "WSO2_CARBON_DB"
       databaseType: "MySQL"

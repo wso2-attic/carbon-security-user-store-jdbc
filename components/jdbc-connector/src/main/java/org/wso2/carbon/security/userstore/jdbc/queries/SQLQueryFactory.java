@@ -21,6 +21,7 @@ import java.util.Map;
 
 /**
  * Factory to create sql queries specific to database.
+ *
  * @since 1.0.0
  */
 public abstract class SQLQueryFactory {
@@ -29,6 +30,7 @@ public abstract class SQLQueryFactory {
 
     /**
      * Get query from query name.
+     *
      * @param queryName Name of the query.
      * @return Query as a String.
      */
@@ -38,6 +40,7 @@ public abstract class SQLQueryFactory {
 
     /**
      * Get all of the queries.
+     *
      * @return Queries as Map String, String.
      */
     public Map<String, String> getQueries() {

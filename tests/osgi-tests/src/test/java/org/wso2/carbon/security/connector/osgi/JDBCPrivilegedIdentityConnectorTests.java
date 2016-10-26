@@ -26,14 +26,20 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.identity.user.mgt.store.connector.PrivilegedIdentityStoreConnector;
 import org.wso2.carbon.security.caas.user.core.bean.Attribute;
 import org.wso2.carbon.security.caas.user.core.bean.Group;
+import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.config.IdentityStoreConnectorConfig;
+import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
 import org.wso2.carbon.security.caas.user.core.service.RealmService;
 import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.privileged.connector.factory.JDBCPrivilegedIdentityStoreConnectorFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import javax.inject.Inject;
 
@@ -61,7 +67,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
         IdentityStoreConnectorConfig identityStoreConnectorConfig = new IdentityStoreConnectorConfig();
         identityStoreConnectorConfig.setConnectorId("JDBCIS1");
         identityStoreConnectorConfig.setConnectorType("JDBCPrivilegedIdentityStore");
-        identityStoreConnectorConfig.setDomainName("A");
+        identityStoreConnectorConfig.setDomainName("carbon");
         List<String> uniqueAttributes = new ArrayList<>();
         uniqueAttributes.add("username");
         uniqueAttributes.add("email");
@@ -74,7 +80,8 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
         properties.setProperty("dataSource", "WSO2_CARBON_DB");
         properties.setProperty("hashAlgorithm", "SHA256");
         properties.setProperty("databaseType", "MySQL");
-        properties.setProperty("primaryAttribute", "username");
+        properties.setProperty("connectorUserId", "username");
+        properties.setProperty("connectorGroupId", "groupname");
         identityStoreConnectorConfig.setProperties(properties);
         privilegedIdentityStoreConnector.init(identityStoreConnectorConfig);
     }
@@ -104,10 +111,17 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
 
         privilegedIdentityStoreConnector.addUser(attributes);
 
-        List<Attribute> attributeRetrieved = privilegedIdentityStoreConnector.getUserAttributeValues("maduranga");
-        Assert.assertNotNull(attributeRetrieved);
-        Assert.assertTrue(attributeRetrieved.size() > 0);
-        Assert.assertTrue(attributeRetrieved.size() == 3);
+        List<Attribute> attributesRetrieved = privilegedIdentityStoreConnector.getUserAttributeValues("maduranga");
+        Assert.assertNotNull(attributesRetrieved);
+        Assert.assertTrue(attributesRetrieved.size() == 4);
+        Map<String, String> attributeMap = new HashMap<>();
+        for (Attribute attribute : attributesRetrieved) {
+            attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
+        }
+        Assert.assertEquals(attributeMap.get("username"), "maduranga");
+        Assert.assertEquals(attributeMap.get("email"), "maduranga@wso2.com");
+        Assert.assertEquals(attributeMap.get("firstname"), "Maduranga");
+        Assert.assertEquals(attributeMap.get("lastname"), "Siriwardena");
     }
 
     @Test(priority = 3)
@@ -117,7 +131,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
 
         List<Attribute> attributes = new ArrayList<>();
         Attribute attribute1 = new Attribute();
-        attribute1.setAttributeName("username");
+        attribute1.setAttributeName("groupname");
         attribute1.setAttributeValue("engineering");
         attributes.add(attribute1);
         Attribute attribute2 = new Attribute();
@@ -129,12 +143,11 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
 
         List<Attribute> attributeRetrieved = privilegedIdentityStoreConnector.getGroupAttributeValues("engineering");
         Assert.assertNotNull(attributeRetrieved);
-        Assert.assertTrue(attributeRetrieved.size() > 0);
-        Assert.assertEquals(attributeRetrieved.size(), 1);
+        Assert.assertEquals(attributeRetrieved.size(), 2);
     }
 
     @Test(priority = 4)
-    public void testGroupsOfUser() throws IdentityStoreException {
+    public void testGroupsOfUserPut() throws IdentityStoreException {
         //TODO check how to initialize privilegedIdentityStoreConnector before tests
         initConnector();
 
@@ -142,21 +155,169 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnecto
         groups.add("engineering");
 
         privilegedIdentityStoreConnector.updateGroupsOfUser("maduranga", groups);
-
         List<Group.GroupBuilder> groupBuilders = privilegedIdentityStoreConnector.getGroupBuildersOfUser("maduranga");
-        List<Group> groupListOfUser = new ArrayList<>();
-        for (Group.GroupBuilder groupBuilder : groupBuilders) {
-            groupBuilder.setDomain(defaultDomain);
-            groupBuilder.setIdentityStore(privilegedRealmService.getIdentityStore());
-            groupBuilder.setAuthorizationStore(privilegedRealmService.getAuthorizationStore());
-            //TODO need to remove tenant domain from group object
-            groupBuilder.setTenantDomain("TENANT");
-            groupListOfUser.add(groupBuilder.build());
-        }
+        Assert.assertEquals(groupBuilders.size(), 1);
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("maduranga", "engineering"));
 
-        Assert.assertEquals(groupListOfUser.size(), 1);
-        //TODO need to check the correct group is assigned
+        groups = new ArrayList();
+        //These groups are added from the test data set
+        groups.add("is");
+        groups.add("sales");
+
+        privilegedIdentityStoreConnector.updateGroupsOfUser("maduranga", groups);
+
+        groupBuilders = privilegedIdentityStoreConnector.getGroupBuildersOfUser("maduranga");
+        Assert.assertEquals(groupBuilders.size(), 2);
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("maduranga", "is"));
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("maduranga", "sales"));
     }
 
+    @Test(priority = 5)
+    public void testGroupsOfUserPatch() throws IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
 
+        List<String> groupsToAdd = new ArrayList();
+        groupsToAdd.add("engineering");
+
+        List<String> groupsToRemove = new ArrayList();
+        groupsToRemove.add("sales");
+
+        privilegedIdentityStoreConnector.updateGroupsOfUser("maduranga", groupsToAdd, groupsToRemove);
+
+        List<Group.GroupBuilder> groupBuilders = privilegedIdentityStoreConnector.getGroupBuildersOfUser("maduranga");
+
+        Assert.assertEquals(groupBuilders.size(), 2);
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("maduranga", "is"));
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("maduranga", "engineering"));
+    }
+
+    @Test(priority = 6)
+    public void testUsersOfGroupPut() throws IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+
+        List<String> users = new ArrayList();
+        users.add("darshana");
+        users.add("thanuja");
+
+        privilegedIdentityStoreConnector.updateUsersOfGroup("engineering", users);
+
+        List<User.UserBuilder> groupBuilders = privilegedIdentityStoreConnector.getUserBuildersOfGroup("engineering");
+
+        Assert.assertEquals(groupBuilders.size(), 2);
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("darshana", "engineering"));
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("thanuja", "engineering"));
+    }
+
+    @Test(priority = 7)
+    public void testUsersOfGroupPatch() throws IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+
+        List<String> usersToAdd = new ArrayList();
+        usersToAdd.add("maduranga");
+
+        List<String> usersToRemove = new ArrayList();
+        usersToRemove.add("darshana");
+
+        privilegedIdentityStoreConnector.updateUsersOfGroup("engineering", usersToAdd, usersToRemove);
+
+        List<User.UserBuilder> groupBuilders = privilegedIdentityStoreConnector.getUserBuildersOfGroup("engineering");
+
+        Assert.assertEquals(groupBuilders.size(), 2);
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("thanuja", "engineering"));
+        Assert.assertTrue(privilegedIdentityStoreConnector.isUserInGroup("maduranga", "engineering"));
+    }
+
+    @Test(priority = 8)
+    public void testUpdateUserAttributesPut() throws IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+
+        List<Attribute> attributesToUpdate = new ArrayList();
+        Attribute attribute1 = new Attribute();
+        attribute1.setAttributeName("username");
+        attribute1.setAttributeValue("maduranga1");
+        attributesToUpdate.add(attribute1);
+        Attribute attribute2 = new Attribute();
+        attribute2.setAttributeName("email");
+        attribute2.setAttributeValue("maduranga1@wso2.com");
+        attributesToUpdate.add(attribute2);
+        Attribute attribute3 = new Attribute();
+        attribute3.setAttributeName("firstname");
+        attribute3.setAttributeValue("Maduranga1");
+        attributesToUpdate.add(attribute3);
+
+        privilegedIdentityStoreConnector.updateUserAttributes("maduranga", attributesToUpdate);
+
+        List<Attribute> attributesRetrieved = privilegedIdentityStoreConnector.getUserAttributeValues("maduranga1");
+
+        Assert.assertEquals(attributesRetrieved.size(), 3);
+
+        Map<String, String> attributeMap = new HashMap<>();
+        for (Attribute attribute : attributesRetrieved) {
+            attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
+        }
+        Assert.assertEquals(attributeMap.get("username"), "maduranga1");
+        Assert.assertEquals(attributeMap.get("email"), "maduranga1@wso2.com");
+        Assert.assertEquals(attributeMap.get("firstname"), "Maduranga1");
+    }
+
+    @Test(priority = 9)
+    public void testUpdateUserAttributesPatch() throws IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+
+        List<Attribute> attributesToUpdate = new ArrayList();
+        Attribute attribute1 = new Attribute();
+        attribute1.setAttributeName("username");
+        attribute1.setAttributeValue("maduranga");
+        attributesToUpdate.add(attribute1);
+        Attribute attribute2 = new Attribute();
+        attribute2.setAttributeName("email");
+        attribute2.setAttributeValue("maduranga@wso2.com");
+        attributesToUpdate.add(attribute2);
+        Attribute attribute3 = new Attribute();
+        attribute3.setAttributeName("lastname");
+        attribute3.setAttributeValue("Siriwardena1");
+        attributesToUpdate.add(attribute3);
+
+        List<Attribute> attributesToDelete = new ArrayList();
+        Attribute attribute5 = new Attribute();
+        attribute5.setAttributeName("firstname");
+        attribute5.setAttributeValue("Maduranga1");
+        attributesToDelete.add(attribute5);
+
+        privilegedIdentityStoreConnector.updateUserAttributes("maduranga1", attributesToUpdate, attributesToDelete);
+
+        List<Attribute> attributesRetrieved = privilegedIdentityStoreConnector.getUserAttributeValues("maduranga");
+
+        Map<String, String> attributeMap = new HashMap<>();
+        for (Attribute attribute : attributesRetrieved) {
+            attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
+        }
+        Assert.assertEquals(attributesRetrieved.size(), 3);
+        Assert.assertEquals(attributeMap.get("username"), "maduranga");
+        Assert.assertEquals(attributeMap.get("email"), "maduranga@wso2.com");
+        Assert.assertEquals(attributeMap.get("lastname"), "Siriwardena1");
+    }
+
+    //TODO change the expectedExceptions to UserNotFoundException
+    @Test(priority = 10, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp = "User not found.*")
+    public void testDeleteUser() throws UserNotFoundException, IdentityStoreException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+        privilegedIdentityStoreConnector.deleteUser("maduranga");
+        privilegedIdentityStoreConnector.getUserBuilder("username", "maduranga");
+    }
+
+    //TODO change the expectedExceptions to GroupNotFoundException
+    @Test(priority = 11, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp = "Group not found.*")
+    public void testDeleteGroup() throws IdentityStoreException, GroupNotFoundException {
+        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+        initConnector();
+        privilegedIdentityStoreConnector.deleteGroup("engineering");
+        privilegedIdentityStoreConnector.getGroupBuilder("groupname", "engineering");
+    }
 }

@@ -46,7 +46,7 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
         NameCallback nameCallback = new NameCallback("username");
 
         nameCallback.setName("admin");
-        passwordCallback.setPassword(new char[] {'a', 'd', 'm', 'i', 'n'});
+        passwordCallback.setPassword(new char[]{'a', 'd', 'm', 'i', 'n'});
 
         callbacks[0] = passwordCallback;
         callbacks[1] = nameCallback;

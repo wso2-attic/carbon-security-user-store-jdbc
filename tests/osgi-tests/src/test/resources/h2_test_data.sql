@@ -19,11 +19,11 @@ INSERT INTO UM_USER (USER_UNIQUE_ID)
 VALUES ('41dadd2aea6e11e59ce95e5517507c66'),
   ('b5572242139d11e6a1483e1d05defe78'),
   ('b5572580139d11e6a1483e1d05defe78'),
-  ('darshana');
+  ('darshana'),
+  ('thanuja');
 
 INSERT INTO UM_ATTRIBUTES (ATTR_NAME)
-VALUES ('username'),
-  ('email'),
+VALUES ('email'),
   ('firstname'),
   ('lastname'),
   ('reportsto');
@@ -42,7 +42,8 @@ VALUES ('a422aa98ecf411e59ce95e5517507c66'),
   ('16231f8a15a711e6a1483e1d05defe78'),
   ('162321d815a711e6a1483e1d05defe78'),
   ('sales'),
-  ('productleads');
+  ('productleads'),
+  ('is');
 
 INSERT INTO UM_ROLE (ROLE_NAME, ROLE_UNIQUE_ID)
 VALUES ('admin', '985b79ecfcdf11e586aa5e5517507c66'),

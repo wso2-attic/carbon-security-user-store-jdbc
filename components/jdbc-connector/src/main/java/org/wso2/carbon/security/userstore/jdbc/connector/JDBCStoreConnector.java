@@ -27,6 +27,7 @@ import java.util.Properties;
 
 /**
  * Represents a JDBC based store connector.
+ *
  * @since 1.0.0
  */
 public abstract class JDBCStoreConnector {

@@ -55,7 +55,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     public void testGetUserFromUsername() throws IdentityStoreException, UserNotFoundException {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        User user  = identityStore.getUser(DEFAULT_USERNAME);
+        User user = identityStore.getUser(DEFAULT_USERNAME);
         assertNotNull(user);
     }
 

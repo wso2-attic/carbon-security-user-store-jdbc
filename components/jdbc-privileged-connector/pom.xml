@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.security.userstore</groupId>
@@ -99,8 +100,10 @@
         <org.osgi.service.jndi.version.range>[1.0.0, 1.1.0)</org.osgi.service.jndi.version.range>
         <org.wso2.carbon.datasource.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.datasource.version.range>
         <org.wso2.carbon.security.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.security.version.range>
-        <org.wso2.carbon.identity.user.mgt.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.identity.user.mgt.version.range>
-        <org.wso2.carbon.security.userstore.jdbc.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.security.userstore.jdbc.version.range>
+        <org.wso2.carbon.identity.user.mgt.version.range>[1.0.0, 1.1.0)
+        </org.wso2.carbon.identity.user.mgt.version.range>
+        <org.wso2.carbon.security.userstore.jdbc.version.range>[1.0.0, 1.1.0)
+        </org.wso2.carbon.security.userstore.jdbc.version.range>
 
         <!-- Dependency package version ranges -->
 

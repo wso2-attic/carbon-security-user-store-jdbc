@@ -15,11 +15,11 @@
 ###############################################################################
 domains:
   -
-    domainName: "A"
+    domainName: "carbon"
     priority: 1
     identityStoreConnectors:
     -
-      connectorName: "JDBCIS1"
+      connectorId: "JDBCIS1"
       attributeMappings:
       - http://wso2.org/claims/username: "username"
       - http://wso2.org/claims/firstName: "firstName"
