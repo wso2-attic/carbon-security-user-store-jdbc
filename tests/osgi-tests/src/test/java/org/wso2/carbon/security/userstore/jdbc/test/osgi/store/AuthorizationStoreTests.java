@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.security.connector.osgi;
+package org.wso2.carbon.security.userstore.jdbc.test.osgi.store;
 
 import org.testng.annotations.Test;
 import org.wso2.carbon.security.caas.user.core.bean.Action;
@@ -42,9 +42,9 @@ import static org.testng.Assert.assertTrue;
 /**
  * Authorization store connector related test cases.
  */
-public class JDBCAuthorizationConnectorTests extends JDBCConnectorTests {
+public class AuthorizationStoreTests extends StoreTests {
 
-    public JDBCAuthorizationConnectorTests() throws Exception {
+    public AuthorizationStoreTests() throws Exception {
         super();
     }
 

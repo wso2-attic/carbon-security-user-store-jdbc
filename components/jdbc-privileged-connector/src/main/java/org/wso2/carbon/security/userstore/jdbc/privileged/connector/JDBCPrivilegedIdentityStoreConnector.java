@@ -79,7 +79,6 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     .getConnection(),
                     sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES));
             for (Attribute attribute : attributes) {
-                if (!attribute.getAttributeName().equals(connectorUserId)) {
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
                             .getAttributeName());
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
@@ -87,7 +86,6 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
                             primaryAttributeValue);
                     namedPreparedStatement.getPreparedStatement().addBatch();
-                }
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
@@ -160,7 +158,6 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     unitOfWork.getConnection(),
                     sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES));
             for (Attribute attribute : attributes) {
-                if (!attribute.getAttributeName().equals(connectorUserId)) {
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
                             .getAttributeName());
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
@@ -168,7 +165,6 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
                             userIdentifierNew);
                     namedPreparedStatement.getPreparedStatement().addBatch();
-                }
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
@@ -215,13 +211,11 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
             List<Attribute> filteredAttributesToUpdate = new ArrayList<>();
 
             for (Attribute attribute : attributesToAdd) {
-                if (!connectorUserId.equals(attribute.getAttributeName())) {
                     if (attributeMap.get(attribute.getAttributeName()) != null) {
                         filteredAttributesToUpdate.add(attribute);
                     } else {
                         filteredAttributesToAdd.add(attribute);
                     }
-                }
             }
 
             //Update the primary attribute of the connector
@@ -246,13 +240,11 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes
                     .SQL_QUERY_REMOVE_ATTRIBUTE_OF_USER));
             for (Attribute attribute : attributesToRemove) {
-                if (!attribute.getAttributeName().equals(connectorUserId)) {
                     removeAttributesNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
                             .ATTRIBUTE_NAME, attribute.getAttributeName());
                     removeAttributesNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
                             .USER_UNIQUE_ID, userIdentifierNew);
                     removeAttributesNamedPreparedStatement.getPreparedStatement().addBatch();
-                }
             }
             removeAttributesNamedPreparedStatement.getPreparedStatement().executeBatch();
 
@@ -397,7 +389,6 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     .getConnection(),
                     sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP_ATTRIBUTES));
             for (Attribute attribute : attributes) {
-                if (!attribute.getAttributeName().equals(connectorGroupId)) {
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
                             .getAttributeName());
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
@@ -405,7 +396,6 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
                             primaryAttributeValue);
                     namedPreparedStatement.getPreparedStatement().addBatch();
-                }
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
@@ -473,7 +463,6 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     unitOfWork.getConnection(),
                     sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP_ATTRIBUTES));
             for (Attribute attribute : attributes) {
-                if (!attribute.getAttributeName().equals(connectorUserId)) {
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attribute
                             .getAttributeName());
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
@@ -481,7 +470,6 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
                             groupIdentifierNew);
                     namedPreparedStatement.getPreparedStatement().addBatch();
-                }
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
@@ -527,13 +515,11 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
             List<Attribute> filteredAttributesToUpdate = new ArrayList<>();
 
             for (Attribute attribute : attributesToAdd) {
-                if (!connectorUserId.equals(attribute.getAttributeName())) {
                     if (attributeMap.get(attribute.getAttributeName()) != null) {
                         filteredAttributesToUpdate.add(attribute);
                     } else {
                         filteredAttributesToAdd.add(attribute);
                     }
-                }
             }
 
             //Update the primary attribute of the connector
@@ -558,13 +544,11 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
                     .getConnection(), sqlQueries.get(PrivilegedConnectorConstants.QueryTypes
                     .SQL_QUERY_REMOVE_ATTRIBUTE_OF_GROUP));
             for (Attribute attribute : attributesToRemove) {
-                if (!attribute.getAttributeName().equals(connectorUserId)) {
                     removeAttributesNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
                             .ATTRIBUTE_NAME, attribute.getAttributeName());
                     removeAttributesNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
                             .GROUP_UNIQUE_ID, userIdentifierNew);
                     removeAttributesNamedPreparedStatement.getPreparedStatement().addBatch();
-                }
             }
             removeAttributesNamedPreparedStatement.getPreparedStatement().executeBatch();
 
