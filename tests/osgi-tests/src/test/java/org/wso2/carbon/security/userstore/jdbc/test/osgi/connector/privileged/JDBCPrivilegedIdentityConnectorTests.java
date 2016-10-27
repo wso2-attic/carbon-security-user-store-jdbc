@@ -16,10 +16,8 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.connector.osgi;
+package org.wso2.carbon.security.userstore.jdbc.test.osgi.connector.privileged;
 
-import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.util.Filter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -31,11 +29,10 @@ import org.wso2.carbon.security.caas.user.core.config.IdentityStoreConnectorConf
 import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
-import org.wso2.carbon.security.caas.user.core.service.RealmService;
 import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.privileged.connector.factory.JDBCPrivilegedIdentityStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.test.osgi.connector.JDBCConnectorTests;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,21 +40,13 @@ import java.util.Map;
 import java.util.Properties;
 import javax.inject.Inject;
 
-@ExamReactorStrategy(PerClass.class)
-public class JDBCPrivilegedIdentityConnectorTests extends JDBCPrivilegedConnectorTests {
+public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Inject
     @Filter("(connector-type=JDBCPrivilegedIdentityStore)")
     protected IdentityStoreConnectorFactory identityStoreConnectorFactory;
 
-    //TODO change this to PrivilegedRealmService
-    @Inject
-    protected RealmService privilegedRealmService;
-
     private PrivilegedIdentityStoreConnector privilegedIdentityStoreConnector;
-
-    public JDBCPrivilegedIdentityConnectorTests() throws Exception {
-    }
 
     private void initConnector() throws IdentityStoreException {
         Assert.assertNotNull(identityStoreConnectorFactory);
