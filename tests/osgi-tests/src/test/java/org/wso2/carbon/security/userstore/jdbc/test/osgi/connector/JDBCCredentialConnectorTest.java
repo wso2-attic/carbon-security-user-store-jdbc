@@ -27,6 +27,7 @@ import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreExceptio
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnector;
 import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnectorFactory;
+import org.wso2.carbon.security.userstore.jdbc.test.osgi.JDBCConnectorTests;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
     @Filter("(connector-type=JDBCCredentialStore)")
     protected CredentialStoreConnectorFactory credentialStoreConnectorFactory;
 
-    private CredentialStoreConnector credentialStoreConnector;
+    private static CredentialStoreConnector credentialStoreConnector;
 
 
     private void initConnector() throws CredentialStoreException {
@@ -65,9 +66,10 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
         credentialStoreConnector.init(credentialStoreConnectorConfig);
     }
 
-    @Test
+    @Test(priority = 1)
     public void testAuthentication() throws CredentialStoreException, IdentityStoreException, AuthenticationFailure {
 
+        //As beforeClass is not supported, connector is initialized here
         initConnector();
         Callback[] callbacks = new Callback[2];
         PasswordCallback passwordCallback = new PasswordCallback("password", false);
@@ -83,7 +85,50 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
         callbacks[1] = carbonCallback;
 
         credentialStoreConnector.authenticate(callbacks);
+        //No need for assertions. If the authentication fails, the test will fail
+    }
 
-        Assert.assertTrue(true);
+    //TODO need to change expectedException to AuthenticationFailure
+    @Test(priority = 2, expectedExceptions = {Throwable.class}, expectedExceptionsMessageRegExp =
+            "Invalid username or password")
+    public void testAuthenticationFailure() throws CredentialStoreException, IdentityStoreException,
+            AuthenticationFailure {
+
+        Callback[] callbacks = new Callback[2];
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        CarbonCallback<Map> carbonCallback = new CarbonCallback<>(null);
+
+        Map<String, String> userData = new HashMap<>();
+        userData.put(UserCoreConstants.USER_ID, "admin");
+        carbonCallback.setContent(userData);
+
+        passwordCallback.setPassword(new char[]{'a', 'd', 'm', 'i', 'm'});
+
+        callbacks[0] = passwordCallback;
+        callbacks[1] = carbonCallback;
+
+        credentialStoreConnector.authenticate(callbacks);
+    }
+
+    //TODO need to change the expectedExceptions to CredentialStoreException
+    @Test(priority = 2, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp =
+            "Unable to retrieve password information.*")
+    public void testAuthenticationIncorrectUser() throws CredentialStoreException, IdentityStoreException,
+            AuthenticationFailure {
+
+        Callback[] callbacks = new Callback[2];
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        CarbonCallback<Map> carbonCallback = new CarbonCallback<>(null);
+
+        Map<String, String> userData = new HashMap<>();
+        userData.put(UserCoreConstants.USER_ID, "admin1");
+        carbonCallback.setContent(userData);
+
+        passwordCallback.setPassword(new char[]{'a', 'd', 'm', 'i', 'n'});
+
+        callbacks[0] = passwordCallback;
+        callbacks[1] = carbonCallback;
+
+        credentialStoreConnector.authenticate(callbacks);
     }
 }

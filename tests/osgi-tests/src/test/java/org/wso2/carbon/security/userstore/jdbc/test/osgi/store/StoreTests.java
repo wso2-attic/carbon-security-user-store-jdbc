@@ -21,9 +21,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
-import org.osgi.framework.BundleContext;
 import org.testng.annotations.Listeners;
-import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.security.caas.user.core.bean.Action;
@@ -63,17 +61,11 @@ class StoreTests {
     static final Permission DEFAULT_PERMISSION = new Permission(DEFAULT_RESOURCE, ACTION_ADD);
 
     public StoreTests() throws Exception {
-        defaultDomain = new Domain("A", 1);
+        defaultDomain = new Domain("carbon", 1);
     }
 
     @Inject
-    protected BundleContext bundleContext;
-
-    @Inject
     protected RealmService realmService;
-
-    @Inject
-    protected CarbonServerInfo carbonServerInfo;
 
     @Configuration
     public Option[] createConfiguration() {

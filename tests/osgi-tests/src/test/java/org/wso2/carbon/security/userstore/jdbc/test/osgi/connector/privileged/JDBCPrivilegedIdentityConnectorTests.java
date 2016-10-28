@@ -31,7 +31,7 @@ import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
 import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.privileged.connector.factory.JDBCPrivilegedIdentityStoreConnectorFactory;
-import org.wso2.carbon.security.userstore.jdbc.test.osgi.connector.JDBCConnectorTests;
+import org.wso2.carbon.security.userstore.jdbc.test.osgi.JDBCConnectorTests;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
     @Filter("(connector-type=JDBCPrivilegedIdentityStore)")
     protected IdentityStoreConnectorFactory identityStoreConnectorFactory;
 
-    private PrivilegedIdentityStoreConnector privilegedIdentityStoreConnector;
+    private static PrivilegedIdentityStoreConnector privilegedIdentityStoreConnector;
 
     private void initConnector() throws IdentityStoreException {
         Assert.assertNotNull(identityStoreConnectorFactory);
@@ -77,7 +77,8 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Test(priority = 2)
     public void testAddUser() throws IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
+        //As beforeClass is not supported, connector is initialized here
         initConnector();
 
         List<Attribute> attributes = new ArrayList<>();
@@ -115,7 +116,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Test(priority = 3)
     public void testAddGroup() throws IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
 
         List<Attribute> attributes = new ArrayList<>();
@@ -137,7 +138,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Test(priority = 4)
     public void testGroupsOfUserPut() throws IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
 
         List<String> groups = new ArrayList();
@@ -163,7 +164,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Test(priority = 5)
     public void testGroupsOfUserPatch() throws IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
 
         List<String> groupsToAdd = new ArrayList();
@@ -183,7 +184,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Test(priority = 6)
     public void testUsersOfGroupPut() throws IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
 
         List<String> users = new ArrayList();
@@ -201,7 +202,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Test(priority = 7)
     public void testUsersOfGroupPatch() throws IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
 
         List<String> usersToAdd = new ArrayList();
@@ -221,7 +222,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Test(priority = 8)
     public void testUpdateUserAttributesPut() throws IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
 
         List<Attribute> attributesToUpdate = new ArrayList();
@@ -255,7 +256,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
 
     @Test(priority = 9)
     public void testUpdateUserAttributesPatch() throws IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
 
         List<Attribute> attributesToUpdate = new ArrayList();
@@ -295,7 +296,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
     //TODO change the expectedExceptions to UserNotFoundException
     @Test(priority = 10, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp = "User not found.*")
     public void testDeleteUser() throws UserNotFoundException, IdentityStoreException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
         privilegedIdentityStoreConnector.deleteUser("maduranga");
         privilegedIdentityStoreConnector.getUserBuilder("username", "maduranga");
@@ -304,7 +305,7 @@ public class JDBCPrivilegedIdentityConnectorTests extends JDBCConnectorTests {
     //TODO change the expectedExceptions to GroupNotFoundException
     @Test(priority = 11, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp = "Group not found.*")
     public void testDeleteGroup() throws IdentityStoreException, GroupNotFoundException {
-        //TODO check how to initialize privilegedIdentityStoreConnector before tests
+
         initConnector();
         privilegedIdentityStoreConnector.deleteGroup("engineering");
         privilegedIdentityStoreConnector.getGroupBuilder("groupname", "engineering");

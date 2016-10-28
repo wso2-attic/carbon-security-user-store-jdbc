@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.userstore.jdbc.test.osgi.connector;
+package org.wso2.carbon.security.userstore.jdbc.test.osgi;
 
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
@@ -26,9 +26,14 @@ import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.testng.annotations.Listeners;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
+import org.wso2.carbon.security.caas.user.core.bean.Action;
+import org.wso2.carbon.security.caas.user.core.bean.Permission;
+import org.wso2.carbon.security.caas.user.core.bean.Resource;
+import org.wso2.carbon.security.caas.user.core.service.RealmService;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
@@ -38,6 +43,23 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
 public class JDBCConnectorTests {
+
+    public static final String DEFAULT_USERNAME = "admin";
+    public static final String DEFAULT_ROLE = "admin";
+    public static final String DEFAULT_GROUP = "is";
+    public static final String DEFAULT_USER_ID = "41dadd2aea6e11e59ce95e5517507c66";
+    public static final String DEFAULT_ROLE_ID = "985b79ecfcdf11e586aa5e5517507c66";
+    public static final String DEFAULT_GROUP_ID = "a422aa98ecf411e59ce95e5517507c66";
+    public static final String DEFAULT_PERMISSION_ID = "f61a1c240df011e6a1483e1d05defe78";
+    public static final String DEFAULT_NAMESPACE = "reg";
+    public static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAuthorizationStore";
+    public static final Resource DEFAULT_RESOURCE = new Resource(DEFAULT_NAMESPACE, "root/resource/id",
+            "41dadd2aea6e11e59ce95e5517507c66");
+    public static final Action ACTION_ADD = new Action(DEFAULT_NAMESPACE, "add");
+    public static final Permission DEFAULT_PERMISSION = new Permission(DEFAULT_RESOURCE, ACTION_ADD);
+
+    @Inject
+    protected RealmService realmService;
 
     @Configuration
     public Option[] createConfiguration() {

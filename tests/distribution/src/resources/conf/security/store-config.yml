@@ -13,7 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 ###############################################################################
-enableCache: true
+enableCache: false
 credentialStore:
 identityStore:
 authorizationStore:
@@ -23,7 +23,7 @@ storeConnectors:
  identityStoreConnectors:
  -
     connectorId: "JDBCIS1"
-    connectorType: "JDBCIdentityStore"
+    connectorType: "JDBCPrivilegedIdentityStore"
     domainName: "carbon"
     uniqueAttributes:
       - username
@@ -41,7 +41,7 @@ storeConnectors:
  credentialStoreConnectors:
   -
     connectorId: "JDBCCS1"
-    connectorType: "JDBCCredentialStore"
+    connectorType: "JDBCPrivilegedCredentialStore"
     domainName: "carbon"
     properties:
       dataSource: "WSO2_CARBON_DB"
@@ -54,3 +54,4 @@ storeConnectors:
     properties:
       dataSource: "WSO2_CARBON_DB"
       databaseType: "MySQL"
+      priority: 2
