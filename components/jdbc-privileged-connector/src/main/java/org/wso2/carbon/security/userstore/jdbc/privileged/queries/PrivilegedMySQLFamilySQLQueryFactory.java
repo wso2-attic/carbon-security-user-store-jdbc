@@ -97,7 +97,7 @@ public class PrivilegedMySQLFamilySQLQueryFactory extends MySQLFamilySQLQueryFac
 
     private static final String UPDATE_GROUP_ATTRIBUTES = "UPDATE UM_GROUP_ATTRIBUTES SET ATTR_VALUE = " +
             ":attr_value; WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;) AND " +
-            "GROUP_ID = (SELECT ID FROM UM_GROUP WHERE USER_UNIQUE_ID = :group_unique_id;)";
+            "GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
 
     public PrivilegedMySQLFamilySQLQueryFactory() {
         sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES, ADD_USER_ATTRIBUTES);

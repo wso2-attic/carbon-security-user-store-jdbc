@@ -18,12 +18,14 @@ package org.wso2.carbon.security.userstore.jdbc.test.osgi.store;
 
 import org.testng.annotations.Test;
 import org.wso2.carbon.security.caas.user.core.bean.Action;
+import org.wso2.carbon.security.caas.user.core.bean.Domain;
 import org.wso2.carbon.security.caas.user.core.bean.Group;
 import org.wso2.carbon.security.caas.user.core.bean.Permission;
 import org.wso2.carbon.security.caas.user.core.bean.Resource;
 import org.wso2.carbon.security.caas.user.core.bean.Role;
 import org.wso2.carbon.security.caas.user.core.bean.User;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
+import org.wso2.carbon.security.caas.user.core.exception.DomainException;
 import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
 import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
@@ -31,6 +33,7 @@ import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
 import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
 import org.wso2.carbon.security.caas.user.core.store.AuthorizationStore;
 import org.wso2.carbon.security.caas.user.core.store.IdentityStore;
+import org.wso2.carbon.security.userstore.jdbc.test.osgi.JDBCConnectorTests;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,23 +45,19 @@ import static org.testng.Assert.assertTrue;
 /**
  * Authorization store connector related test cases.
  */
-public class AuthorizationStoreTests extends StoreTests {
-
-    public AuthorizationStoreTests() throws Exception {
-        super();
-    }
+public class AuthorizationStoreTests extends JDBCConnectorTests {
 
     @Test(priority = 1)
     public void testIsUserAuthorizedValid() throws AuthorizationStoreException,
-            IdentityStoreException {
-
+            IdentityStoreException, DomainException {
+        Domain defaultDomain = new Domain("carbon", 1);
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertTrue(authorizationStore.isUserAuthorized(DEFAULT_USER_ID, DEFAULT_PERMISSION, defaultDomain));
     }
 
     @Test(priority = 2)
-    public void testIsGroupAuthorizedValid() throws AuthorizationStoreException {
-
+    public void testIsGroupAuthorizedValid() throws AuthorizationStoreException, DomainException {
+        Domain defaultDomain = new Domain("carbon", 1);
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         authorizationStore.isGroupAuthorized(DEFAULT_GROUP_ID, defaultDomain, DEFAULT_PERMISSION);
     }
@@ -118,8 +117,8 @@ public class AuthorizationStoreTests extends StoreTests {
     }
 
     @Test(priority = 3)
-    public void testAddNewResourceToPrimaryValid() throws AuthorizationStoreException {
-
+    public void testAddNewResourceToPrimaryValid() throws AuthorizationStoreException, DomainException {
+        Domain defaultDomain = new Domain("carbon", 1);
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         Resource resource = authorizationStore.addResource("reg", "root/resource/test-resource-1", DEFAULT_USER_ID,
                 defaultDomain);
@@ -156,8 +155,8 @@ public class AuthorizationStoreTests extends StoreTests {
     }
 
     @Test(priority = 6)
-    public void testIsGroupInRoleValid() throws AuthorizationStoreException {
-
+    public void testIsGroupInRoleValid() throws AuthorizationStoreException, DomainException {
+        Domain defaultDomain = new Domain("carbon", 1);
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
         assertTrue(authorizationStore.isGroupInRole(DEFAULT_GROUP_ID, defaultDomain, DEFAULT_ROLE));
     }
@@ -293,7 +292,7 @@ public class AuthorizationStoreTests extends StoreTests {
     }
 
     @Test(priority = 13)
-    public void testUpdateRolesInUserPutValid() throws AuthorizationStoreException {
+    public void testUpdateRolesInUserPutValid() throws AuthorizationStoreException, DomainException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
 
@@ -310,12 +309,12 @@ public class AuthorizationStoreTests extends StoreTests {
                 .setRoleId("70e2e088105f11e6a1483e1d05defe78")
                 .setRoleName("general")
                 .build());
-
+        Domain defaultDomain = new Domain("carbon", 1);
         authorizationStore.updateRolesInUser(DEFAULT_USER_ID, defaultDomain, roles);
     }
 
     @Test(priority = 14)
-    public void testUpdateRolesInUserPatchValid() throws AuthorizationStoreException {
+    public void testUpdateRolesInUserPatchValid() throws AuthorizationStoreException, DomainException {
 
         AuthorizationStore authorizationStore = realmService.getAuthorizationStore();
 
@@ -332,7 +331,7 @@ public class AuthorizationStoreTests extends StoreTests {
                 .setRoleId("70e2e088105f11e6a1483e1d05defe78")
                 .setRoleName("general")
                 .build());
-
+        Domain defaultDomain = new Domain("carbon", 1);
         authorizationStore.updateRolesInUser(DEFAULT_USER_ID, defaultDomain, roles, roles);
     }
 
@@ -346,14 +345,12 @@ public class AuthorizationStoreTests extends StoreTests {
                 .setUserId("b5572242139d11e6a1483e1d05defe78")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
-                .setClaimManager(realmService.getClaimManager())
                 .build());
 
         users.add(new User.UserBuilder()
                 .setUserId("b5572580139d11e6a1483e1d05defe78")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
-                .setClaimManager(realmService.getClaimManager())
                 .build());
 
         authorizationStore.updateUsersInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, users);
@@ -369,14 +366,12 @@ public class AuthorizationStoreTests extends StoreTests {
                 .setUserId("b5572242139d11e6a1483e1d05defe78")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
-                .setClaimManager(realmService.getClaimManager())
                 .build());
 
         users.add(new User.UserBuilder()
                 .setUserId("b5572580139d11e6a1483e1d05defe78")
                 .setIdentityStore(realmService.getIdentityStore())
                 .setAuthorizationStore(realmService.getAuthorizationStore())
-                .setClaimManager(realmService.getClaimManager())
                 .build());
 
         authorizationStore.updateUsersInRole(DEFAULT_ROLE_ID, DEFAULT_AUTHORIZATION_STORE, users);

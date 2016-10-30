@@ -19,3 +19,5 @@ connectorType: "JDBCAuthorizationStore"
 properties:
  dataSource: "WSO2_CARBON_DB"
  databaseType: "MySQL"
+ primary: "true"
+ priority: 1

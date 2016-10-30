@@ -85,6 +85,16 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>sql-maven-plugin</artifactId>
+                    <version>${sql.maven.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -95,6 +105,18 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -355,7 +377,8 @@
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
         <javax.inject.version>1</javax.inject.version>
-        <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <jacoco.version>0.7.7.201606060606</jacoco.version>
+        <sql.maven.plugin.version>1.5</sql.maven.plugin.version>
         <commons.io.wso2.version>2.4.0.wso2v1</commons.io.wso2.version>
         <com.zaxxer.hikaricp.version>2.4.1</com.zaxxer.hikaricp.version>
         <com.h2database.h2.version>1.4.191</com.h2database.h2.version>

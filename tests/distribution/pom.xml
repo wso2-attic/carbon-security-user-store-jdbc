@@ -145,6 +145,28 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-dbscripts</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wso2.carbon.security.userstore</groupId>
+                                    <artifactId>org.wso2.carbon.security.userstore.jdbc.feature</artifactId>
+                                    <version>${carbon.security.userstore.jdbc.version}</version>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/maven-shared-archive-resources/temp
+                                    </outputDirectory>
+                                    <includes>**/*.sql</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -292,10 +314,119 @@
                 </executions>
             </plugin>
 
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-antrun-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>package</phase>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<replace dir="target/wso2carbon-kernel-${project.version}" token="false" value="true">-->
+                                    <!--<include name="**/bundles.info"/>-->
+                                <!--</replace>-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>clean_target</id>-->
+                        <!--<phase>install</phase>-->
+                        <!--<configuration>-->
+                            <!--<target>-->
+                                <!--<delete dir="target/archive-tmp"/>-->
+                                <!--<delete dir="target/dependency-maven-plugin-markers"/>-->
+                                <!--<delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart"/>-->
+                                <!--<delete dir="target/p2-repo"/>-->
+                                <!--<delete file="target/tmp"/>-->
+                                <!--<delete dir="target/wso2carbon-kernel-${project.version}"/>-->
+                                <!--<delete dir="target/antrun"/>-->
+                            <!--</target>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-dependency-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>unpack-dbscripts</id>-->
+                        <!--<phase>generate-resources</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>unpack</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<artifactItems>-->
+                                <!--<artifactItem>-->
+                                    <!--<groupId>org.wso2.carbon.security.userstore</groupId>-->
+                                    <!--<artifactId>org.wso2.carbon.security.userstore.jdbc.feature</artifactId>-->
+                                    <!--<version>${carbon.security.userstore.jdbc.version}</version>-->
+                                    <!--<type>zip</type>-->
+                                    <!--<overWrite>true</overWrite>-->
+                                    <!--<outputDirectory>-->
+                                        <!--${project.build.directory}/maven-shared-archive-resources/temp-->
+                                    <!--</outputDirectory>-->
+                                    <!--<includes>**/*.sql</includes>-->
+                                <!--</artifactItem>-->
+                            <!--</artifactItems>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>copy_scripts</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${basedir}/target/resources/dbscripts"/>
+                                <copy toDir="${basedir}/target/resources/dbscripts" flatten="true">
+                                    <fileset dir="${project.build.directory}/maven-shared-archive-resources/temp/"
+                                             includes="**/*.sql"/>
+                                </copy>
+                                <delete dir="${project.build.directory}/maven-shared-archive-resources/temp/"/>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-carbon-database</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <path id="h2.classpath">
+                                    <path refid="maven.compile.classpath"/>
+                                </path>
+                                <echo message="########### Creating Carbon Database ##############"/>
+                                <sql driver="org.h2.Driver"
+                                     url="jdbc:h2:${basedir}/target/wso2carbon-kernel-${project.version}/database/WSO2CARBON_DB;MV_STORE=FALSE;create=true"
+                                     userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
+                                    <classpath>
+                                        <path refid="h2.classpath"/>
+                                    </classpath>
+                                    <fileset file="${basedir}/target/resources/dbscripts/*.sql"/>
+                                    <!--<fileset file="${basedir}/src/main/resources/dbscripts/simple-auth.sql" />-->
+                                </sql>
+                                <echo message="##################### END ########################"/>
+                            </target>
+                        </configuration>
+                    </execution>
                     <execution>
                         <phase>package</phase>
                         <configuration>
@@ -326,97 +457,6 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-dbscripts</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.wso2.carbon.security.userstore</groupId>
-                                    <artifactId>org.wso2.carbon.security.userstore.jdbc.feature</artifactId>
-                                    <version>${carbon.security.userstore.jdbc.version}</version>
-                                    <type>zip</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>
-                                        ${project.build.directory}/maven-shared-archive-resources/temp
-                                    </outputDirectory>
-                                    <includes>**/*.sql</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy_scripts</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${basedir}/target/resources/dbscripts"/>
-                                <copy toDir="${basedir}/target/resources/dbscripts" flatten="true">
-                                    <fileset dir="${project.build.directory}/maven-shared-archive-resources/temp/"
-                                             includes="**/*.sql"/>
-                                </copy>
-                                <delete dir="${project.build.directory}/maven-shared-archive-resources/temp/"/>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                    <!--<execution>-->
-                    <!--<id>clean-h2-database</id>-->
-                    <!--<phase>generate-resources</phase>-->
-                    <!--<goals>-->
-                    <!--<goal>run</goal>-->
-                    <!--</goals>-->
-                    <!--<configuration>-->
-                    <!--<target>-->
-                    <!--<delete file="resources/database/WSO2CARBON_DB.mv.db" />-->
-                    <!--<delete file="resources/database/WSO2CARBON_DB.trace.db" />-->
-                    <!--</target>-->
-                    <!--</configuration>-->
-                    <!--</execution>-->
-                    <execution>
-                        <id>create-carbon-database</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <path id="h2.classpath">
-                                    <path refid="maven.compile.classpath"/>
-                                </path>
-                                <echo message="########### Creating Carbon Database ##############"/>
-                                <sql driver="org.h2.Driver"
-                                     url="jdbc:h2:${basedir}/target/wso2carbon-kernel-${project.version}/database/WSO2CARBON_DB;MV_STORE=FALSE;create=true"
-                                     userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
-                                    <classpath>
-                                        <path refid="h2.classpath"/>
-                                    </classpath>
-                                    <fileset file="${basedir}/target/resources/dbscripts/*.sql"/>
-                                    <!--<fileset file="${basedir}/src/main/resources/dbscripts/simple-auth.sql" />-->
-                                </sql>
-                                <echo message="##################### END ########################"/>
-                            </target>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
