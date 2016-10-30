@@ -28,7 +28,8 @@ VALUES ('email'),
   ('lastname'),
   ('reportsto'),
   ('username'),
-  ('groupname');
+  ('groupname'),
+  ('createdon');
 
 INSERT INTO UM_PASSWORD (PASSWORD, USER_UNIQUE_ID)
 VALUES ('3opCozpRixH6BvSXyr0513v1nyFWpdcQy7F6r6P/LFE=', '41dadd2aea6e11e59ce95e5517507c66'),
@@ -57,7 +58,11 @@ VALUES ('admin', '985b79ecfcdf11e586aa5e5517507c66'),
   ('role2', '7f8ade5c134c11e6a1483e1d05defe78'),
   ('role3', '7f8adf56134c11e6a1483e1d05defe78'),
   ('role4', '7f8ae028134c11e6a1483e1d05defe78'),
-  ('role5', '7f8ae2a8134c11e6a1483e1d05defe78');
+  ('role5', '7f8ae2a8134c11e6a1483e1d05defe78'),
+  ('role6', 'eb9ba8c4-0436-4439-91dd-27694d01ed94'),
+  ('role7', 'fb54ecc0-b3a8-42ad-b4e8-2200fa4fc590'),
+  ('role8', '3b6270cb-cdf1-4e8b-8027-066a6651a0c3'),
+  ('role9', 'c9bc2c9f-f753-45bb-9a2d-66845dc7e1c9');
 
 INSERT INTO UM_RESOURCE_NAMESPACE (NAMESPACE, DESCRIPTION)
 VALUES ('reg', 'Represents a registry resource/action');

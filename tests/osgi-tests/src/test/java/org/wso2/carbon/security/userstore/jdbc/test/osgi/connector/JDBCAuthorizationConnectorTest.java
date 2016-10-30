@@ -58,6 +58,11 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
     public static final String GROUP_UNIQUE_ID_3 = "cb587488-d2b9-42b6-b059-3253049bb637";
     public static final String GROUP_UNIQUE_ID_4 = "63c2ec5d-d235-4a59-b265-8c1216517223";
 
+    public static final String ROLE_UNIQUE_ID_1 = "eb9ba8c4-0436-4439-91dd-27694d01ed94";
+    public static final String ROLE_UNIQUE_ID_2 = "fb54ecc0-b3a8-42ad-b4e8-2200fa4fc590";
+    public static final String ROLE_UNIQUE_ID_3 = "3b6270cb-cdf1-4e8b-8027-066a6651a0c3";
+    public static final String ROLE_UNIQUE_ID_4 = "c9bc2c9f-f753-45bb-9a2d-66845dc7e1c9";
+
     //This is initialized from a test
     private static String addedPermissionId;
     private static String addedRoleId;
@@ -214,6 +219,8 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
                 DEFAULT_ROLE_NAME_ADD));
         Assert.assertTrue(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_4,
                 DEFAULT_ROLE_NAME_ADD));
+        Assert.assertFalse(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1,
+                DEFAULT_ROLE_NAME_ADD));
         List<User.UserBuilder> usersOfRole = authorizationStoreConnector.getUsersOfRole(addedRoleId);
         //2 users added previously. 2 users are added here and removed 1
         Assert.assertEquals(usersOfRole.size(), 3);
@@ -268,10 +275,50 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
                 DEFAULT_ROLE_NAME_ADD));
         Assert.assertTrue(authorizationStoreConnector.isGroupInRole(GROUP_UNIQUE_ID_4,
                 DEFAULT_ROLE_NAME_ADD));
+        Assert.assertFalse(authorizationStoreConnector.isGroupInRole(GROUP_UNIQUE_ID_1,
+                DEFAULT_ROLE_NAME_ADD));
         List<Group.GroupBuilder> groupsOfRole = authorizationStoreConnector.getGroupsOfRole(addedRoleId);
 
         //2 groups added previously. 2 groups are added here and removed 1
         Assert.assertEquals(groupsOfRole.size(), 3);
+    }
+
+    @Test(priority = 9)
+    public void testUpdateRolesInUserPut() throws AuthorizationStoreException {
+        List<Role> roles = new ArrayList<>();
+        Role role1 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_1).setRoleName("role6")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        roles.add(role1);
+        Role role2 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_2).setRoleName("role7")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        roles.add(role2);
+        authorizationStoreConnector.updateRolesInUser(USER_UNIQUE_ID_1, "carbon", roles);
+        List<Role.RoleBuilder> rolesForUser = authorizationStoreConnector.getRolesForUser(USER_UNIQUE_ID_1, "carbon");
+        Assert.assertEquals(rolesForUser.size(), 2);
+        Assert.assertTrue(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1, "role6"));
+        Assert.assertTrue(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1, "role7"));
+    }
+
+    @Test(priority = 10)
+    public void testUpdateRolesInUserPatch() throws AuthorizationStoreException {
+        List<Role> rolesToAdd = new ArrayList<>();
+        Role role1 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_3).setRoleName("role8")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        rolesToAdd.add(role1);
+        Role role2 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_4).setRoleName("role9")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        rolesToAdd.add(role2);
+
+        List<Role> rolesToRemove = new ArrayList<>();
+        Role role3 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_1).setRoleName("role6")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        rolesToRemove.add(role3);
+        authorizationStoreConnector.updateRolesInUser(USER_UNIQUE_ID_1, "carbon", rolesToAdd, rolesToRemove);
+        List<Role.RoleBuilder> rolesForUser = authorizationStoreConnector.getRolesForUser(USER_UNIQUE_ID_1, "carbon");
+        Assert.assertEquals(rolesForUser.size(), 3);
+        Assert.assertTrue(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1, "role8"));
+        Assert.assertTrue(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1, "role9"));
+        Assert.assertFalse(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1, "role6"));
     }
 
 }

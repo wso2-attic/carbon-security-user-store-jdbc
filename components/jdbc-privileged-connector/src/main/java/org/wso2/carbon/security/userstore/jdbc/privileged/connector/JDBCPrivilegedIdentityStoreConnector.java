@@ -198,25 +198,25 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
 
         String userIdentifierNew = userIdentifier;
 
+        //Filter the attributes to add and update
+        List<Attribute> currentAttributes = getUserAttributeValues(userIdentifier);
+        Map<String, String> attributeMap = new HashMap<>();
+        for (Attribute attribute : currentAttributes) {
+            attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
+        }
+
+        List<Attribute> filteredAttributesToAdd = new ArrayList<>();
+        List<Attribute> filteredAttributesToUpdate = new ArrayList<>();
+
+        for (Attribute attribute : attributesToAdd) {
+            if (attributeMap.get(attribute.getAttributeName()) != null) {
+                filteredAttributesToUpdate.add(attribute);
+            } else {
+                filteredAttributesToAdd.add(attribute);
+            }
+        }
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-            //Filter the attributes to add and update
-            List<Attribute> currentAttributes = getUserAttributeValues(userIdentifier);
-            Map<String, String> attributeMap = new HashMap<>();
-            for (Attribute attribute : currentAttributes) {
-                attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
-            }
-
-            List<Attribute> filteredAttributesToAdd = new ArrayList<>();
-            List<Attribute> filteredAttributesToUpdate = new ArrayList<>();
-
-            for (Attribute attribute : attributesToAdd) {
-                    if (attributeMap.get(attribute.getAttributeName()) != null) {
-                        filteredAttributesToUpdate.add(attribute);
-                    } else {
-                        filteredAttributesToAdd.add(attribute);
-                    }
-            }
 
             //Update the primary attribute of the connector
             if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) || !StringUtils.isNullOrEmptyAfterTrim
@@ -502,25 +502,24 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
 
         String userIdentifierNew = groupIdentifier;
 
+        //Filter the attributes to add and update
+        List<Attribute> currentAttributes = getUserAttributeValues(groupIdentifier);
+        Map<String, String> attributeMap = new HashMap<>();
+        for (Attribute attribute : currentAttributes) {
+            attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
+        }
+
+        List<Attribute> filteredAttributesToAdd = new ArrayList<>();
+        List<Attribute> filteredAttributesToUpdate = new ArrayList<>();
+
+        for (Attribute attribute : attributesToAdd) {
+            if (attributeMap.get(attribute.getAttributeName()) != null) {
+                filteredAttributesToUpdate.add(attribute);
+            } else {
+                filteredAttributesToAdd.add(attribute);
+            }
+        }
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-
-            //Filter the attributes to add and update
-            List<Attribute> currentAttributes = getUserAttributeValues(groupIdentifier);
-            Map<String, String> attributeMap = new HashMap<>();
-            for (Attribute attribute : currentAttributes) {
-                attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
-            }
-
-            List<Attribute> filteredAttributesToAdd = new ArrayList<>();
-            List<Attribute> filteredAttributesToUpdate = new ArrayList<>();
-
-            for (Attribute attribute : attributesToAdd) {
-                    if (attributeMap.get(attribute.getAttributeName()) != null) {
-                        filteredAttributesToUpdate.add(attribute);
-                    } else {
-                        filteredAttributesToAdd.add(attribute);
-                    }
-            }
 
             //Update the primary attribute of the connector
             if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) || !StringUtils.isNullOrEmptyAfterTrim
@@ -567,7 +566,7 @@ public class JDBCPrivilegedIdentityStoreConnector extends JDBCIdentityStoreConne
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
 
-            //Update user attributes
+            //Update group attributes
             NamedPreparedStatement updateNamedPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_GROUP_ATTRIBUTES));
