@@ -53,7 +53,8 @@ public class JDBCConnectorTests {
     public static final String DEFAULT_PERMISSION_ID = "f61a1c240df011e6a1483e1d05defe78";
     public static final String DEFAULT_NAMESPACE = "reg";
     public static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAuthorizationStore";
-    public static final Resource DEFAULT_RESOURCE = new Resource(DEFAULT_NAMESPACE, "root/resource/id",
+    public static final String DEFAULT_RESOURCE_PATH = "root/resource/id";
+    public static final Resource DEFAULT_RESOURCE = new Resource(DEFAULT_NAMESPACE, DEFAULT_RESOURCE_PATH,
             "41dadd2aea6e11e59ce95e5517507c66");
     public static final Action ACTION_ADD = new Action(DEFAULT_NAMESPACE, "add");
     public static final Permission DEFAULT_PERMISSION = new Permission(DEFAULT_RESOURCE, ACTION_ADD);

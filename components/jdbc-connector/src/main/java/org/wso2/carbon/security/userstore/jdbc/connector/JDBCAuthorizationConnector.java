@@ -364,7 +364,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
                     String roleUniqueId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleUniqueId));
+                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleUniqueId)
+                            .setAuthorizationStoreConnectorId(authorizationStoreId));
                 }
 
                 if (log.isDebugEnabled()) {
@@ -396,7 +397,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
-                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId));
+                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId)
+                            .setAuthorizationStoreConnectorId(authorizationStoreId));
                 }
 
                 if (log.isDebugEnabled()) {
