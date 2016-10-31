@@ -394,7 +394,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "WHERE NAMESPACE_ID IN (SELECT ID " +
                     "FROM UM_RESOURCE_NAMESPACE " +
                     "WHERE NAMESPACE LIKE :action_namespace;) " +
-                    "AND RESOURCE_NAME LIKE :action_name;)";
+                    "AND ACTION_NAME LIKE :action_name;)";
 
     private static final String COUNT_ROLES = "SELECT COUNT(*) FROM UM_ROLE";
 

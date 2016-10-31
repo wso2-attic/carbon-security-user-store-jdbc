@@ -141,12 +141,12 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
                 DEFAULT_AUTHORIZATION_STORE).build());
 
         //Added from the test resources
-        Resource resource2 = new Resource(DEFAULT_NAMESPACE, "root/resource/id", DEFAULT_USER_ID);
+        Resource resource2 = new Resource(DEFAULT_NAMESPACE, DEFAULT_RESOURCE_PATH, DEFAULT_USER_ID);
         Action action2 = new Action(DEFAULT_NAMESPACE, "add");
         permissions.add(new Permission.PermissionBuilder(resource2, action2, "f61a1c240df011e6a1483e1d05defe78",
                 DEFAULT_AUTHORIZATION_STORE).build());
 
-        Resource resource3 = new Resource(DEFAULT_NAMESPACE, "root/resource/id", DEFAULT_USER_ID);
+        Resource resource3 = new Resource(DEFAULT_NAMESPACE, DEFAULT_RESOURCE_PATH, DEFAULT_USER_ID);
         Action action3 = new Action(DEFAULT_NAMESPACE, "delete");
         permissions.add(new Permission.PermissionBuilder(resource3, action3, "64335ff4106211e6a1483e1d05defe78",
                 DEFAULT_AUTHORIZATION_STORE).build());
@@ -158,6 +158,38 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
                 .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
         Assert.assertEquals(roleRetrieved.getRoleId(), role.getRoleId());
         addedRoleId = role.getRoleId();
+
+        List<Permission.PermissionBuilder> permissionsForRole = authorizationStoreConnector.getPermissionsForRole
+                (addedRoleId, resource1);
+
+        Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_NAME_ADD + DEFAULT_NAMESPACE +
+                Action.DELIMITER + DEFAULT_ACTION_NAME_ADD).equals(item.build().getPermissionString())));
+
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole (addedRoleId, resource2);
+
+        Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_PATH + DEFAULT_NAMESPACE +
+                Action.DELIMITER + "add").equals(item.build().getPermissionString())));
+
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole (addedRoleId, resource3);
+
+        Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_PATH + DEFAULT_NAMESPACE +
+                Action.DELIMITER + "delete").equals(item.build().getPermissionString())));
+
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole(addedRoleId, action1);
+
+        Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_NAME_ADD + DEFAULT_NAMESPACE +
+                Action.DELIMITER + DEFAULT_ACTION_NAME_ADD).equals(item.build().getPermissionString())));
+
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole (addedRoleId, action2);
+
+        Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_PATH + DEFAULT_NAMESPACE +
+                Action.DELIMITER + "add").equals(item.build().getPermissionString())));
+
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole (addedRoleId, action3);
+
+        Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_PATH + DEFAULT_NAMESPACE +
+                Action.DELIMITER + "delete").equals(item.build().getPermissionString())));
+
     }
 
     @Test(priority = 5)
@@ -184,6 +216,15 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
                 DEFAULT_ROLE_NAME_ADD));
         Assert.assertTrue(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_2,
                 DEFAULT_ROLE_NAME_ADD));
+
+        List<Role.RoleBuilder> rolesForGroup = authorizationStoreConnector
+                .getRolesForUser(USER_UNIQUE_ID_1, "carbon");
+        Assert.assertTrue(rolesForGroup.stream().
+                anyMatch(item -> DEFAULT_ROLE_NAME_ADD.equals(item.build().getName())));
+
+        rolesForGroup = authorizationStoreConnector.getRolesForUser(USER_UNIQUE_ID_2, "carbon");
+        Assert.assertTrue(rolesForGroup.stream().
+                anyMatch(item -> DEFAULT_ROLE_NAME_ADD.equals(item.build().getName())));
     }
 
 
@@ -246,6 +287,16 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
                 DEFAULT_ROLE_NAME_ADD));
         Assert.assertTrue(authorizationStoreConnector.isGroupInRole(GROUP_UNIQUE_ID_2,
                 DEFAULT_ROLE_NAME_ADD));
+
+        List<Role.RoleBuilder> rolesForGroup = authorizationStoreConnector
+                .getRolesForGroup(GROUP_UNIQUE_ID_1, "carbon");
+        Assert.assertTrue(rolesForGroup.stream().
+                anyMatch(item -> DEFAULT_ROLE_NAME_ADD.equals(item.build().getName())));
+
+        rolesForGroup = authorizationStoreConnector.getRolesForGroup(GROUP_UNIQUE_ID_2, "carbon");
+        Assert.assertTrue(rolesForGroup.stream().
+                anyMatch(item -> DEFAULT_ROLE_NAME_ADD.equals(item.build().getName())));
+
     }
 
 
@@ -285,6 +336,7 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
 
     @Test(priority = 9)
     public void testUpdateRolesInUserPut() throws AuthorizationStoreException {
+
         List<Role> roles = new ArrayList<>();
         Role role1 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_1).setRoleName("role6")
                 .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
@@ -301,6 +353,7 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
 
     @Test(priority = 10)
     public void testUpdateRolesInUserPatch() throws AuthorizationStoreException {
+
         List<Role> rolesToAdd = new ArrayList<>();
         Role role1 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_3).setRoleName("role8")
                 .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
@@ -319,6 +372,84 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
         Assert.assertTrue(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1, "role8"));
         Assert.assertTrue(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1, "role9"));
         Assert.assertFalse(authorizationStoreConnector.isUserInRole(USER_UNIQUE_ID_1, "role6"));
+    }
+
+    @Test(priority = 11)
+    public void testUpdateRolesInGroupPut() throws AuthorizationStoreException {
+
+        List<Role> roles = new ArrayList<>();
+        Role role1 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_1).setRoleName("role6")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        roles.add(role1);
+        Role role2 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_2).setRoleName("role7")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        roles.add(role2);
+        authorizationStoreConnector.updateRolesInGroup(GROUP_UNIQUE_ID_1, "carbon", roles);
+        List<Role.RoleBuilder> rolesForUser = authorizationStoreConnector.getRolesForGroup(GROUP_UNIQUE_ID_1, "carbon");
+        Assert.assertEquals(rolesForUser.size(), 2);
+        Assert.assertTrue(authorizationStoreConnector.isGroupInRole(GROUP_UNIQUE_ID_1, "role6"));
+        Assert.assertTrue(authorizationStoreConnector.isGroupInRole(GROUP_UNIQUE_ID_1, "role7"));
+    }
+
+    @Test(priority = 12)
+    public void testUpdateRolesInGroupPatch() throws AuthorizationStoreException {
+
+        List<Role> rolesToAdd = new ArrayList<>();
+        Role role1 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_3).setRoleName("role8")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        rolesToAdd.add(role1);
+        Role role2 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_4).setRoleName("role9")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        rolesToAdd.add(role2);
+
+        List<Role> rolesToRemove = new ArrayList<>();
+        Role role3 = new Role.RoleBuilder().setRoleId(ROLE_UNIQUE_ID_1).setRoleName("role6")
+                .setAuthorizationStoreConnectorId(DEFAULT_AUTHORIZATION_STORE).build();
+        rolesToRemove.add(role3);
+        authorizationStoreConnector.updateRolesInGroup(GROUP_UNIQUE_ID_1, "carbon", rolesToAdd, rolesToRemove);
+        List<Role.RoleBuilder> rolesForUser = authorizationStoreConnector.getRolesForGroup(GROUP_UNIQUE_ID_1, "carbon");
+        Assert.assertEquals(rolesForUser.size(), 3);
+        Assert.assertTrue(authorizationStoreConnector.isGroupInRole(GROUP_UNIQUE_ID_1, "role8"));
+        Assert.assertTrue(authorizationStoreConnector.isGroupInRole(GROUP_UNIQUE_ID_1, "role9"));
+        Assert.assertFalse(authorizationStoreConnector.isGroupInRole(GROUP_UNIQUE_ID_1, "role6"));
+    }
+
+    @Test(priority = 30)
+    public void testDeleteResource() throws AuthorizationStoreException {
+
+        Resource resource = new Resource.ResourceBuilder().setOwnerId(DEFAULT_USER_ID).setResourceId(DEFAULT_RESOURCE_NAME_ADD)
+                .setResourceNamespace(DEFAULT_NAMESPACE).setAuthorizationStoreConnectorId
+                        (DEFAULT_AUTHORIZATION_STORE).build();
+        authorizationStoreConnector.deleteResource(resource);
+        List<Resource.ResourceBuilder> resourceBuilders = authorizationStoreConnector.getResources
+                (DEFAULT_RESOURCE_NAME_ADD);
+        Assert.assertEquals(resourceBuilders.size(), 0);
+    }
+
+    @Test(priority = 31)
+    public void testDeleteAction() throws AuthorizationStoreException {
+
+        Action action = new Action.ActionBuilder().setAction(DEFAULT_ACTION_NAME_ADD).setActionNamespace(DEFAULT_NAMESPACE).setAuthorizationStore(DEFAULT_AUTHORIZATION_STORE).build();
+        authorizationStoreConnector.deleteAction(action);
+        List<Action.ActionBuilder> actionBuilders = authorizationStoreConnector.getActions(DEFAULT_RESOURCE_NAME_ADD);
+        Assert.assertEquals(actionBuilders.size(), 0);
+    }
+
+    @Test(priority = 32, expectedExceptions = Exception.class, expectedExceptionsMessageRegExp = "No role found for the " +
+            "given name.*")
+    public void testDeleteRole() throws AuthorizationStoreException, RoleNotFoundException {
+
+        authorizationStoreConnector.deleteRole(addedRoleId);
+        authorizationStoreConnector.getRole(addedRoleId);
+    }
+
+    @Test(priority = 32, expectedExceptions = Exception.class, expectedExceptionsMessageRegExp = "No permission found for the given name.*")
+    public void testDeletePermission() throws AuthorizationStoreException, PermissionNotFoundException {
+
+        authorizationStoreConnector.deletePermission(addedPermissionId);
+        Resource resource = new Resource(DEFAULT_NAMESPACE, DEFAULT_RESOURCE_NAME_ADD, DEFAULT_USER_ID);
+        Action action = new Action(DEFAULT_NAMESPACE, DEFAULT_ACTION_NAME_ADD);
+        authorizationStoreConnector.getPermission(resource, action);
     }
 
 }
