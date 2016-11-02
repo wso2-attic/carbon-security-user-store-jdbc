@@ -53,5 +53,7 @@ public class PrivilegedConnectorConstants {
         public static final String SQL_QUERY_DELETE_GROUP = "sql_query_delete_group";
         public static final String SQL_QUERY_UPDATE_USER_ATTRIBUTES = "sql_query_update_user_claims";
         public static final String SQL_QUERY_UPDATE_GROUP_ATTRIBUTES = "sql_query_update_group_claims";
+        public static final String SQL_QUERY_ADD_PASSWORD_INFO = "sql_query_add_password_info";
+        public static final String SQL_QUERY_ADD_PASSWORD = "sql_query_add_password";
     }
 }

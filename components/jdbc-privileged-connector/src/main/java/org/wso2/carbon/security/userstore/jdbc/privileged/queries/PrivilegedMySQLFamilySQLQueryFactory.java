@@ -99,6 +99,14 @@ public class PrivilegedMySQLFamilySQLQueryFactory extends MySQLFamilySQLQueryFac
             ":attr_value; WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;) AND " +
             "GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
 
+    private static final String ADD_PASSWORD_INFO = "INSERT INTO UM_PASSWORD_INFO " +
+            "(PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH, USER_UNIQUE_ID) " +
+            "VALUES (:password_salt;, :hash_algo;, :iteration_count;, :key_length;, :user_unique_id;)";
+
+    private static final String ADD_PASSWORD = "INSERT INTO UM_PASSWORD (PASSWORD, USER_UNIQUE_ID) " +
+            "VALUES (:password;, :hash_algo;, :iteration_count;, :user_unique_id;)";
+
+
     public PrivilegedMySQLFamilySQLQueryFactory() {
         sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES, ADD_USER_ATTRIBUTES);
         sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP_ATTRIBUTES, ADD_GROUP_ATTRIBUTES);
@@ -126,5 +134,7 @@ public class PrivilegedMySQLFamilySQLQueryFactory extends MySQLFamilySQLQueryFac
                 UPDATE_USER_ATTRIBUTES);
         sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_GROUP_ATTRIBUTES,
                 UPDATE_GROUP_ATTRIBUTES);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO, ADD_PASSWORD_INFO);
+        sqlQueries.put(PrivilegedConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD, ADD_PASSWORD);
     }
 }
