@@ -16,8 +16,9 @@
 
 package org.wso2.carbon.security.userstore.jdbc.util;
 
-import org.wso2.carbon.security.caas.user.core.exception.StoreException;
-import org.wso2.carbon.security.caas.user.core.util.PasswordHandler;
+
+import org.wso2.carbon.identity.mgt.exception.StoreException;
+import org.wso2.carbon.identity.mgt.util.PasswordHandler;
 
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;

@@ -54,10 +54,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon.security.caas</groupId>
-            <artifactId>org.wso2.carbon.security.caas</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.security.userstore</groupId>
             <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
         </dependency>
@@ -155,12 +151,12 @@
 
         <dependency>
             <groupId>org.wso2.carbon.identity.mgt</groupId>
-            <artifactId>org.wso2.carbon.identity.user.mgt</artifactId>
+            <artifactId>org.wso2.carbon.identity.mgt</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.security.userstore</groupId>
-            <artifactId>org.wso2.carbon.security.userstore.jdbc.privileged</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.carbon.security.userstore</groupId>-->
+            <!--<artifactId>org.wso2.carbon.security.userstore.jdbc.privileged</artifactId>-->
+        <!--</dependency>-->
     </dependencies>
 
     <profiles>
