@@ -25,15 +25,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
-import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
-import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory;
-import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnectorFactory;
-import org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory;
-import org.wso2.carbon.security.caas.user.core.util.PasswordHandler;
+import org.wso2.carbon.identity.mgt.constant.UserCoreConstants;
+import org.wso2.carbon.identity.mgt.store.connector.AuthorizationStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.store.connector.IdentityStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.util.PasswordHandler;
 import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCAuthorizationStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCCredentialStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.connector.factory.JDBCIdentityStoreConnectorFactory;
-import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -93,7 +92,7 @@ public class ConnectorComponent {
             return;
         }
 
-        DatabaseUtil.getInstance().setDataSourceService(service);
+        ConnectorDataHolder.getInstance().setDataSourceService(service);
 
         if (log.isDebugEnabled()) {
             log.debug("Data source service registered successfully.");
@@ -105,11 +104,11 @@ public class ConnectorComponent {
         if (log.isDebugEnabled()) {
             log.debug("Data source service unregistered.");
         }
-        DatabaseUtil.getInstance().setDataSourceService(null);
+        ConnectorDataHolder.getInstance().setDataSourceService(null);
     }
 
     @Reference(
-            name = "org.wso2.carbon.security.caas.user.core.util.PasswordHandler",
+            name = "org.wso2.carbon.identity.mgt.util.PasswordHandler",
             service = PasswordHandler.class,
             cardinality = ReferenceCardinality.OPTIONAL,
             policy = ReferencePolicy.DYNAMIC,
@@ -118,7 +117,8 @@ public class ConnectorComponent {
     protected void registerPasswordHandler(PasswordHandler passwordHandler, Map<String, String> properties) {
 
         if (passwordHandler != null) {
-            DatabaseUtil.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME),
+            ConnectorDataHolder.getInstance().setPasswordHandler(properties.get(UserCoreConstants
+                            .PASSWORD_HANDLER_NAME),
                     passwordHandler);
             if (log.isDebugEnabled()) {
                 log.debug("Password handler for name {} registered.", properties.get(UserCoreConstants
@@ -129,7 +129,8 @@ public class ConnectorComponent {
 
     protected void unregisterPasswordHandler(PasswordHandler passwordHandler, Map<String, String> properties) {
 
-        DatabaseUtil.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME), null);
+        ConnectorDataHolder.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME),
+                null);
 
         if (log.isDebugEnabled()) {
             log.debug("Password handler for name {} unregistered.", properties.get(UserCoreConstants

@@ -17,15 +17,15 @@
 package org.wso2.carbon.security.userstore.jdbc.test.osgi.store;
 
 import org.testng.annotations.Test;
-import org.wso2.carbon.security.caas.user.core.bean.Group;
-import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.claim.Claim;
-import org.wso2.carbon.security.caas.user.core.claim.MetaClaim;
-import org.wso2.carbon.security.caas.user.core.exception.ClaimManagerException;
-import org.wso2.carbon.security.caas.user.core.exception.GroupNotFoundException;
-import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
-import org.wso2.carbon.security.caas.user.core.exception.UserNotFoundException;
-import org.wso2.carbon.security.caas.user.core.store.IdentityStore;
+import org.wso2.carbon.identity.mgt.bean.Group;
+import org.wso2.carbon.identity.mgt.bean.User;
+import org.wso2.carbon.identity.mgt.claim.Claim;
+import org.wso2.carbon.identity.mgt.claim.MetaClaim;
+import org.wso2.carbon.identity.mgt.exception.ClaimManagerException;
+import org.wso2.carbon.identity.mgt.exception.GroupNotFoundException;
+import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
+import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
+import org.wso2.carbon.identity.mgt.store.IdentityStore;
 
 import java.util.ArrayList;
 import java.util.List;

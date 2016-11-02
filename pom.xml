@@ -41,7 +41,7 @@
 
     <modules>
         <module>components/jdbc-connector</module>
-        <module>components/jdbc-privileged-connector</module>
+        <!--<module>components/jdbc-privileged-connector</module>-->
         <module>feature</module>
         <module>tests</module>
     </modules>
@@ -124,11 +124,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wso2.carbon.security.caas</groupId>
-                <artifactId>org.wso2.carbon.security.caas</artifactId>
-                <version>${carbon.security.caas.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.carbon.security.userstore</groupId>
                 <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
                 <version>${carbon.security.userstore.jdbc.version}</version>
@@ -150,13 +145,18 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.mgt</groupId>
-                <artifactId>org.wso2.carbon.identity.user.mgt</artifactId>
-                <version>${org.wso2.carbon.identity.user.mgt.version}</version>
+                <artifactId>org.wso2.carbon.identity.mgt</artifactId>
+                <version>${org.wso2.carbon.identity.mgt.version}</version>
             </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon.security.userstore</groupId>-->
+                <!--<artifactId>org.wso2.carbon.security.userstore.jdbc.privileged</artifactId>-->
+                <!--<version>${carbon.security.userstore.jdbc.version}</version>-->
+            <!--</dependency>-->
             <dependency>
-                <groupId>org.wso2.carbon.security.userstore</groupId>
-                <artifactId>org.wso2.carbon.security.userstore.jdbc.privileged</artifactId>
-                <version>${carbon.security.userstore.jdbc.version}</version>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.core.version}</version>
             </dependency>
 
             <!-- OSGI Tests-->
@@ -286,12 +286,6 @@
                 <type>zip</type>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon.security.caas</groupId>
-                <artifactId>org.wso2.carbon.security.caas.feature</artifactId>
-                <version>${carbon.security.caas.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.carbon.jndi</groupId>
                 <artifactId>org.wso2.carbon.jndi.feature</artifactId>
                 <version>${carbon.jndi.version}</version>
@@ -348,8 +342,7 @@
     <properties>
         <carbon.security.userstore.jdbc.version>1.0.0-SNAPSHOT</carbon.security.userstore.jdbc.version>
 
-        <carbon.security.caas.version>1.0.0-SNAPSHOT</carbon.security.caas.version>
-        <org.wso2.carbon.identity.user.mgt.version>1.0.0-SNAPSHOT</org.wso2.carbon.identity.user.mgt.version>
+        <org.wso2.carbon.identity.mgt.version>1.0.0-SNAPSHOT</org.wso2.carbon.identity.mgt.version>
         <carbon.jndi.version>1.0.0</carbon.jndi.version>
         <carbon.datasources.version>1.0.0</carbon.datasources.version>
         <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
@@ -365,6 +358,7 @@
         <gson.version>2.2.4</gson.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
+        <carbon.core.version>5.1.0</carbon.core.version>
         <org.osgi.core.version>6.0.0</org.osgi.core.version>
 
         <testng.version>6.9.4</testng.version>

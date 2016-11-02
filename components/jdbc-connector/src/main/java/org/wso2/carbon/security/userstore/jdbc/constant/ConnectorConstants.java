@@ -61,6 +61,9 @@ public class ConnectorConstants {
         public static final String ITERATION_COUNT = "iteration_count";
         public static final String KEY_LENGTH = "key_length";
         public static final String PASSWORD = "password";
+
+        public static final String USER_UNIQUE_ID_UPDATE = "user_unique_id_update";
+        public static final String GROUP_UNIQUE_ID_UPDATE = "group_unique_id_update";
     }
 
     /**
@@ -74,9 +77,9 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_USER_ATTRIBUTES = "sql_query_get_user_attributes";
         public static final String SQL_QUERY_GET_GROUPS_OF_USER = "sql_query_get_groups_of_user";
         public static final String SQL_QUERY_GET_USERS_OF_GROUP = "sql_query_get_users_of_group";
-        public static final String SQL_QUERY_DELETE_USER = "sql_query_delete_user";
-        public static final String SQL_QUERY_DELETE_GROUP = "sql_query_delete_group";
-        public static final String SQL_QUERY_ADD_USER_GROUPS = "sql_query_add_user_groups";
+//        public static final String SQL_QUERY_DELETE_USER = "sql_query_delete_user";
+//        public static final String SQL_QUERY_DELETE_GROUP = "sql_query_delete_group";
+//        public static final String SQL_QUERY_ADD_USER_GROUPS = "sql_query_add_user_groups";
         public static final String SQL_QUERY_LIST_USERS_BY_ATTRIBUTE = "sql_query_list_users_by_attribute";
         public static final String SQL_QUERY_LIST_USERS_BY_USER_ID = "sql_query_list_users_by_user_id";
         public static final String SQL_QUERY_GET_PASSWORD_INFO = "sql_query_get_password_info";
@@ -138,5 +141,27 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_DELETE_ACTION = "sql_query_delete_action";
         public static final String SQL_QUERY_SEARCH_USER = "sql_query_search_user";
         public static final String SQL_QUERY_SEARCH_GROUP = "sql_query_search_group";
+
+        public static final String SQL_QUERY_ADD_USER_ATTRIBUTES = "sql_query_add_user_attributes";
+        public static final String SQL_QUERY_ADD_GROUP_ATTRIBUTES = "sql_query_add_group_attributes";
+        public static final String SQL_QUERY_ADD_USER = "sql_query_add_user";
+        public static final String SQL_QUERY_UPDATE_USER = "sql_query_update_user";
+        public static final String SQL_QUERY_UPDATE_GROUP = "sql_query_update_group";
+        public static final String SQL_QUERY_ADD_GROUP = "sql_query_add_group";
+        public static final String SQL_QUERY_ADD_USER_GROUP = "sql_query_add_user_group";
+        public static final String SQL_QUERY_REMOVE_ALL_GROUPS_OF_USER = "sql_query_remove_all_groups_of_user";
+        public static final String SQL_QUERY_REMOVE_ALL_USERS_OF_GROUP = "sql_query_remove_all_users_of_group";
+        public static final String SQL_QUERY_REMOVE_GROUP_OF_USER = "sql_query_remove_group_of_user";
+        public static final String SQL_QUERY_REMOVE_ALL_ATTRIBUTES_OF_USER = "sql_query_remove_all_attributes_of_user";
+        public static final String SQL_QUERY_REMOVE_ALL_ATTRIBUTES_OF_GROUP =
+                "sql_query_remove_all_attributes_of_group";
+        public static final String SQL_QUERY_REMOVE_ATTRIBUTE_OF_USER = "sql_query_remove_attribute_of_user";
+        public static final String SQL_QUERY_REMOVE_ATTRIBUTE_OF_GROUP = "sql_query_remove_attribute_of_group";
+        public static final String SQL_QUERY_DELETE_USER = "sql_query_delete_user";
+        public static final String SQL_QUERY_DELETE_GROUP = "sql_query_delete_group";
+        public static final String SQL_QUERY_UPDATE_USER_ATTRIBUTES = "sql_query_update_user_claims";
+        public static final String SQL_QUERY_UPDATE_GROUP_ATTRIBUTES = "sql_query_update_group_claims";
+        public static final String SQL_QUERY_ADD_PASSWORD_INFO = "sql_query_add_password_info";
+        public static final String SQL_QUERY_ADD_PASSWORD = "sql_query_add_password";
     }
 }

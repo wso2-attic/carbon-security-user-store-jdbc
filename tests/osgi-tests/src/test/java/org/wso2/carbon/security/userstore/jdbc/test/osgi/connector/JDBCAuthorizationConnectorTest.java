@@ -20,21 +20,21 @@ package org.wso2.carbon.security.userstore.jdbc.test.osgi.connector;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.security.caas.user.core.bean.Action;
-import org.wso2.carbon.security.caas.user.core.bean.Domain;
-import org.wso2.carbon.security.caas.user.core.bean.Group;
-import org.wso2.carbon.security.caas.user.core.bean.Permission;
-import org.wso2.carbon.security.caas.user.core.bean.Resource;
-import org.wso2.carbon.security.caas.user.core.bean.Role;
-import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConnectorConfig;
-import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
-import org.wso2.carbon.security.caas.user.core.exception.DomainException;
-import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
-import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
-import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
-import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.bean.Action;
+import org.wso2.carbon.identity.mgt.bean.Domain;
+import org.wso2.carbon.identity.mgt.bean.Group;
+import org.wso2.carbon.identity.mgt.bean.Permission;
+import org.wso2.carbon.identity.mgt.bean.Resource;
+import org.wso2.carbon.identity.mgt.bean.Role;
+import org.wso2.carbon.identity.mgt.bean.User;
+import org.wso2.carbon.identity.mgt.config.AuthorizationStoreConnectorConfig;
+import org.wso2.carbon.identity.mgt.exception.AuthorizationStoreException;
+import org.wso2.carbon.identity.mgt.exception.DomainException;
+import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
+import org.wso2.carbon.identity.mgt.exception.PermissionNotFoundException;
+import org.wso2.carbon.identity.mgt.exception.RoleNotFoundException;
+import org.wso2.carbon.identity.mgt.store.connector.AuthorizationStoreConnector;
+import org.wso2.carbon.identity.mgt.store.connector.AuthorizationStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.test.osgi.JDBCConnectorTests;
 
 import java.util.ArrayList;
@@ -165,12 +165,12 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
         Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_NAME_ADD + DEFAULT_NAMESPACE +
                 Action.DELIMITER + DEFAULT_ACTION_NAME_ADD).equals(item.build().getPermissionString())));
 
-        permissionsForRole = authorizationStoreConnector.getPermissionsForRole (addedRoleId, resource2);
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole(addedRoleId, resource2);
 
         Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_PATH + DEFAULT_NAMESPACE +
                 Action.DELIMITER + "add").equals(item.build().getPermissionString())));
 
-        permissionsForRole = authorizationStoreConnector.getPermissionsForRole (addedRoleId, resource3);
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole(addedRoleId, resource3);
 
         Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_PATH + DEFAULT_NAMESPACE +
                 Action.DELIMITER + "delete").equals(item.build().getPermissionString())));
@@ -180,12 +180,12 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
         Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_NAME_ADD + DEFAULT_NAMESPACE +
                 Action.DELIMITER + DEFAULT_ACTION_NAME_ADD).equals(item.build().getPermissionString())));
 
-        permissionsForRole = authorizationStoreConnector.getPermissionsForRole (addedRoleId, action2);
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole(addedRoleId, action2);
 
         Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_PATH + DEFAULT_NAMESPACE +
                 Action.DELIMITER + "add").equals(item.build().getPermissionString())));
 
-        permissionsForRole = authorizationStoreConnector.getPermissionsForRole (addedRoleId, action3);
+        permissionsForRole = authorizationStoreConnector.getPermissionsForRole(addedRoleId, action3);
 
         Assert.assertTrue(permissionsForRole.stream().anyMatch(item -> (DEFAULT_RESOURCE_PATH + DEFAULT_NAMESPACE +
                 Action.DELIMITER + "delete").equals(item.build().getPermissionString())));
@@ -417,7 +417,8 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
     @Test(priority = 30)
     public void testDeleteResource() throws AuthorizationStoreException {
 
-        Resource resource = new Resource.ResourceBuilder().setOwnerId(DEFAULT_USER_ID).setResourceId(DEFAULT_RESOURCE_NAME_ADD)
+        Resource resource = new Resource.ResourceBuilder().setOwnerId(DEFAULT_USER_ID).setResourceId
+                (DEFAULT_RESOURCE_NAME_ADD)
                 .setResourceNamespace(DEFAULT_NAMESPACE).setAuthorizationStoreConnectorId
                         (DEFAULT_AUTHORIZATION_STORE).build();
         authorizationStoreConnector.deleteResource(resource);
@@ -429,13 +430,15 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
     @Test(priority = 31)
     public void testDeleteAction() throws AuthorizationStoreException {
 
-        Action action = new Action.ActionBuilder().setAction(DEFAULT_ACTION_NAME_ADD).setActionNamespace(DEFAULT_NAMESPACE).setAuthorizationStore(DEFAULT_AUTHORIZATION_STORE).build();
+        Action action = new Action.ActionBuilder().setAction(DEFAULT_ACTION_NAME_ADD).setActionNamespace
+                (DEFAULT_NAMESPACE).setAuthorizationStore(DEFAULT_AUTHORIZATION_STORE).build();
         authorizationStoreConnector.deleteAction(action);
         List<Action.ActionBuilder> actionBuilders = authorizationStoreConnector.getActions(DEFAULT_RESOURCE_NAME_ADD);
         Assert.assertEquals(actionBuilders.size(), 0);
     }
 
-    @Test(priority = 32, expectedExceptions = Exception.class, expectedExceptionsMessageRegExp = "No role found for the " +
+    @Test(priority = 32, expectedExceptions = Exception.class, expectedExceptionsMessageRegExp = "No role found for " +
+            "the " +
             "given name.*")
     public void testDeleteRole() throws AuthorizationStoreException, RoleNotFoundException {
 
@@ -443,7 +446,8 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
         authorizationStoreConnector.getRole(addedRoleId);
     }
 
-    @Test(priority = 32, expectedExceptions = Exception.class, expectedExceptionsMessageRegExp = "No permission found for the given name.*")
+    @Test(priority = 32, expectedExceptions = Exception.class, expectedExceptionsMessageRegExp = "No permission found" +
+            " for the given name.*")
     public void testDeletePermission() throws AuthorizationStoreException, PermissionNotFoundException {
 
         authorizationStoreConnector.deletePermission(addedPermissionId);

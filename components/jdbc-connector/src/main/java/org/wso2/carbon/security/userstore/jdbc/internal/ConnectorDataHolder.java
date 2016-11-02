@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.userstore.jdbc.privileged.util;
+package org.wso2.carbon.security.userstore.jdbc.internal;
 
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.caas.user.core.util.PasswordHandler;
+import org.wso2.carbon.identity.mgt.util.PasswordHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,18 +29,18 @@ import javax.sql.DataSource;
 /**
  * Database related utility methods.
  */
-public class DatabaseUtil {
+public class ConnectorDataHolder {
 
-    private static final DatabaseUtil instance = new DatabaseUtil();
+    private static final ConnectorDataHolder instance = new ConnectorDataHolder();
 
     private DataSourceService dataSourceService;
     private Map<String, PasswordHandler> passwordHandlerList = new HashMap<>();
 
-    private DatabaseUtil() {
+    private ConnectorDataHolder() {
         super();
     }
 
-    public static DatabaseUtil getInstance() {
+    public static ConnectorDataHolder getInstance() {
         return instance;
     }
 

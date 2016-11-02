@@ -17,11 +17,11 @@
 package org.wso2.carbon.security.userstore.jdbc.test.osgi.store;
 
 import org.testng.annotations.Test;
-import org.wso2.carbon.security.caas.user.core.context.AuthenticationContext;
-import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
-import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
-import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
-import org.wso2.carbon.security.caas.user.core.store.CredentialStore;
+import org.wso2.carbon.identity.mgt.context.AuthenticationContext;
+import org.wso2.carbon.identity.mgt.exception.AuthenticationFailure;
+import org.wso2.carbon.identity.mgt.exception.CredentialStoreException;
+import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
+import org.wso2.carbon.identity.mgt.store.CredentialStore;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;

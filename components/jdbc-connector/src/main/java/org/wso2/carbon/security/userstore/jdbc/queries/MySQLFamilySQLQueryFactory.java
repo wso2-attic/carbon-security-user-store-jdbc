@@ -59,15 +59,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "FROM UM_USER " +
                     "WHERE USER_UNIQUE_ID = :user_id;)";
 
-
-    private static final String DELETE_GROUP =
-            "DELETE FROM UM_GROUP " +
-                    "WHERE GROUP_UNIQUE_ID = :groupId;";
-
-    private static final String ADD_USER_GROUPS =
-            "INSERT INTO UM_USER_GROUP (USER_ID, GROUP_ID) " +
-                    "VALUES (:user_id;, :group_id;)";
-
     private static final String LIST_USERS_BY_ATTRIBUTE =
             "SELECT UM_USER.USER_UNIQUE_ID " +
                     "FROM UM_USER LEFT JOIN UM_USER_ATTRIBUTES " +
@@ -107,10 +98,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "SELECT PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH " +
                     "FROM UM_PASSWORD_INFO " +
                     "WHERE USER_UNIQUE_ID = :user_id;";
-
-    private static final String ADD_PASSWORD_INFO =
-            "INSERT INTO UM_PASSWORD_INFO (USER_ID, PASSWORD_SALT, HASH_ALGO) " +
-                    "VALUES (:user_id;, :password_salt;, :hash_algo;)";
 
     private static final String SET_USER_ATTRIBUTE =
             "INSERT INTO UM_USER_ATTRIBUTES (ATTR_ID, ATTR_VALUE, USER_ID) " +
@@ -451,14 +438,94 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String SEARCH_USER = "SELECT * FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;";
     private static final String SEARCH_GROUP = "SELECT * FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;";
 
+
+
+    private static final String ADD_USER_ATTRIBUTES =
+            "INSERT INTO UM_USER_ATTRIBUTES (ATTR_ID, ATTR_VALUE, USER_ID) " +
+                    "VALUES ((SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;), :attr_value;, " +
+                    "(SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;)) ";
+
+    private static final String ADD_USER =
+            "INSERT INTO UM_USER (USER_UNIQUE_ID) " +
+                    "VALUES (:user_unique_id;)";
+
+    private static final String ADD_GROUP_ATTRIBUTES =
+            "INSERT INTO UM_GROUP_ATTRIBUTES (ATTR_ID, ATTR_VALUE, GROUP_ID) " +
+                    "VALUES ((SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;), :attr_value;, " +
+                    "(SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)) ";
+
+    private static final String ADD_GROUP =
+            "INSERT INTO UM_GROUP (GROUP_UNIQUE_ID) " +
+                    "VALUES (:group_unique_id;)";
+
+    //TODO check whether this is possible in mysql
+    private static final String UPDATE_USER = "UPDATE UM_USER USER_TEMP SET USER_UNIQUE_ID = :user_unique_id_update; " +
+            "WHERE USER_TEMP.USER_UNIQUE_ID = :user_unique_id;";
+
+    private static final String UPDATE_GROUP = "UPDATE UM_GROUP GROUP_TEMP SET " +
+            "GROUP_UNIQUE_ID = :group_unique_id_update; " +
+            "WHERE GROUP_TEMP.GROUP_UNIQUE_ID = :group_unique_id;";
+
+    private static final String ADD_USER_GROUPS =
+            "INSERT INTO UM_USER_GROUP (USER_ID, GROUP_ID) " +
+                    "VALUES ((SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;), " +
+                    "(SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;))";
+
+    private static final String REMOVE_ALL_GROUPS_OF_USER = "DELETE FROM UM_USER_GROUP " +
+            "WHERE USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;)";
+
+    private static final String REMOVE_ALL_USERS_OF_GROUP = "DELETE FROM UM_USER_GROUP " +
+            "WHERE GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
+
+    private static final String REMOVE_GROUP_OF_USER = "DELETE FROM UM_USER_GROUP " +
+            "WHERE USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;) " +
+            "AND GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
+
+    private static final String REMOVE_ALL_ATTRIBUTES_OF_USER = "DELETE FROM UM_USER_ATTRIBUTES " +
+            "WHERE USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;)";
+
+    private static final String REMOVE_ALL_ATTRIBUTES_OF_GROUP = "DELETE FROM UM_GROUP_ATTRIBUTES " +
+            "WHERE GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
+
+    private static final String REMOVE_ATTRIBUTE_OF_USER =
+            "DELETE FROM UM_USER_ATTRIBUTES " +
+                    "WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;) AND " +
+                    "USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;) ";
+
+    private static final String REMOVE_ATTRIBUTE_OF_GROUP =
+            "DELETE FROM UM_GROUP_ATTRIBUTES " +
+                    "WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;) AND " +
+                    "GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;) ";
+
+    private static final String DELETE_USER =
+            "DELETE FROM UM_USER " +
+                    "WHERE USER_UNIQUE_ID = :user_unique_id;";
+
+    private static final String DELETE_GROUP =
+            "DELETE FROM UM_GROUP " +
+                    "WHERE GROUP_UNIQUE_ID = :group_unique_id;";
+
+    private static final String UPDATE_USER_ATTRIBUTES = "UPDATE UM_USER_ATTRIBUTES SET ATTR_VALUE = " +
+            ":attr_value; WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;) AND " +
+            "USER_ID = (SELECT ID FROM UM_USER WHERE USER_UNIQUE_ID = :user_unique_id;)";
+
+    private static final String UPDATE_GROUP_ATTRIBUTES = "UPDATE UM_GROUP_ATTRIBUTES SET ATTR_VALUE = " +
+            ":attr_value; WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = :attr_name;) AND " +
+            "GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
+
+    private static final String ADD_PASSWORD_INFO = "INSERT INTO UM_PASSWORD_INFO " +
+            "(PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH, USER_UNIQUE_ID) " +
+            "VALUES (:password_salt;, :hash_algo;, :iteration_count;, :key_length;, :user_unique_id;)";
+
+    private static final String ADD_PASSWORD = "INSERT INTO UM_PASSWORD (PASSWORD, USER_UNIQUE_ID) " +
+            "VALUES (:password;, :hash_algo;, :iteration_count;, :user_unique_id;)";
+
     public MySQLFamilySQLQueryFactory() {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH, COMPARE_PASSWORD_HASH);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE, GET_USER_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE, GET_GROUP_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES, GET_USER_ATTRIBUTES);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP, DELETE_GROUP);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUPS, ADD_USER_GROUPS);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE, LIST_USERS_BY_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_USER_ID, LIST_USERS_BY_USER_ID);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER, GET_GROUPS_OF_USER);
@@ -526,5 +593,36 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_ACTION, DELETE_ACTION);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_SEARCH_USER, SEARCH_USER);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_SEARCH_GROUP, SEARCH_GROUP);
+
+
+
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES, ADD_USER_ATTRIBUTES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP_ATTRIBUTES, ADD_GROUP_ATTRIBUTES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER, ADD_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_USER, UPDATE_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_GROUP, UPDATE_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP, ADD_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_GROUP, ADD_USER_GROUPS);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ALL_GROUPS_OF_USER,
+                REMOVE_ALL_GROUPS_OF_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ALL_USERS_OF_GROUP,
+                REMOVE_ALL_USERS_OF_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_GROUP_OF_USER, REMOVE_GROUP_OF_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ALL_ATTRIBUTES_OF_USER,
+                REMOVE_ALL_ATTRIBUTES_OF_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ALL_ATTRIBUTES_OF_GROUP,
+                REMOVE_ALL_ATTRIBUTES_OF_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ATTRIBUTE_OF_USER,
+                REMOVE_ATTRIBUTE_OF_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_REMOVE_ATTRIBUTE_OF_GROUP,
+                REMOVE_ATTRIBUTE_OF_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER, DELETE_USER);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP, DELETE_GROUP);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_USER_ATTRIBUTES,
+                UPDATE_USER_ATTRIBUTES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_GROUP_ATTRIBUTES,
+                UPDATE_GROUP_ATTRIBUTES);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO, ADD_PASSWORD_INFO);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD, ADD_PASSWORD);
     }
 }

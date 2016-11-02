@@ -18,7 +18,7 @@ package org.wso2.carbon.security.userstore.jdbc.connector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.security.caas.user.core.exception.StoreException;
+import org.wso2.carbon.identity.mgt.exception.StoreException;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.queries.MySQLFamilySQLQueryFactory;
 

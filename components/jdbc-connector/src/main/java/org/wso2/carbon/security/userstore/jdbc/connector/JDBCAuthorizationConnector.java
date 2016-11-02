@@ -19,21 +19,21 @@ package org.wso2.carbon.security.userstore.jdbc.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.caas.user.core.bean.Action;
-import org.wso2.carbon.security.caas.user.core.bean.Group;
-import org.wso2.carbon.security.caas.user.core.bean.Permission;
-import org.wso2.carbon.security.caas.user.core.bean.Resource;
-import org.wso2.carbon.security.caas.user.core.bean.Role;
-import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConnectorConfig;
-import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
-import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
-import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
-import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.security.caas.user.core.util.UserCoreUtil;
+import org.wso2.carbon.identity.mgt.bean.Action;
+import org.wso2.carbon.identity.mgt.bean.Group;
+import org.wso2.carbon.identity.mgt.bean.Permission;
+import org.wso2.carbon.identity.mgt.bean.Resource;
+import org.wso2.carbon.identity.mgt.bean.Role;
+import org.wso2.carbon.identity.mgt.bean.User;
+import org.wso2.carbon.identity.mgt.config.AuthorizationStoreConnectorConfig;
+import org.wso2.carbon.identity.mgt.exception.AuthorizationStoreException;
+import org.wso2.carbon.identity.mgt.exception.PermissionNotFoundException;
+import org.wso2.carbon.identity.mgt.exception.RoleNotFoundException;
+import org.wso2.carbon.identity.mgt.store.connector.AuthorizationStoreConnector;
+import org.wso2.carbon.identity.mgt.util.UserCoreUtil;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
-import org.wso2.carbon.security.userstore.jdbc.util.DatabaseUtil;
+import org.wso2.carbon.security.userstore.jdbc.internal.ConnectorDataHolder;
 import org.wso2.carbon.security.userstore.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.security.userstore.jdbc.util.UnitOfWork;
 
@@ -65,7 +65,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
         this.authorizationStoreConfig = authorizationStoreConfig;
 
         try {
-            this.dataSource = DatabaseUtil.getInstance().getDataSource(properties
+            this.dataSource = ConnectorDataHolder.getInstance().getDataSource(properties
                     .getProperty(ConnectorConstants.DATA_SOURCE));
         } catch (DataSourceException e) {
             throw new AuthorizationStoreException("Error while setting the data source.", e);
@@ -76,11 +76,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
         if (log.isDebugEnabled()) {
             log.debug("JDBC authorization store with the id of '{}' initialized.", authorizationStoreId);
         }
-    }
-
-    @Override
-    public String getAuthorizationStoreId() {
-        return authorizationStoreId;
     }
 
     @Override
@@ -1318,6 +1313,11 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public AuthorizationStoreConnectorConfig getAuthorizationStoreConfig() {
         return authorizationStoreConfig;
+    }
+
+    @Override
+    public String getAuthorizationStoreConnectorId() {
+        return authorizationStoreId;
     }
 
     /**

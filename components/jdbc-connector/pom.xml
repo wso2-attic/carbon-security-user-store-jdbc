@@ -33,10 +33,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon.security.caas</groupId>
-            <artifactId>org.wso2.carbon.security.caas</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.jndi</groupId>
             <artifactId>org.wso2.carbon.jndi</artifactId>
         </dependency>
@@ -47,6 +43,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.mgt</groupId>
+            <artifactId>org.wso2.carbon.identity.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
     </dependencies>
 
@@ -68,16 +72,18 @@
             org.osgi.service.component.annotations.*;version="${org.osgi.service.component.annotations.version.range}",
             org.osgi.service.jndi.*;version="${org.osgi.service.jndi.version.range}",
             org.wso2.carbon.datasource.core.*;version="${org.wso2.carbon.datasource.version.range}",
-            org.wso2.carbon.security.*;version="${org.wso2.carbon.security.version.range}"
+            org.wso2.carbon.security.*;version="${org.wso2.carbon.security.version.range}",
+            org.wso2.carbon.kernel.*,
+            org.wso2.carbon.identity.mgt.*;version="${org.wso2.carbon.identity.mgt.range}",
         </import.package>
 
         <carbon.component>
             osgi.service;
-            objectClass="org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory",
+            objectClass="org.wso2.carbon.identity.mgt.store.connector.AuthorizationStoreConnectorFactory",
             osgi.service;
-            objectClass="org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnectorFactory",
+            objectClass="org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnectorFactory",
             osgi.service;
-            objectClass="org.wso2.carbon.security.caas.user.core.store.connector.IdentityStoreConnectorFactory"
+            objectClass="org.wso2.carbon.identity.mgt.store.connector.IdentityStoreConnectorFactory"
         </carbon.component>
 
         <dsannotations>*</dsannotations>
@@ -91,6 +97,7 @@
         <org.osgi.service.jndi.version.range>[1.0.0, 1.1.0)</org.osgi.service.jndi.version.range>
         <org.wso2.carbon.datasource.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.datasource.version.range>
         <org.wso2.carbon.security.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.security.version.range>
+        <org.wso2.carbon.identity.mgt.range>[1.0.0, 1.1.0)</org.wso2.carbon.identity.mgt.range>
 
         <!-- Dependency package version ranges -->
 

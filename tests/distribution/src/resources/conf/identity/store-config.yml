@@ -23,7 +23,7 @@ storeConnectors:
  identityStoreConnectors:
  -
     connectorId: "JDBCIS1"
-    connectorType: "JDBCPrivilegedIdentityStore"
+    connectorType: "JDBCIdentityStore"
     domainName: "carbon"
     uniqueAttributes:
       - username
@@ -36,12 +36,12 @@ storeConnectors:
       hashAlgorithm: "SHA256"
       databaseType: "MySQL"
       connectorGroupId: "groupname"
-      connectorUserId: "username"
+      connectorUs erId: "username"
 
  credentialStoreConnectors:
   -
     connectorId: "JDBCCS1"
-    connectorType: "JDBCPrivilegedCredentialStore"
+    connectorType: "JDBCCredentialStore"
     domainName: "carbon"
     properties:
       dataSource: "WSO2_CARBON_DB"

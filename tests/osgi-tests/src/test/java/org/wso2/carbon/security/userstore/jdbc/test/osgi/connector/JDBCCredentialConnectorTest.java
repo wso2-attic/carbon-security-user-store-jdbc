@@ -19,14 +19,14 @@ package org.wso2.carbon.security.userstore.jdbc.test.osgi.connector;
 import org.ops4j.pax.exam.util.Filter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.security.caas.api.CarbonCallback;
-import org.wso2.carbon.security.caas.user.core.config.CredentialStoreConnectorConfig;
-import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
-import org.wso2.carbon.security.caas.user.core.exception.AuthenticationFailure;
-import org.wso2.carbon.security.caas.user.core.exception.CredentialStoreException;
-import org.wso2.carbon.security.caas.user.core.exception.IdentityStoreException;
-import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnector;
-import org.wso2.carbon.security.caas.user.core.store.connector.CredentialStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.IdentityCallback;
+import org.wso2.carbon.identity.mgt.config.CredentialStoreConnectorConfig;
+import org.wso2.carbon.identity.mgt.constant.UserCoreConstants;
+import org.wso2.carbon.identity.mgt.exception.AuthenticationFailure;
+import org.wso2.carbon.identity.mgt.exception.CredentialStoreException;
+import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
+import org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnector;
+import org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnectorFactory;
 import org.wso2.carbon.security.userstore.jdbc.test.osgi.JDBCConnectorTests;
 
 import java.util.HashMap;
@@ -73,7 +73,7 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
         initConnector();
         Callback[] callbacks = new Callback[2];
         PasswordCallback passwordCallback = new PasswordCallback("password", false);
-        CarbonCallback<Map> carbonCallback = new CarbonCallback<>(null);
+        IdentityCallback<Map> carbonCallback = new IdentityCallback<>(null);
 
         Map<String, String> userData = new HashMap<>();
         userData.put(UserCoreConstants.USER_ID, "admin");
@@ -96,7 +96,7 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
 
         Callback[] callbacks = new Callback[2];
         PasswordCallback passwordCallback = new PasswordCallback("password", false);
-        CarbonCallback<Map> carbonCallback = new CarbonCallback<>(null);
+        IdentityCallback<Map> carbonCallback = new IdentityCallback<>(null);
 
         Map<String, String> userData = new HashMap<>();
         userData.put(UserCoreConstants.USER_ID, "admin");
@@ -118,7 +118,7 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
 
         Callback[] callbacks = new Callback[2];
         PasswordCallback passwordCallback = new PasswordCallback("password", false);
-        CarbonCallback<Map> carbonCallback = new CarbonCallback<>(null);
+        IdentityCallback<Map> carbonCallback = new IdentityCallback<>(null);
 
         Map<String, String> userData = new HashMap<>();
         userData.put(UserCoreConstants.USER_ID, "admin1");
