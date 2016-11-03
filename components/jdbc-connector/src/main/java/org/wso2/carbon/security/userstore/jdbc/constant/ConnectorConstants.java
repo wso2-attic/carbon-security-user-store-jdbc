@@ -25,6 +25,12 @@ public class ConnectorConstants {
     public static final String DATABASE_TYPE = "databaseType";
     public static final String MAX_ROW_LIMIT = "maxRowLimit";
 
+    //Credential store connector properties
+    public static final String HASH_ALGO = "hashAlgorithm";
+    public static final String ITERATION_COUNT = "iterationCount";
+    public static final String KEY_LENGTH = "keyLength";
+
+
     /**
      * Placeholders related to the named prepared statement.
      */
@@ -83,7 +89,6 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_LIST_USERS_BY_ATTRIBUTE = "sql_query_list_users_by_attribute";
         public static final String SQL_QUERY_LIST_USERS_BY_USER_ID = "sql_query_list_users_by_user_id";
         public static final String SQL_QUERY_GET_PASSWORD_INFO = "sql_query_get_password_info";
-        public static final String SQL_QUERY_UPDATE_CREDENTIAL = "sql_query_update_credential";
         public static final String SQL_QUERY_SET_USER_ATTRIBUTE = "sql_query_set_user_attribute";
         public static final String SQL_QUERY_DELETE_USER_ATTRIBUTE = "sql_query_delete_user_attribute";
         public static final String SQL_QUERY_GET_USER_ATTRIBUTES_FROM_NAME = "sql_query_get_user_attributes_from_uri";
@@ -141,8 +146,8 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_DELETE_ACTION = "sql_query_delete_action";
         public static final String SQL_QUERY_SEARCH_USER = "sql_query_search_user";
         public static final String SQL_QUERY_SEARCH_GROUP = "sql_query_search_group";
-
         public static final String SQL_QUERY_ADD_USER_ATTRIBUTES = "sql_query_add_user_attributes";
+
         public static final String SQL_QUERY_ADD_GROUP_ATTRIBUTES = "sql_query_add_group_attributes";
         public static final String SQL_QUERY_ADD_USER = "sql_query_add_user";
         public static final String SQL_QUERY_UPDATE_USER = "sql_query_update_user";
@@ -162,6 +167,9 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_UPDATE_USER_ATTRIBUTES = "sql_query_update_user_claims";
         public static final String SQL_QUERY_UPDATE_GROUP_ATTRIBUTES = "sql_query_update_group_claims";
         public static final String SQL_QUERY_ADD_PASSWORD_INFO = "sql_query_add_password_info";
-        public static final String SQL_QUERY_ADD_PASSWORD = "sql_query_add_password";
+        public static final String SQL_QUERY_ADD_CREDENTIAL = "sql_query_add_credential";
+        public static final String SQL_QUERY_UPDATE_CREDENTIAL = "sql_query_update_credential";
+        public static final String SQL_QUERY_DELETE_CREDENTIAL = "sql_query_delete_credential";
+        public static final String SQL_QUERY_DELETE_PASSWORD_INFO = "sql_query_delete_password_info";
     }
 }

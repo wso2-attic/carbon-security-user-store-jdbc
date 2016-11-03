@@ -41,7 +41,6 @@
 
     <modules>
         <module>components/jdbc-connector</module>
-        <!--<module>components/jdbc-privileged-connector</module>-->
         <module>feature</module>
         <module>tests</module>
     </modules>
@@ -148,11 +147,6 @@
                 <artifactId>org.wso2.carbon.identity.mgt</artifactId>
                 <version>${org.wso2.carbon.identity.mgt.version}</version>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon.security.userstore</groupId>-->
-                <!--<artifactId>org.wso2.carbon.security.userstore.jdbc.privileged</artifactId>-->
-                <!--<version>${carbon.security.userstore.jdbc.version}</version>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core</artifactId>
@@ -336,6 +330,12 @@
                 <artifactId>pax-url-aether</artifactId>
                 <version>${pax.url.aether.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.api.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -379,6 +379,7 @@
 
         <org.wso2.carbon.caching.version>1.0.0</org.wso2.carbon.caching.version>
         <org.wso2.carbon.messaging.version>1.0.3</org.wso2.carbon.messaging.version>
+        <pax.logging.api.version>1.9.0</pax.logging.api.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
