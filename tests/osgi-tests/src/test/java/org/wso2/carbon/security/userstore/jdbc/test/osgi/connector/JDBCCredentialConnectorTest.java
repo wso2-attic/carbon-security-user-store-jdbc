@@ -111,7 +111,7 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
     }
 
     //TODO need to change the expectedExceptions to CredentialStoreException
-    @Test(priority = 2, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp =
+    @Test(priority = 3, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp =
             "Unable to retrieve password information.*")
     public void testAuthenticationIncorrectUser() throws CredentialStoreException, IdentityStoreException,
             AuthenticationFailure {
@@ -125,6 +125,127 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
         carbonCallback.setContent(userData);
 
         passwordCallback.setPassword(new char[]{'a', 'd', 'm', 'i', 'n'});
+
+        callbacks[0] = passwordCallback;
+        callbacks[1] = carbonCallback;
+
+        credentialStoreConnector.authenticate(callbacks);
+    }
+
+    @Test(priority = 4)
+    public void testAddCredentialCallback() throws CredentialStoreException, IdentityStoreException,
+            AuthenticationFailure {
+
+        Callback[] callbacks = new Callback[2];
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        IdentityCallback<Map> carbonCallback = new IdentityCallback<>(null);
+
+        Map<String, String> userData = new HashMap<>();
+        userData.put(UserCoreConstants.USER_ID, "maduranga");
+        carbonCallback.setContent(userData);
+
+        passwordCallback.setPassword(new char[]{'m', 'a', 'd', 'u', 'r', 'a', 'n', 'g', 'a'});
+
+        callbacks[0] = passwordCallback;
+        callbacks[1] = carbonCallback;
+
+        credentialStoreConnector.addCredential(callbacks);
+
+        credentialStoreConnector.authenticate(callbacks);
+        //No need for assertions. If the authentication fails, the test will fail
+    }
+
+    @Test(priority = 5)
+    public void testUpdateCredentialCallback() throws CredentialStoreException, IdentityStoreException,
+            AuthenticationFailure {
+
+        Callback[] callbacks = new Callback[2];
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        IdentityCallback<Map> carbonCallback = new IdentityCallback<>(null);
+
+        Map<String, String> userData = new HashMap<>();
+        userData.put(UserCoreConstants.USER_ID, "maduranga");
+        carbonCallback.setContent(userData);
+
+        passwordCallback.setPassword(new char[]{'m', 'a', 'd', 'u', 'r', 'a', 'n', 'g', 'a', '1'});
+
+        callbacks[0] = passwordCallback;
+        callbacks[1] = carbonCallback;
+
+        credentialStoreConnector.updateCredential(callbacks);
+        credentialStoreConnector.authenticate(callbacks);
+        //No need for assertions. If the authentication fails, the test will fail
+    }
+
+    @Test(priority = 6)
+    public void testAddCredentialUsername() throws CredentialStoreException, IdentityStoreException,
+            AuthenticationFailure {
+
+        Callback[] callbacks = new Callback[1];
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+
+        passwordCallback.setPassword(new char[]{'t', 'h', 'a', 'n', 'u', 'j', 'a'});
+
+        callbacks[0] = passwordCallback;
+
+        credentialStoreConnector.addCredential("thanuja", callbacks);
+
+        callbacks = new Callback[2];
+        IdentityCallback<Map> carbonCallback = new IdentityCallback<>(null);
+
+        Map<String, String> userData = new HashMap<>();
+        userData.put(UserCoreConstants.USER_ID, "thanuja");
+        carbonCallback.setContent(userData);
+
+        callbacks[0] = passwordCallback;
+        callbacks[1] = carbonCallback;
+
+        credentialStoreConnector.authenticate(callbacks);
+        //No need for assertions. If the authentication fails, the test will fail
+    }
+
+    @Test(priority = 7)
+    public void testUpdateCredentialUsername() throws CredentialStoreException, IdentityStoreException,
+            AuthenticationFailure {
+
+        Callback[] callbacks = new Callback[1];
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+
+        passwordCallback.setPassword(new char[]{'t', 'h', 'a', 'n', 'u', 'j', 'a', '1'});
+
+        callbacks[0] = passwordCallback;
+
+        credentialStoreConnector.updateCredential("thanuja", callbacks);
+
+        callbacks = new Callback[2];
+        IdentityCallback<Map> carbonCallback = new IdentityCallback<>(null);
+
+        Map<String, String> userData = new HashMap<>();
+        userData.put(UserCoreConstants.USER_ID, "thanuja");
+        carbonCallback.setContent(userData);
+
+        callbacks[0] = passwordCallback;
+        callbacks[1] = carbonCallback;
+
+        credentialStoreConnector.authenticate(callbacks);
+        //No need for assertions. If the authentication fails, the test will fail
+    }
+
+    @Test(priority = 8, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp =
+            "Unable to retrieve password information.*")
+    public void testDeleteCredential() throws CredentialStoreException, AuthenticationFailure {
+
+        credentialStoreConnector.deleteCredential("maduranga");
+
+        Callback[] callbacks = new Callback[2];
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        IdentityCallback<Map> carbonCallback = new IdentityCallback<>(null);
+
+        Map<String, String> userData = new HashMap<>();
+        userData.put(UserCoreConstants.USER_ID, "maduranga");
+        carbonCallback.setContent(userData);
+
+        passwordCallback.setPassword(new char[]{'m', 'a', 'd', 'u', 'r', 'a', 'n', 'g', 'a'});
 
         callbacks[0] = passwordCallback;
         callbacks[1] = carbonCallback;

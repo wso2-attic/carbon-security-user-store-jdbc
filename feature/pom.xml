@@ -107,11 +107,6 @@
                                     <symbolicName>org.wso2.carbon.security.userstore.jdbc</symbolicName>
                                     <version>${carbon.security.userstore.jdbc.version}</version>
                                 </bundle>
-                                <!--TODO Check whether a new feature is needed-->
-                                <!--<bundle>-->
-                                    <!--<symbolicName>org.wso2.carbon.security.userstore.jdbc.privileged</symbolicName>-->
-                                    <!--<version>${carbon.security.userstore.jdbc.version}</version>-->
-                                <!--</bundle>-->
                             </bundles>
                             <importFeatures>
                                 <feature>

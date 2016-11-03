@@ -273,11 +273,15 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
         List<Group> userList = new ArrayList<>();
         Group user1 = new Group.GroupBuilder()
                 .setGroupId(GROUP_UNIQUE_ID_1)
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setIdentityStore(realmService.getIdentityStore())
                 .setDomain(new Domain("carbon", 1)).build();
         userList.add(user1);
 
         Group user2 = new Group.GroupBuilder()
                 .setGroupId(GROUP_UNIQUE_ID_2)
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setIdentityStore(realmService.getIdentityStore())
                 .setDomain(new Domain("carbon", 1)).build();
         userList.add(user2);
 
@@ -306,17 +310,23 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
         List<Group> userListRemove = new ArrayList<>();
         Group user1 = new Group.GroupBuilder()
                 .setGroupId(GROUP_UNIQUE_ID_1)
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setIdentityStore(realmService.getIdentityStore())
                 .setDomain(new Domain("carbon", 1)).build();
         userListRemove.add(user1);
 
         List<Group> userListAdd = new ArrayList<>();
         Group user2 = new Group.GroupBuilder()
                 .setGroupId(GROUP_UNIQUE_ID_3)
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setIdentityStore(realmService.getIdentityStore())
                 .setDomain(new Domain("carbon", 1)).build();
         userListAdd.add(user2);
 
         Group user3 = new Group.GroupBuilder()
                 .setGroupId(GROUP_UNIQUE_ID_4)
+                .setAuthorizationStore(realmService.getAuthorizationStore())
+                .setIdentityStore(realmService.getIdentityStore())
                 .setDomain(new Domain("carbon", 1)).build();
         userListAdd.add(user3);
 

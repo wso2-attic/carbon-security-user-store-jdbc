@@ -30,7 +30,7 @@ import org.wso2.carbon.identity.mgt.exception.AuthorizationStoreException;
 import org.wso2.carbon.identity.mgt.exception.PermissionNotFoundException;
 import org.wso2.carbon.identity.mgt.exception.RoleNotFoundException;
 import org.wso2.carbon.identity.mgt.store.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.identity.mgt.util.UserCoreUtil;
+import org.wso2.carbon.identity.mgt.util.IdentityUserMgtUtil;
 import org.wso2.carbon.security.userstore.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.security.userstore.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.security.userstore.jdbc.internal.ConnectorDataHolder;
@@ -617,7 +617,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             NamedPreparedStatement addRolePreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLE));
 
-            String roleUniqueId = UserCoreUtil.getRandomId();
+            String roleUniqueId = IdentityUserMgtUtil.generateUUID();
 
             addRolePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, roleName);
             addRolePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_UNIQUE_ID, roleUniqueId);
@@ -750,7 +750,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PERMISSION));
 
-            String permissionId = UserCoreUtil.getRandomId();
+            String permissionId = IdentityUserMgtUtil.generateUUID();
 
             namedPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.RESOURCE_ID, resourceId);
             namedPreparedStatement.setLong(ConnectorConstants.SQLPlaceholders.ACTION_ID, actionId);
