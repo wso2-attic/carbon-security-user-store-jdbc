@@ -280,12 +280,13 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         Assert.assertEquals(attributeMap.get("lastname"), "Siriwardena1");
     }
 
-    //TODO change the expectedExceptions to UserNotFoundException
-    @Test(priority = 10, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp = "User not found.*")
+    @Test(priority = 10)
     public void testDeleteUser() throws UserNotFoundException, IdentityStoreException {
 
         identityStoreConnector.deleteUser("maduranga");
-        identityStoreConnector.getUserBuilder("username", "maduranga");
+        List<Attribute> userAttributeValues = identityStoreConnector.getUserAttributeValues("maduranga");
+
+        Assert.assertEquals(userAttributeValues.size(), 0);
     }
 
     @Test(priority = 11)
