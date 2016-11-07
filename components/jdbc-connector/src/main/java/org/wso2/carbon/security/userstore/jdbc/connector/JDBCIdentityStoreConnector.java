@@ -89,34 +89,9 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public User.UserBuilder getUserBuilder(String attributeName, String attributeValue) throws UserNotFoundException,
+    public String getConnectorUserId(String attributeName, String attributeValue) throws UserNotFoundException,
             IdentityStoreException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attributeValue);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                if (!resultSet.next()) {
-                    throw new UserNotFoundException("User not found for the given user name in " + identityStoreId);
-                }
-
-                String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-
-                if (log.isDebugEnabled()) {
-                    log.debug("User with user id: {} retrieved from identity store: {}.", userId, identityStoreId);
-                }
-
-                return new User.UserBuilder().setUserId(userId);
-            }
-
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving user from database.", e);
-        }
+        return connectorUserId;
     }
 
     @Override
@@ -304,6 +279,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         } catch (SQLException e) {
             throw new IdentityStoreException("An error occurred while getting group count.", e);
         }
+    }
+
+    @Override
+    public String getConnectorGroupId(String attributeName, String attributeValue) throws GroupNotFoundException,
+            IdentityStoreException {
+        return null;
     }
 
     @Override

@@ -173,7 +173,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public Permission.PermissionBuilder getPermission(Resource resource, Action action)
             throws AuthorizationStoreException, PermissionNotFoundException {
 
-        //TODO Update the implementation with new domain model
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
@@ -233,7 +232,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public List<Permission.PermissionBuilder> listPermissions(String resourcePattern, String actionPattern, int offset,
                                                               int length) throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         // Get the max allowed row count if the length is -1.
         if (length == -1) {
             length = getMaxRowRetrievalCount();
@@ -280,7 +278,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public List<Resource.ResourceBuilder> getResources(String resourcePattern) throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         // We are using SQL patterns. So replace '*' with '%'.
         resourcePattern = resourcePattern.replace('*', '%');
 
@@ -412,7 +409,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public List<Permission.PermissionBuilder> getPermissionsForRole(String roleId, Resource resource)
             throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         String resourceDomain = resource.getResourceNamespace().replace('*', '?');
         String resourceName = resource.getResourceId().replace('*', '?');
 
@@ -461,7 +457,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public List<Permission.PermissionBuilder> getPermissionsForRole(String roleId, Action action)
             throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         String actionDomain = action.getActionNamespace().replace('*', '%');
         String actionName = action.getAction().replace('*', '%');
 
@@ -550,7 +545,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public List<User.UserBuilder> getUsersOfRole(String roleId) throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         List<User.UserBuilder> userBuilders = new ArrayList<>();
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
@@ -581,7 +575,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public List<Group.GroupBuilder> getGroupsOfRole(String roleId) throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         List<Group.GroupBuilder> groupBuilders = new ArrayList<>();
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
@@ -664,7 +657,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public Resource.ResourceBuilder addResource(String resourceNamespace, String resourceId, String userId)
             throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             long namespaceId = addNamespaceIfNotExist(resourceNamespace, "", unitOfWork);
@@ -945,7 +937,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public void updateUsersInRole(String roleId, List<User> users) throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             NamedPreparedStatement deleteUsersPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
@@ -984,7 +975,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public void updateUsersInRole(String roleId, List<User> addList, List<User> removeList)
             throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             if (removeList != null && !removeList.isEmpty()) {
@@ -1126,7 +1116,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     @Override
     public void updateGroupsInRole(String roleId, List<Group> groups) throws AuthorizationStoreException {
 
-        //TODO Update the implementation with new domain model
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             NamedPreparedStatement deleteGroupsPreparedStatement = new NamedPreparedStatement(
@@ -1166,7 +1155,6 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     public void updateGroupsInRole(String roleId, List<Group> addList, List<Group> removeList)
             throws AuthorizationStoreException {
 
-        //TODO update the implementation with new domain model
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             if (removeList != null && !removeList.isEmpty()) {
