@@ -7,6 +7,10 @@ import org.wso2.carbon.security.userstore.jdbc.util.ConnectorContextThreadLocal;
 
 import java.util.List;
 
+/**
+ * JDBCVirtualIdentityStoreConnector
+ *
+ */
 public class JDBCVirtualIdentityStoreConnector extends JDBCIdentityStoreConnector {
 
     @Override

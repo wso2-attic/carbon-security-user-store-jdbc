@@ -3,6 +3,11 @@ package org.wso2.carbon.security.userstore.jdbc.util;
 
 import org.wso2.carbon.security.userstore.jdbc.connector.virtual.VirtualStoreConnector;
 
+
+/**
+ * ConnectorContextThreadLocal
+ *
+ */
 public class ConnectorContextThreadLocal {
 
     private static ThreadLocal<VirtualStoreConnector> virtualStoreConnectorThreadLocal = new InheritableThreadLocal<>();

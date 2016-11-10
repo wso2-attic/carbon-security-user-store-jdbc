@@ -7,25 +7,31 @@ import org.wso2.carbon.identity.mgt.store.CredentialStore;
 import org.wso2.carbon.identity.mgt.store.IdentityStore;
 
 import javax.security.auth.callback.Callback;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
+
+
+/**
+ * VirtualStoreConnector
+ *
+ */
 public class VirtualStoreConnector {
 
-    private IdentityStore identityStore = null ;
-    private CredentialStore credentialStore = null ;
+    private IdentityStore identityStore = null;
+    private CredentialStore credentialStore = null;
 
-    private Attribute connectorUserAttribute = null ;
+    private Attribute connectorUserAttribute = null;
 
     private List<Attribute> attributes = new ArrayList<>();
 
-    public void init(IdentityStore identityStore, CredentialStore credentialStore){
-        this.identityStore = identityStore ;
-        this.credentialStore = credentialStore ;
+    public void init(IdentityStore identityStore, CredentialStore credentialStore) {
+        this.identityStore = identityStore;
+        this.credentialStore = credentialStore;
     }
 
     public void addAttribute(List<Attribute> attributes) throws IdentityStoreException {
-        this.attributes = attributes ;
+        this.attributes = attributes;
     }
 
     public void addCredential(Callback[] callbacks) throws CredentialStoreException {
