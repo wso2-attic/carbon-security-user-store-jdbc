@@ -526,15 +526,15 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public String addUser(List<Attribute> attributes) throws IdentityStoreException {
+    public Attribute addUser(List<Attribute> attributes) throws IdentityStoreException {
 
-        String primaryAttributeValue = attributes.stream()
+        Attribute primaryAttribute = attributes.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorUserId))
-                .map(attribute -> attribute.getAttributeValue())
+                .map(attribute -> attribute)
                 .findFirst()
                 .orElse(null);
 
-        if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+        if (primaryAttribute == null || StringUtils.isNullOrEmptyAfterTrim(primaryAttribute.getAttributeValue())) {
             throw new IdentityStoreException("Primary Attribute " + connectorUserId + " is not found among the " +
                     "attribute list");
         }
@@ -543,7 +543,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                     .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER));
             addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
-                    primaryAttributeValue);
+                    primaryAttribute.getAttributeValue());
             addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
@@ -555,7 +555,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
                         .getAttributeValue());
                 namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
-                        primaryAttributeValue);
+                        primaryAttribute.getAttributeValue());
                 namedPreparedStatement.getPreparedStatement().addBatch();
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
@@ -563,7 +563,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while storing user.", e);
         }
-        return primaryAttributeValue;
+        return primaryAttribute;
     }
 
     @Override
@@ -573,8 +573,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         Map<String, String> userIdsToReturn = new HashMap<>();
         attributes.entrySet().stream().forEach(entry -> {
             try {
-                String userId = addUser(entry.getValue());
-                userIdsToReturn.put(entry.getKey(), userId);
+                Attribute attribute = addUser(entry.getValue());
+                userIdsToReturn.put(entry.getKey(), attribute.getAttributeValue());
             } catch (IdentityStoreException e) {
                 identityStoreException.addSuppressed(e);
             }
