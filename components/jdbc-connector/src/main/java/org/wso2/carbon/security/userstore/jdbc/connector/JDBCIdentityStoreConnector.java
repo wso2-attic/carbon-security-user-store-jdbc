@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.mgt.bean.Group;
 import org.wso2.carbon.identity.mgt.bean.User;
 import org.wso2.carbon.identity.mgt.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.identity.mgt.exception.GroupNotFoundException;
+import org.wso2.carbon.identity.mgt.exception.IdentityStoreConnectorException;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
 import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
 import org.wso2.carbon.identity.mgt.store.connector.IdentityStoreConnector;
@@ -526,7 +527,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public String addUser(List<Attribute> attributes) throws IdentityStoreException {
+    public String addUser(List<Attribute> attributes) throws IdentityStoreConnectorException {
 
         String primaryAttributeValue = attributes.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorUserId))
@@ -535,8 +536,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 .orElse(null);
 
         if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
-            throw new IdentityStoreException("Primary Attribute " + connectorUserId + " is not found among the " +
-                    "attribute list");
+            throw new IdentityStoreConnectorException("Primary Attribute " + connectorUserId + " is not found among " +
+                    "the attribute list");
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -561,7 +562,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while storing user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while storing user.", e);
         }
         return primaryAttributeValue;
     }
@@ -575,7 +576,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             try {
                 String userId = addUser(entry.getValue());
                 userIdsToReturn.put(entry.getKey(), userId);
-            } catch (IdentityStoreException e) {
+            } catch (IdentityStoreConnectorException e) {
                 identityStoreException.addSuppressed(e);
             }
         });
@@ -1146,6 +1147,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         } catch (SQLException e) {
             throw new IdentityStoreException("Error occurred while updating groups of user.", e);
         }
+    }
+
+    @Override
+    public void removeAddedUsersInAFailure(List<String> connectorUserId) throws IdentityStoreConnectorException {
+        //TODO need to implement this
     }
 
     /**
