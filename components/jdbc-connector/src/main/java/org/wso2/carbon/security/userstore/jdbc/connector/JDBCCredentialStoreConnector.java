@@ -177,7 +177,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public void addCredential(Callback[] callbacks) throws CredentialStoreException {
+    public String addCredential(Callback[] callbacks) throws CredentialStoreException {
         Map<String, String> userData = null;
         char[] password = null;
 
@@ -194,6 +194,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         }
 
         addCredential(userData.get(UserCoreConstants.USER_ID), password);
+        return userData.get(UserCoreConstants.USER_ID);
     }
 
     @Override
