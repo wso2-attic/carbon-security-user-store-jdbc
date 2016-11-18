@@ -111,8 +111,8 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
     }
 
     //TODO need to change the expectedExceptions to CredentialStoreException
-    @Test(priority = 3, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp =
-            "Unable to retrieve password information.*")
+    @Test(priority = 3, expectedExceptions = {Throwable.class}, expectedExceptionsMessageRegExp =
+            "Invalid username or password*")
     public void testAuthenticationIncorrectUser() throws CredentialStoreException, IdentityStoreException,
             AuthenticationFailure {
 
@@ -231,8 +231,8 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
         //No need for assertions. If the authentication fails, the test will fail
     }
 
-    @Test(priority = 8, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp =
-            "Unable to retrieve password information.*")
+    @Test(priority = 8, expectedExceptions = {Throwable.class}, expectedExceptionsMessageRegExp =
+            "Invalid username or password*")
     public void testDeleteCredential() throws CredentialStoreException, AuthenticationFailure {
 
         credentialStoreConnector.deleteCredential("maduranga");

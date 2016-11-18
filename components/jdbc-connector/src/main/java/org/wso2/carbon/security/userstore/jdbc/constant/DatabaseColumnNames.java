@@ -87,6 +87,13 @@ public class DatabaseColumnNames {
     }
 
     /**
+     * Names of the PasswordInfo table columns.
+     */
+    public static final class Password {
+        public static final String PASSWORD = "PASSWORD";
+    }
+
+    /**
      * Names of the Permission table columns.
      */
     public static final class Permission {

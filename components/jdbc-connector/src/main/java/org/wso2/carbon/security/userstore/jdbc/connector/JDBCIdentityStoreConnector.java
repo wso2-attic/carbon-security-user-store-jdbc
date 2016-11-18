@@ -1150,7 +1150,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public void removeAddedUsersInAFailure(List<String> connectorUserId) throws IdentityStoreConnectorException {
+    public void removeAddedUsersInAFailure(List<String> connectorUserIds) throws IdentityStoreConnectorException {
         //TODO need to implement this
     }
 

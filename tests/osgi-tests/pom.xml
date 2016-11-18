@@ -311,7 +311,7 @@
                                 <configuration>
                                     <autocommit>true</autocommit>
                                     <srcFiles>
-                                        <srcFile>${basedir}/../../feature/resources/dbscripts/WSO2CARBON_DB.sql
+                                        <srcFile>${basedir}/../../feature/resources/dbscripts/connector/h2.sql
                                         </srcFile>
                                     </srcFiles>
                                     <onError>abort</onError>

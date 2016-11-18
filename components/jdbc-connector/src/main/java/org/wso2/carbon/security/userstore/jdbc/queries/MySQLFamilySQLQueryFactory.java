@@ -31,6 +31,12 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "WHERE USER_UNIQUE_ID = :user_id; " +
                     "AND PASSWORD = :hashed_password;";
 
+    private static final String GET_PASSWORD_DATA =
+            "SELECT USER_UNIQUE_ID, PASSWORD, PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH " +
+                    "FROM UM_PASSWORD LEFT JOIN UM_PASSWORD_INFO " +
+                    "ON UM_PASSWORD.ID = UM_PASSWORD_INFO.USER_ID " +
+                    "WHERE USER_UNIQUE_ID = :user_id; ";
+
     private static final String GET_USER_FROM_ATTRIBUTE =
             "SELECT UM_USER.USER_UNIQUE_ID " +
                     "FROM UM_USER LEFT JOIN UM_USER_ATTRIBUTES " +
@@ -97,7 +103,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String GET_PASSWORD_INFO =
             "SELECT PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH " +
                     "FROM UM_PASSWORD_INFO " +
-                    "WHERE USER_UNIQUE_ID = :user_id;";
+                    "WHERE USER_ID = (SELECT ID FROM UM_PASSWORD WHERE USER_UNIQUE_ID = :user_id;)";
 
     private static final String SET_USER_ATTRIBUTE =
             "INSERT INTO UM_USER_ATTRIBUTES (ATTR_ID, ATTR_VALUE, USER_ID) " +
@@ -508,8 +514,9 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "GROUP_ID = (SELECT ID FROM UM_GROUP WHERE GROUP_UNIQUE_ID = :group_unique_id;)";
 
     private static final String ADD_PASSWORD_INFO = "INSERT INTO UM_PASSWORD_INFO " +
-            "(PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH, USER_UNIQUE_ID) " +
-            "VALUES (:password_salt;, :hash_algo;, :iteration_count;, :key_length;, :user_unique_id;)";
+            "(PASSWORD_SALT, HASH_ALGO, ITERATION_COUNT, KEY_LENGTH, USER_ID) " +
+            "VALUES (:password_salt;, :hash_algo;, :iteration_count;, :key_length;, (SELECT ID FROM UM_PASSWORD WHERE" +
+            " USER_UNIQUE_ID = :user_unique_id;))";
 
     private static final String ADD_CREDENTIAL = "INSERT INTO UM_PASSWORD (PASSWORD, USER_UNIQUE_ID) " +
             "VALUES (:password;, :user_unique_id;)";
@@ -517,15 +524,17 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
     private static final String UPDATE_CREDENTIAL = "UPDATE UM_PASSWORD SET PASSWORD = :password; " +
             "WHERE USER_UNIQUE_ID = :user_unique_id;";
 
-    private static final String DELETE_CREDENTIAL = "DELETE FROM UM_PASSWORD " +
-            "WHERE USER_UNIQUE_ID = :user_unique_id;";
+    private static final String UPDATE_PASSWORD_INFO = "UPDATE UM_PASSWORD_INFO SET HASH_ALGO = :hash_algo;, " +
+            "ITERATION_COUNT = :iteration_count;, KEY_LENGTH = :key_length;, PASSWORD_SALT = :password_salt; " +
+            "WHERE USER_ID = (SELECT ID FROM UM_PASSWORD WHERE USER_UNIQUE_ID = :user_unique_id;)";
 
-    private static final String DELETE_PASSWORD_INFO = "DELETE FROM UM_PASSWORD_INFO " +
+    private static final String DELETE_CREDENTIAL = "DELETE FROM UM_PASSWORD " +
             "WHERE USER_UNIQUE_ID = :user_unique_id;";
 
     public MySQLFamilySQLQueryFactory() {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_COMPARE_PASSWORD_HASH, COMPARE_PASSWORD_HASH);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_DATA, GET_PASSWORD_DATA);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE, GET_USER_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE, GET_GROUP_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES, GET_USER_ATTRIBUTES);
@@ -627,7 +636,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO, ADD_PASSWORD_INFO);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_CREDENTIAL, ADD_CREDENTIAL);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL, UPDATE_CREDENTIAL);
+        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_PASSWORD_INFO, UPDATE_PASSWORD_INFO);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_CREDENTIAL, DELETE_CREDENTIAL);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_PASSWORD_INFO, DELETE_PASSWORD_INFO);
     }
 }
