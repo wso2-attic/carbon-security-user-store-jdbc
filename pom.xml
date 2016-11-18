@@ -380,6 +380,7 @@
         <org.wso2.carbon.caching.version>1.0.0</org.wso2.carbon.caching.version>
         <org.wso2.carbon.messaging.version>1.0.3</org.wso2.carbon.messaging.version>
         <pax.logging.api.version>1.9.0</pax.logging.api.version>
+        <commons.dbcp.version>1.4</commons.dbcp.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
