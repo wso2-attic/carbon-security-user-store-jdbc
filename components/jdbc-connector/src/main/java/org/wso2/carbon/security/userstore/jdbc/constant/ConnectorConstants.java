@@ -79,6 +79,7 @@ public class ConnectorConstants {
 
         public static final String SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE = "sql_query_get_group_from_attribute";
         public static final String SQL_QUERY_COMPARE_PASSWORD_HASH = "sql_query_compare_password_hash";
+        public static final String SQL_QUERY_GET_PASSWORD_DATA = "sql_query_get_password_data";
         public static final String SQL_QUERY_GET_USER_FROM_ATTRIBUTE = "sql_query_get_user_from_attribute";
         public static final String SQL_QUERY_GET_USER_ATTRIBUTES = "sql_query_get_user_attributes";
         public static final String SQL_QUERY_GET_GROUPS_OF_USER = "sql_query_get_groups_of_user";
@@ -169,7 +170,7 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_ADD_PASSWORD_INFO = "sql_query_add_password_info";
         public static final String SQL_QUERY_ADD_CREDENTIAL = "sql_query_add_credential";
         public static final String SQL_QUERY_UPDATE_CREDENTIAL = "sql_query_update_credential";
+        public static final String SQL_QUERY_UPDATE_PASSWORD_INFO = "sql_query_update_password_info";
         public static final String SQL_QUERY_DELETE_CREDENTIAL = "sql_query_delete_credential";
-        public static final String SQL_QUERY_DELETE_PASSWORD_INFO = "sql_query_delete_password_info";
     }
 }

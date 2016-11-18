@@ -255,14 +255,6 @@
                             <destination>${basedir}/target/wso2carbon-kernel-${project.version}/osgi</destination>
                             <deleteOldProfileFiles>true</deleteOldProfileFiles>
                             <features>
-                                <!--<feature>-->
-                                <!--<id>org.wso2.carbon.kernel.feature.group</id>-->
-                                <!--<version>${carbon.kernel.version}</version>-->
-                                <!--</feature>-->
-                                <!--<feature>-->
-                                <!--<id>org.wso2.carbon.security.userstore.jdbc.feature</id>-->
-                                <!--<version>${carbon.security.userstore.jdbc.version}</version>-->
-                                <!--</feature>-->
                                 <feature>
                                     <id>org.wso2.carbon.kernel.feature</id>
                                     <version>${carbon.kernel.version}</version>
@@ -300,73 +292,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-antrun-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<configuration>-->
-                            <!--<tasks>-->
-                                <!--<replace dir="target/wso2carbon-kernel-${project.version}" token="false" value="true">-->
-                                    <!--<include name="**/bundles.info"/>-->
-                                <!--</replace>-->
-                            <!--</tasks>-->
-                        <!--</configuration>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                    <!--<execution>-->
-                        <!--<id>clean_target</id>-->
-                        <!--<phase>install</phase>-->
-                        <!--<configuration>-->
-                            <!--<target>-->
-                                <!--<delete dir="target/archive-tmp"/>-->
-                                <!--<delete dir="target/dependency-maven-plugin-markers"/>-->
-                                <!--<delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart"/>-->
-                                <!--<delete dir="target/p2-repo"/>-->
-                                <!--<delete file="target/tmp"/>-->
-                                <!--<delete dir="target/wso2carbon-kernel-${project.version}"/>-->
-                                <!--<delete dir="target/antrun"/>-->
-                            <!--</target>-->
-                        <!--</configuration>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-dependency-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>unpack-dbscripts</id>-->
-                        <!--<phase>generate-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>unpack</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<artifactItems>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.wso2.carbon.security.userstore</groupId>-->
-                                    <!--<artifactId>org.wso2.carbon.security.userstore.jdbc.feature</artifactId>-->
-                                    <!--<version>${carbon.security.userstore.jdbc.version}</version>-->
-                                    <!--<type>zip</type>-->
-                                    <!--<overWrite>true</overWrite>-->
-                                    <!--<outputDirectory>-->
-                                        <!--${project.build.directory}/maven-shared-archive-resources/temp-->
-                                    <!--</outputDirectory>-->
-                                    <!--<includes>**/*.sql</includes>-->
-                                <!--</artifactItem>-->
-                            <!--</artifactItems>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
