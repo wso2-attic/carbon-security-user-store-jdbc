@@ -1,4 +1,4 @@
-###############################################################################
+################################################################################
 #   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,10 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-###############################################################################
-# Enable cache for stores
-enableCache: false
-identityStore:
- enableCache: true
- cacheConfigs:
-  -
-   name: "CACHE-USERNAME"
-   enableCache: true
-   expireTime: 300
-   maxCapacity: 1000
-   statisticsEnabled: true
-credentialStore:
- enableCache: false
+################################################################################
+
+connectorId: "JDBCIdentityStore"
+connectorType: "JDBCIdentityStore"
+properties:
+ dataSource: "WSO2_CARBON_DB"
+ databaseType: "MySQL"
