@@ -14,14 +14,29 @@
 #   limitations under the License.
 ###############################################################################
 domains:
+ -
+  name: "PRIMARY"
+  priority: 1
+  uniqueIdResolver:
+   type: "JDBC-UUID-RESOLVER"
+   properties:
+    dataSource: "WSO2_CARBON_DB"
+  identityStoreConnectors:
   -
-    domainName: "carbon"
-    priority: 1
-    identityStoreConnectors:
-    -
-      connectorId: "JDBCIS1"
-      attributeMappings:
-      - http://wso2.org/claims/username: "username"
-      - http://wso2.org/claims/firstName: "firstName"
-      - http://wso2.org/claims/lastName: "lastName"
-      - http://wso2.org/claims/email: "email"
+   connectorId: "JDBCIS1"
+   attributeMappings:
+   -
+    claimURI: "http://wso2.org/claims/username"
+    attribute: "username"
+   -
+    claimURI: "http://wso2.org/claims/email"
+    attribute: "email"
+   -
+    claimURI: "http://wso2.org/claims/firstName"
+    attribute: "firstName"
+   -
+    claimURI: "http://wso2.org/claims/lastName"
+    attribute: "lastName"
+  credentialStoreConnectors:
+  -
+   connectorId: "JDBCCS1"

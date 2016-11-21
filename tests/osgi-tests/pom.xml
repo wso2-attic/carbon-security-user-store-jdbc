@@ -18,15 +18,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>org.wso2.carbon.security.userstore.jdbc.test</artifactId>
-        <groupId>org.wso2.carbon.security.userstore.test</groupId>
+        <artifactId>org.wso2.carbon.identity.connector.jdbc.test</artifactId>
+        <groupId>org.wso2.carbon.security.userstore</groupId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.wso2.carbon.security.userstore.jdbc.test.osgi</artifactId>
+    <artifactId>org.wso2.carbon.identity.connector.jdbc.test.osgi</artifactId>
     <packaging>bundle</packaging>
 
     <name>WSO2 Carbon Security JDBC User Store Tests - OSGi Tests</name>
@@ -53,10 +53,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.wso2.carbon.security.userstore</groupId>
-            <artifactId>org.wso2.carbon.security.userstore.jdbc</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>osgi-test-util</artifactId>
@@ -153,6 +149,14 @@
             <groupId>org.wso2.carbon.identity.mgt</groupId>
             <artifactId>org.wso2.carbon.identity.mgt</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.security.userstore</groupId>
+            <artifactId>org.wso2.carbon.identity.mgt.store.connector.jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.security.userstore</groupId>
+            <artifactId>org.wso2.carbon.security.store.connector.jdbc</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -179,8 +183,8 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.wso2.carbon.security.userstore.test</groupId>
-                                            <artifactId>org.wso2.carbon.security.userstore.test.distribution
+                                            <groupId>org.wso2.carbon.security.userstore</groupId>
+                                            <artifactId>org.wso2.carbon.identity.connector.jdbc.test.distribution
                                             </artifactId>
                                             <version>${project.version}</version>
                                             <type>zip</type>
@@ -311,8 +315,9 @@
                                 <configuration>
                                     <autocommit>true</autocommit>
                                     <srcFiles>
-                                        <srcFile>${basedir}/../../feature/resources/dbscripts/connector/h2.sql
-                                        </srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/connector/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/authorization/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/identity-mgt/h2.sql</srcFile>
                                     </srcFiles>
                                     <onError>abort</onError>
                                 </configuration>

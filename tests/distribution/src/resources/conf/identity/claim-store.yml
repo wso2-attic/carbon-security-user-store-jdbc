@@ -20,6 +20,7 @@ claims:
   properties:
    displayName: "First Name"
    description: "First Name"
+   unique: "false"
    required: "true"
    supportedByDefault: "true"
  -
@@ -28,6 +29,7 @@ claims:
   properties:
    displayName: "Last Name"
    description: "Last Name"
+   unique: "false"
    required: "true"
    supportedByDefault: "true"
  -
@@ -36,6 +38,7 @@ claims:
   properties:
    displayName: "Email Address"
    description: "Email Address"
+   unique: "true"
    required: "false"
    supportedByDefault: "true"
  -
@@ -44,7 +47,8 @@ claims:
   properties:
    displayName: "Username"
    description: "Username"
-   required: "false"
+   unique: "true"
+   required: "true"
    supportedByDefault: "true"
  -
   claimURI: "http://wso2.org/claims/telephone"
@@ -52,5 +56,6 @@ claims:
   properties:
    displayName: "Telephone Number"
    description: "Telephone Number"
+   unique: "false"
    required: "false"
    supportedByDefault: "true"
