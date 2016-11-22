@@ -315,9 +315,9 @@
                                 <configuration>
                                     <autocommit>true</autocommit>
                                     <srcFiles>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/connector/h2.sql</srcFile>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/authorization/h2.sql</srcFile>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/identity-mgt/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/connector/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/authorization/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/identity-mgt/h2.sql</srcFile>
                                     </srcFiles>
                                     <onError>abort</onError>
                                 </configuration>
