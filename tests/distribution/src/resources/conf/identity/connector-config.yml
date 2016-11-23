@@ -23,6 +23,8 @@ identityStoreConnectors:
     dataSource: "WSO2_CARBON_DB"
     hashAlgorithm: "SHA256"
     databaseType: "MySQL"
+    connectorUserId: "username"
+    connectorGroupId: "groupname"
 
 credentialStoreConnectors:
  -

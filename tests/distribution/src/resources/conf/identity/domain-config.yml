@@ -33,10 +33,10 @@ domains:
     attribute: "email"
    -
     claimURI: "http://wso2.org/claims/firstName"
-    attribute: "firstName"
+    attribute: "firstname"
    -
     claimURI: "http://wso2.org/claims/lastName"
-    attribute: "lastName"
+    attribute: "lastname"
   credentialStoreConnectors:
   -
    connectorId: "JDBCCS1"

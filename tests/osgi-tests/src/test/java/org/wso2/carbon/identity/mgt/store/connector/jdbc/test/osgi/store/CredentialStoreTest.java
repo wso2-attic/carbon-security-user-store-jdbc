@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.mgt.exception.AuthenticationFailure;
 import org.wso2.carbon.identity.mgt.exception.CredentialStoreException;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
 import org.wso2.carbon.identity.mgt.store.CredentialStore;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
@@ -34,7 +35,7 @@ import static org.testng.Assert.assertNotNull;
 /**
  * JDBC Credential store connector tests.
  */
-public class CredentialStoreTest extends StoreTests {
+public class CredentialStoreTest extends JDBCConnectorTests {
 
     public CredentialStoreTest() throws Exception {
         super();

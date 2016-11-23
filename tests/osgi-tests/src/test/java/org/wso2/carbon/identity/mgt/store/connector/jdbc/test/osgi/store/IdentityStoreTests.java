@@ -18,159 +18,66 @@
 
 package org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.store;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.identity.mgt.bean.Group;
 import org.wso2.carbon.identity.mgt.bean.User;
 import org.wso2.carbon.identity.mgt.claim.Claim;
-import org.wso2.carbon.identity.mgt.claim.MetaClaim;
-import org.wso2.carbon.identity.mgt.exception.ClaimManagerException;
-import org.wso2.carbon.identity.mgt.exception.GroupNotFoundException;
+import org.wso2.carbon.identity.mgt.exception.AuthenticationFailure;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
 import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
+import org.wso2.carbon.identity.mgt.model.UserModel;
 import org.wso2.carbon.identity.mgt.store.IdentityStore;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.TestConstants;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.PasswordCallback;
 
 /**
  * JDBC Identity store connector related tests.
  */
-public class IdentityStoreTests extends StoreTests {
+public class IdentityStoreTests extends JDBCConnectorTests {
 
-
-    public IdentityStoreTests() throws Exception {
-        super();
-    }
-
-    @Test(priority = 24)
-    public void testIsUserInGroupValid() throws IdentityStoreException {
+    @Test(priority = 1)
+    public void testAddUser() throws IdentityStoreException, UserNotFoundException, AuthenticationFailure {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        assertTrue(identityStore.isUserInGroup(DEFAULT_USER_ID, DEFAULT_GROUP_ID));
+        UserModel userModel = new UserModel();
+        List<Claim> claimList = new ArrayList<>();
+        Claim claim1 = new Claim(TestConstants.LOCAL_CLAIM_DIALECT, TestConstants.CLAIM_USERNAME, "johndoe");
+        claimList.add(claim1);
+        Claim claim2 = new Claim(TestConstants.LOCAL_CLAIM_DIALECT, TestConstants.CLAIM_FIRST_NAME, "John");
+        claimList.add(claim2);
+        Claim claim3 = new Claim(TestConstants.LOCAL_CLAIM_DIALECT, TestConstants.CLAIM_LAST_NAME, "Doe");
+        claimList.add(claim3);
+        userModel.setClaims(claimList);
+
+        List<Callback> callbackList = new ArrayList<>();
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        passwordCallback.setPassword(new char[]{'a', 'd', 'm', 'i', 'n'});
+        callbackList.add(passwordCallback);
+        userModel.setCredentials(callbackList);
+
+        User addUser = identityStore.addUser(userModel);
+        User getUser = identityStore.getUser(claim1);
+        Assert.assertNotNull(addUser);
+        Assert.assertNotNull(getUser);
+        Assert.assertEquals(getUser.getUserId(), addUser.getUserId());
     }
 
-    @Test(priority = 25)
-    public void testGetUserFromUsername() throws IdentityStoreException, UserNotFoundException {
+    @Test(priority = 2)
+    public void testAuthenticate() throws IdentityStoreException, UserNotFoundException, AuthenticationFailure {
 
         IdentityStore identityStore = realmService.getIdentityStore();
-        User user = identityStore.getUser(DEFAULT_USERNAME);
-        assertNotNull(user);
+
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        passwordCallback.setPassword(new char[]{'a', 'd', 'm', 'i', 'n'});
+
+        Claim claim = new Claim(TestConstants.LOCAL_CLAIM_DIALECT, TestConstants.CLAIM_USERNAME, "johndoe");
+
+        identityStore.authenticate(claim, passwordCallback, "PRIMARY");
     }
 
-//    @Test(priority = 26)
-//    public void testGetUserFromUserId() throws IdentityStoreException {
-//
-//        IdentityStore identityStore = realmService.getIdentityStore();
-//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, defaultDomain);
-//        assertNotNull(user);
-//    }
-
-    @Test(priority = 27)
-    public void testListUsers() throws IdentityStoreException {
-
-        String filterPattern = "*";
-        MetaClaim metaClaim = new MetaClaim();
-        metaClaim.setClaimURI("http://wso2.org/claims/username");
-        metaClaim.setDialectURI("http://wso2.org/claims");
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        List<User> users = identityStore.listUsers(metaClaim, filterPattern, 0, -1);
-
-        assertFalse(users.isEmpty());
-    }
-
-    @Test(priority = 28)
-    public void testGetUserAttributeValues() throws IdentityStoreException, UserNotFoundException,
-            ClaimManagerException {
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        List<Claim> claims = identityStore.getUser(DEFAULT_USER_ID).getClaims();
-
-        assertFalse(claims.isEmpty());
-    }
-
-    @Test(priority = 29)
-    public void testGetUserAttributeValuesFromAttributeNames() throws IdentityStoreException, UserNotFoundException,
-            ClaimManagerException {
-
-        List<String> attributeNames = new ArrayList<>();
-        attributeNames.add("http://wso2.org/claims/username");
-        attributeNames.add("http://wso2.org/claims/firstName");
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        List<Claim> claims = identityStore.getUser(DEFAULT_USER_ID).getClaims();
-
-        assertFalse(claims.isEmpty());
-    }
-
-//    @Test(priority = 30)
-//    public void testGetClaims() throws IdentityStoreException, ClaimManagerException {
-//
-//        IdentityStore identityStore = realmService.getIdentityStore();
-//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, defaultDomain);
-//        List<Claim> claims = user.getClaims();
-//        assertTrue(claims != null && claims.size() > 0);
-//    }
-
-//    @Test(priority = 31)
-//    public void testGetClaimsFromClaimURIs() throws IdentityStoreException, ClaimManagerException {
-//
-//        IdentityStore identityStore = realmService.getIdentityStore();
-//        User user  = identityStore.getUserFromId(DEFAULT_USER_ID, defaultDomain);
-//        List<String> claimURIs = Arrays.asList("http://wso2.org/claims/firstName", "http://wso2.org/claims/lastName");
-//        List<Claim> claims = user.getClaims(claimURIs);
-//        assertTrue(claims != null && claims.size() == 2);
-//    }
-
-    @Test(priority = 32)
-    public void testGetGroup() throws IdentityStoreException, GroupNotFoundException {
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        Group group = identityStore.getGroup(DEFAULT_GROUP);
-
-        assertNotNull(group);
-    }
-
-//    @Test(priority = 33)
-//    public void testGetGroupFromId() throws IdentityStoreException {
-//
-//        IdentityStore identityStore = realmService.getIdentityStore();
-//        Group group = identityStore.getGroupFromId(DEFAULT_GROUP_ID, defaultDomain);
-//
-//        assertNotNull(group);
-//    }
-
-    @Test(priority = 34)
-    public void testListGroups() throws IdentityStoreException {
-
-        String filterPattern = "*";
-        MetaClaim metaClaim = new MetaClaim();
-        metaClaim.setClaimURI("http://wso2.org/claims/username");
-        metaClaim.setDialectURI("http://wso2.org/claims");
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        List<Group> groups = identityStore.listGroups(metaClaim, filterPattern, 0, -1);
-
-        assertFalse(groups.isEmpty());
-    }
-
-    @Test(priority = 35)
-    public void testGetGroupsOfUser() throws IdentityStoreException {
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        List<Group> groups = identityStore.getGroupsOfUser(DEFAULT_USER_ID);
-        assertFalse(groups.isEmpty());
-    }
-
-    @Test(priority = 36)
-    public void testGetUsersOfGroup() throws IdentityStoreException {
-
-        IdentityStore identityStore = realmService.getIdentityStore();
-        List<User> users = identityStore.getUsersOfGroup(DEFAULT_GROUP_ID);
-        assertFalse(users.isEmpty());
-    }
 }

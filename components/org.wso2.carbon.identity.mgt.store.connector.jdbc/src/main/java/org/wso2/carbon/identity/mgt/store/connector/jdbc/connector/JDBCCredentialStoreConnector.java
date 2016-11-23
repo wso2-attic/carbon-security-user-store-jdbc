@@ -152,6 +152,20 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
+    public boolean canStore(Callback[] callbacks) {
+
+        boolean passwordCallbackPresent = false;
+
+        for (Callback callback : callbacks) {
+            if (callback instanceof PasswordCallback) {
+                passwordCallbackPresent = true;
+            }
+        }
+
+        return passwordCallbackPresent;
+    }
+
+    @Override
     public CredentialStoreConnectorConfig getCredentialStoreConfig() {
         return credentialStoreConfig;
     }
