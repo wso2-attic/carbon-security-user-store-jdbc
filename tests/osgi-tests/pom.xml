@@ -157,6 +157,10 @@
             <groupId>org.wso2.carbon.security.userstore</groupId>
             <artifactId>org.wso2.carbon.security.store.connector.jdbc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-log4j2</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -243,7 +247,7 @@
                                 <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}
                                 </org.ops4j.pax.url.mvn.localRepository>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
-                                <!--<org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>-->
+                                <org.ops4j.pax.logging.DefaultServiceLog.level>INFO</org.ops4j.pax.logging.DefaultServiceLog.level>
                             </systemPropertyVariables>
                             <systemProperties>
                                 <property>

@@ -24,7 +24,7 @@
     <test name="jdbc-connector-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector.JDBCCredentialConnectorTest"/>
-            <class name="org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector.JDBCAuthorizationConnectorTest"/>
+            <!--<class name="org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector.JDBCAuthorizationConnectorTest"/>-->
             <class name="org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector.JDBCIdentityConnectorTests"/>
             <class name="org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.store.IdentityStoreTests"/>
             <!--<class name="IdentityStoreTests"/>-->

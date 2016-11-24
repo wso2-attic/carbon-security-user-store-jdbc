@@ -560,6 +560,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
             NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                     .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER));
             addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
@@ -780,6 +781,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     @Override
     public void deleteUser(String userIdentifier) throws IdentityStoreException {
+
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),

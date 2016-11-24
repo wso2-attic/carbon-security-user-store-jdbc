@@ -68,8 +68,8 @@ public class JDBCConnectorTests {
         List<Option> optionList = new ArrayList<>();
 
         optionList.add(mavenBundle()
-                .groupId("org.slf4j")
-                .artifactId("slf4j-api")
+                .groupId("org.ops4j.pax.logging")
+                .artifactId("pax-logging-log4j2")
                 .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("org.wso2.orbit.com.nimbusds")
