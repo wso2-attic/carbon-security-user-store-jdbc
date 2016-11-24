@@ -18,10 +18,12 @@
 
 package org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.store;
 
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
+
 /**
  * Authorization store connector related test cases.
  */
-public class AuthorizationStoreTests extends StoreTests {
+public class AuthorizationStoreTests extends JDBCConnectorTests {
 
     public AuthorizationStoreTests() throws Exception {
     }

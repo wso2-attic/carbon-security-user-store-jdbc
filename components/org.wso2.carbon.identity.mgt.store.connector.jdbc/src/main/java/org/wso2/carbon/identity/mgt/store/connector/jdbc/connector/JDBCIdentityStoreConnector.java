@@ -93,7 +93,25 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public String getConnectorUserId(String attributeName, String attributeValue) throws UserNotFoundException,
             IdentityStoreException {
-        return connectorUserId;
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE));
+
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attributeValue);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                } else {
+                    throw new UserNotFoundException("User not found with the given attribute");
+                }
+            }
+        } catch (SQLException e) {
+            throw new IdentityStoreException("An error occurred while getting searching the user.", e);
+        }
     }
 
     @Override
@@ -542,6 +560,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
             NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                     .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER));
             addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
@@ -762,6 +781,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     @Override
     public void deleteUser(String userIdentifier) throws IdentityStoreException {
+
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),

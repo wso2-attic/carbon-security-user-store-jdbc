@@ -22,7 +22,7 @@
 
     <parent>
         <groupId>org.wso2.carbon.security.userstore</groupId>
-        <artifactId>org.wso2.carbon.security.userstore.jdbc.parent</artifactId>
+        <artifactId>org.wso2.carbon.identity.connector.jdbc.parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
@@ -57,6 +57,14 @@
         <dependency>
             <groupId>org.wso2.carbon.security.caas</groupId>
             <artifactId>org.wso2.carbon.security.caas</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.jndi</groupId>
+            <artifactId>org.wso2.carbon.jndi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.datasources</groupId>
+            <artifactId>org.wso2.carbon.datasource.core</artifactId>
         </dependency>
     </dependencies>
 

@@ -157,6 +157,10 @@
             <groupId>org.wso2.carbon.security.userstore</groupId>
             <artifactId>org.wso2.carbon.security.store.connector.jdbc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-log4j2</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -243,7 +247,7 @@
                                 <org.ops4j.pax.url.mvn.localRepository>${settings.localRepository}
                                 </org.ops4j.pax.url.mvn.localRepository>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
-                                <!--<org.ops4j.pax.logging.DefaultServiceLog.level>ERROR</org.ops4j.pax.logging.DefaultServiceLog.level>-->
+                                <org.ops4j.pax.logging.DefaultServiceLog.level>INFO</org.ops4j.pax.logging.DefaultServiceLog.level>
                             </systemPropertyVariables>
                             <systemProperties>
                                 <property>
@@ -315,9 +319,9 @@
                                 <configuration>
                                     <autocommit>true</autocommit>
                                     <srcFiles>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/connector/h2.sql</srcFile>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/authorization/h2.sql</srcFile>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-1.0.0-SNAPSHOT/dbscripts/identity-mgt/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/connector/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/authorization/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/identity-mgt/h2.sql</srcFile>
                                     </srcFiles>
                                     <onError>abort</onError>
                                 </configuration>

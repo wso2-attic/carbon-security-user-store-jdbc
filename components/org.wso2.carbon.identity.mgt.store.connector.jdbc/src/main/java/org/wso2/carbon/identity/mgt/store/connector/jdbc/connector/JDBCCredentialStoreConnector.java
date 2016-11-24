@@ -152,6 +152,20 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
+    public boolean canStore(Callback[] callbacks) {
+
+        boolean passwordCallbackPresent = false;
+
+        for (Callback callback : callbacks) {
+            if (callback instanceof PasswordCallback) {
+                passwordCallbackPresent = true;
+            }
+        }
+
+        return passwordCallbackPresent;
+    }
+
+    @Override
     public CredentialStoreConnectorConfig getCredentialStoreConfig() {
         return credentialStoreConfig;
     }
@@ -232,7 +246,8 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
     @Override
     public void deleteCredential(String username) throws CredentialStoreException {
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             NamedPreparedStatement deleteCredentialPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
@@ -242,7 +257,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     username);
 
             deleteCredentialPreparedStatement.getPreparedStatement().executeUpdate();
-
+            unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new CredentialStoreException("Exception occurred while deleting the credential", e);
         }
@@ -277,7 +292,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             throw new CredentialStoreException("Error while hashing the password.", e);
         }
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
             //Store password.
             NamedPreparedStatement addPasswordPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
@@ -297,6 +312,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, username);
             addPasswordInfoPreparedStatement.getPreparedStatement().executeUpdate();
 
+            unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new CredentialStoreException("Error while storing user credential.", e);
         }
@@ -335,8 +351,6 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
     private void updateCredential(String username, char[] password) throws CredentialStoreException {
 
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
             String hashAlgo = getHashAlgo();
             int iterationCount = getIterationCount();
             int keyLength = getKeyLength();
@@ -364,6 +378,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                 throw new CredentialStoreException("Error while hashing the password.", e);
             }
 
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
             //Update password.
             NamedPreparedStatement updatePasswordPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
@@ -382,6 +397,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             updatePasswordInfo.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, username);
             updatePasswordInfo.getPreparedStatement().executeUpdate();
 
+            unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new CredentialStoreException("Error while updating the password.", e);
         }

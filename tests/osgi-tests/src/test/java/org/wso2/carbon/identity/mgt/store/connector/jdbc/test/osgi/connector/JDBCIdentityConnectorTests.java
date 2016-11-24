@@ -68,7 +68,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 2)
-    public void testAddUser() throws IdentityStoreConnectorException, IdentityStoreException {
+    public void testAddUserConnector() throws IdentityStoreConnectorException, IdentityStoreException {
 
         //As beforeClass is not supported, connector is initialized here
         initConnector();

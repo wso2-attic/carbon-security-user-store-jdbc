@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Support class to implement Unit of work patter.
+ * Support class to implement Unit of work pattern.
  */
 public class UnitOfWork implements AutoCloseable {
 
