@@ -86,9 +86,8 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_USER_ATTRIBUTES = "sql_query_get_user_attributes";
         public static final String SQL_QUERY_GET_GROUPS_OF_USER = "sql_query_get_groups_of_user";
         public static final String SQL_QUERY_GET_USERS_OF_GROUP = "sql_query_get_users_of_group";
-        //        public static final String SQL_QUERY_DELETE_USER = "sql_query_delete_user";
-//        public static final String SQL_QUERY_DELETE_GROUP = "sql_query_delete_group";
-//        public static final String SQL_QUERY_ADD_USER_GROUPS = "sql_query_add_user_groups";
+        public static final String SQL_QUERY_LIST_USERS_BY_ATTRIBUTE_PATTERN =
+                "sql_query_list_users_by_attribute_pattern";
         public static final String SQL_QUERY_LIST_USERS_BY_ATTRIBUTE = "sql_query_list_users_by_attribute";
         public static final String SQL_QUERY_LIST_USERS_BY_USER_ID = "sql_query_list_users_by_user_id";
         public static final String SQL_QUERY_GET_PASSWORD_INFO = "sql_query_get_password_info";
@@ -102,6 +101,8 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE =
                 "sql_query_get_permissions_from_resource_for_role";
         public static final String SQL_QUERY_GET_ROLES_FOR_GROUP = "sql_query_get_roles_for_group";
+        public static final String SQL_QUERY_LIST_GROUP_BY_ATTRIBUTE_PATTERN =
+                "sql_query_list_group_by_attribute_pattern";
         public static final String SQL_QUERY_LIST_GROUP_BY_ATTRIBUTE = "sql_query_list_group_by_attribute";
         public static final String SQL_QUERY_ADD_PERMISSION = "sql_query_add_permission";
         public static final String SQL_QUERY_ADD_ROLE = "sql_query_add_role";

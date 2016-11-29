@@ -165,9 +165,9 @@
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>
-                                        ${project.build.directory}/maven-shared-archive-resources/temp
+                                        ${basedir}/target/resources/dbscripts
                                     </outputDirectory>
-                                    <includes>**/*.sql</includes>
+                                    <includes>**/h2.sql</includes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon.security.userstore</groupId>
@@ -176,9 +176,9 @@
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>
-                                        ${project.build.directory}/maven-shared-archive-resources/temp
+                                        ${basedir}/target/resources/dbscripts
                                     </outputDirectory>
-                                    <includes>**/*.sql</includes>
+                                    <includes>**/h2.sql</includes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon.identity.mgt</groupId>
@@ -187,9 +187,9 @@
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>
-                                        ${project.build.directory}/maven-shared-archive-resources/temp
+                                        ${basedir}/target/resources/dbscripts
                                     </outputDirectory>
-                                    <includes>**/*.sql</includes>
+                                    <includes>**/h2.sql</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -342,23 +342,6 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy_scripts</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${basedir}/target/resources/dbscripts"/>
-                                <copy toDir="${basedir}/target/resources/dbscripts" flatten="true">
-                                    <fileset dir="${project.build.directory}/maven-shared-archive-resources/temp/"
-                                             includes="**/*.sql"/>
-                                </copy>
-                                <delete dir="${project.build.directory}/maven-shared-archive-resources/temp/"/>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>create-carbon-database</id>
                         <phase>generate-resources</phase>
                         <goals>
@@ -406,8 +389,10 @@
                                 <delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart"/>
                                 <delete dir="target/p2-repo"/>
                                 <delete file="target/tmp"/>
-                                <delete dir="target/wso2carbon-kernel-${project.version}"/>
+                                <delete dir="target/wso2carbon-kernel-${carbon.kernel.version}"/>
                                 <delete dir="target/antrun"/>
+                                <delete dir="target/resources"/>
+                                <delete dir="target/maven-shared-archive-resources"/>
                             </target>
                         </configuration>
                         <goals>

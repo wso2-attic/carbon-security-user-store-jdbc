@@ -1,0 +1,87 @@
+#
+# Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# NOTE: Use VARCHAR(255) instead of VARCHAR(256) if the length needed is less than 256. Because 256 will require
+# two bytes to store the VARCHAR character length.
+
+# AUTHORIZATION STORE
+CREATE TABLE IF NOT EXISTS UM_ROLE
+(
+  ID             INTEGER AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  ROLE_UNIQUE_ID VARCHAR(64)                        NOT NULL,
+  ROLE_NAME      VARCHAR(255) UNIQUE                NOT NULL
+) ENGINE INNODB;
+
+CREATE TABLE IF NOT EXISTS UM_RESOURCE_NAMESPACE
+(
+  ID          INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  NAMESPACE   VARCHAR(10)                        NOT NULL,
+  DESCRIPTION VARCHAR(255)
+) ENGINE INNODB;
+
+CREATE TABLE IF NOT EXISTS UM_RESOURCE
+(
+  ID             INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  NAMESPACE_ID   INTEGER                            NOT NULL,
+  RESOURCE_NAME  VARCHAR(255)                       NOT NULL,
+  USER_UNIQUE_ID VARCHAR(64)                        NOT NULL,
+  FOREIGN KEY (NAMESPACE_ID) REFERENCES UM_RESOURCE_NAMESPACE (ID),
+  CONSTRAINT RESOURCE_CPK UNIQUE (NAMESPACE_ID, RESOURCE_NAME)
+) ENGINE INNODB;
+
+CREATE TABLE IF NOT EXISTS UM_ACTION
+(
+  ID           INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  NAMESPACE_ID INTEGER                            NOT NULL,
+  ACTION_NAME  VARCHAR(255)                       NOT NULL,
+  FOREIGN KEY (NAMESPACE_ID) REFERENCES UM_RESOURCE_NAMESPACE (ID),
+  CONSTRAINT ACTION_UC UNIQUE (NAMESPACE_ID, ACTION_NAME)
+) ENGINE INNODB;
+
+CREATE TABLE IF NOT EXISTS UM_PERMISSION
+(
+  ID                   INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  RESOURCE_ID          INTEGER                            NOT NULL,
+  ACTION_ID            INTEGER                            NOT NULL,
+  PERMISSION_UNIQUE_ID VARCHAR(64)                        NOT NULL,
+  FOREIGN KEY (RESOURCE_ID) REFERENCES UM_RESOURCE (ID) ON DELETE CASCADE,
+  FOREIGN KEY (ACTION_ID) REFERENCES UM_ACTION (ID) ON DELETE CASCADE
+) ENGINE INNODB;
+
+CREATE TABLE IF NOT EXISTS UM_USER_ROLE
+(
+  ID             INTEGER AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  USER_UNIQUE_ID VARCHAR(64)                        NOT NULL,
+  ROLE_ID        INTEGER                            NOT NULL,
+  FOREIGN KEY (ROLE_ID) REFERENCES UM_ROLE (ID) ON DELETE CASCADE
+) ENGINE INNODB;
+
+CREATE TABLE IF NOT EXISTS UM_GROUP_ROLE
+(
+  ID              INTEGER AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  GROUP_UNIQUE_ID VARCHAR(64)                        NOT NULL,
+  ROLE_ID         INTEGER                            NOT NULL,
+  FOREIGN KEY (ROLE_ID) REFERENCES UM_ROLE (ID) ON DELETE CASCADE
+) ENGINE INNODB;
+
+CREATE TABLE IF NOT EXISTS UM_ROLE_PERMISSION
+(
+  ID            INTEGER AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  ROLE_ID       INTEGER                            NOT NULL,
+  PERMISSION_ID INTEGER                            NOT NULL,
+  FOREIGN KEY (PERMISSION_ID) REFERENCES UM_PERMISSION (ID) ON DELETE CASCADE,
+  FOREIGN KEY (ROLE_ID) REFERENCES UM_ROLE (ID) ON DELETE CASCADE
+) ENGINE INNODB;

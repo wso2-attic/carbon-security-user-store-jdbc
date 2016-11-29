@@ -51,6 +51,7 @@ public abstract class JDBCStoreConnector {
         }
 
         // If there are matching queries in the properties, we have to override the default and replace with them.
+        //TODO don't modify the map
         sqlQueries.keySet().stream()
                 .filter(properties::containsKey)
                 .forEach(key -> sqlQueries.put(key, properties.get(key)));

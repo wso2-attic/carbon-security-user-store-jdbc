@@ -64,7 +64,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
         User getUser = identityStore.getUser(claim1);
         Assert.assertNotNull(addUser);
         Assert.assertNotNull(getUser);
-        Assert.assertEquals(getUser.getUserId(), addUser.getUserId());
+        Assert.assertEquals(getUser.getUniqueUserId(), addUser.getUniqueUserId());
     }
 
     @Test(priority = 2)
@@ -72,12 +72,16 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
         IdentityStore identityStore = realmService.getIdentityStore();
 
+        Callback[] callbacks = new Callback[1];
+
         PasswordCallback passwordCallback = new PasswordCallback("password", false);
         passwordCallback.setPassword(new char[]{'a', 'd', 'm', 'i', 'n'});
+        callbacks[0] = passwordCallback;
+
 
         Claim claim = new Claim(TestConstants.LOCAL_CLAIM_DIALECT, TestConstants.CLAIM_USERNAME, "johndoe");
 
-        identityStore.authenticate(claim, passwordCallback, "PRIMARY");
+        identityStore.authenticate(claim, callbacks, "PRIMARY");
     }
 
 }

@@ -23,9 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.identity.mgt.callback.IdentityCallback;
 import org.wso2.carbon.identity.mgt.config.CredentialStoreConnectorConfig;
-import org.wso2.carbon.identity.mgt.constant.UserCoreConstants;
 import org.wso2.carbon.identity.mgt.exception.AuthenticationFailure;
-import org.wso2.carbon.identity.mgt.exception.CredentialStoreException;
+import org.wso2.carbon.identity.mgt.exception.CredentialStoreConnectorException;
 import org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnector;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.DatabaseColumnNames;
@@ -35,10 +34,12 @@ import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.NamedPreparedState
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.UnitOfWork;
 import org.wso2.carbon.identity.mgt.util.IdentityUserMgtUtil;
 import org.wso2.carbon.identity.mgt.util.PasswordHandler;
+import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.PasswordCallback;
@@ -58,7 +59,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     private DataSource dataSource;
 
     @Override
-    public void init(CredentialStoreConnectorConfig configuration) throws CredentialStoreException {
+    public void init(CredentialStoreConnectorConfig configuration) throws CredentialStoreConnectorException {
 
         Map<String, String> properties = configuration.getProperties();
         this.credentialStoreConfig = configuration;
@@ -68,7 +69,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             this.dataSource = ConnectorDataHolder.getInstance().getDataSource(properties
                     .get(ConnectorConstants.DATA_SOURCE));
         } catch (DataSourceException e) {
-            throw new CredentialStoreException("Error while setting the data source.", e);
+            throw new CredentialStoreConnectorException("Error while setting the data source.", e);
         }
 
         loadQueries(properties);
@@ -85,20 +86,18 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
 
     @Override
-    public void authenticate(Callback[] callbacks) throws CredentialStoreException, AuthenticationFailure {
+    public void authenticate(String connectorUserId, Callback[] callbacks) throws CredentialStoreConnectorException,
+            AuthenticationFailure {
 
-        Map<String, String> userData = null;
         char[] password = null;
 
         for (Callback callback : callbacks) {
             if (callback instanceof PasswordCallback) {
                 password = ((PasswordCallback) callback).getPassword();
-            } else if (callback instanceof IdentityCallback) {
-                userData = (Map<String, String>) ((IdentityCallback) callback).getContent();
             }
         }
 
-        if (userData == null || password == null || userData.isEmpty()) {
+        if (password == null) {
             throw new AuthenticationFailure("Data required for authentication is missing.");
         }
 
@@ -108,8 +107,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_DATA));
 
-            comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
-                    userData.get(UserCoreConstants.USER_ID));
+            comparePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, connectorUserId);
 
             try (ResultSet resultSet = comparePasswordPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -129,40 +127,32 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
                 }
             }
         } catch (SQLException | NoSuchAlgorithmException e) {
-            throw new CredentialStoreException("Exception occurred while authenticating the user", e);
+            throw new CredentialStoreConnectorException("Exception occurred while authenticating the user", e);
         }
     }
 
     @Override
     public boolean canHandle(Callback[] callbacks) {
 
-        boolean carbonCallbackPresent = false;
-        boolean passwordCallbackPresent = false;
-
         for (Callback callback : callbacks) {
-            if (callback instanceof IdentityCallback) {
-                carbonCallbackPresent = true;
-            }
             if (callback instanceof PasswordCallback) {
-                passwordCallbackPresent = true;
+                return true;
             }
         }
 
-        return carbonCallbackPresent && passwordCallbackPresent;
+        return false;
     }
 
     @Override
     public boolean canStore(Callback[] callbacks) {
 
-        boolean passwordCallbackPresent = false;
-
         for (Callback callback : callbacks) {
             if (callback instanceof PasswordCallback) {
-                passwordCallbackPresent = true;
+                return true;
             }
         }
 
-        return passwordCallbackPresent;
+        return false;
     }
 
     @Override
@@ -171,7 +161,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public void updateCredential(Callback[] callbacks) throws CredentialStoreException {
+    public void updateCredential(Callback[] callbacks) throws CredentialStoreConnectorException {
         Map<String, String> userData = null;
         char[] password = null;
 
@@ -183,11 +173,14 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             }
         }
 
+        if (userData == null || userData.get(UserCoreConstants.USER_ID) == null) {
+            throw new CredentialStoreConnectorException("No enough data to update the credential");
+        }
         updateCredential(userData.get(UserCoreConstants.USER_ID), password);
     }
 
     @Override
-    public void updateCredential(String username, Callback[] callbacks) throws CredentialStoreException {
+    public void updateCredential(String username, Callback[] callbacks) throws CredentialStoreConnectorException {
         char[] password = null;
         for (Callback callback : callbacks) {
             if (callback instanceof PasswordCallback) {
@@ -199,29 +192,21 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public String addCredential(Callback[] callbacks) throws CredentialStoreException {
-        Map<String, String> userData = null;
+    public String addCredential(Callback[] callbacks) throws CredentialStoreConnectorException {
+
         char[] password = null;
 
         for (Callback callback : callbacks) {
-            if (callback instanceof IdentityCallback) {
-                userData = (Map<String, String>) ((IdentityCallback) callback).getContent();
-            } else if (callback instanceof PasswordCallback) {
+            if (callback instanceof PasswordCallback) {
                 if (password == null) {
                     password = ((PasswordCallback) callback).getPassword();
                 } else {
-                    throw new CredentialStoreException("Multiple passwords found");
+                    throw new CredentialStoreConnectorException("Multiple passwords found");
                 }
             }
         }
 
-        String username;
-
-        if (userData == null || userData.isEmpty()) {
-            username = IdentityUserMgtUtil.generateUUID();
-        } else {
-            username = userData.get(UserCoreConstants.USER_ID);
-        }
+        String username = IdentityUserMgtUtil.generateUUID();
 
         addCredential(username, password);
         return username;
@@ -229,7 +214,13 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public void addCredential(String username, Callback[] callbacks) throws CredentialStoreException {
+    public Map<String, String> addCredentials(Map<String, List<Callback>> userUniqueIdToCallbacksMap) throws
+            CredentialStoreConnectorException {
+        return null;
+    }
+
+    @Override
+    public void addCredential(String username, Callback[] callbacks) throws CredentialStoreConnectorException {
 
         char[] password = null;
         for (Callback callback : callbacks) {
@@ -239,13 +230,13 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         }
 
         if (password == null) {
-            throw new CredentialStoreException("Data required for authentication is missing.");
+            throw new CredentialStoreConnectorException("Data required for authentication is missing.");
         }
         addCredential(username, password);
     }
 
     @Override
-    public void deleteCredential(String username) throws CredentialStoreException {
+    public void deleteCredential(String username) throws CredentialStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
@@ -259,11 +250,11 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             deleteCredentialPreparedStatement.getPreparedStatement().executeUpdate();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new CredentialStoreException("Exception occurred while deleting the credential", e);
+            throw new CredentialStoreConnectorException("Exception occurred while deleting the credential", e);
         }
     }
 
-    private void addCredential(String username, char[] password) throws CredentialStoreException {
+    private void addCredential(String username, char[] password) throws CredentialStoreConnectorException {
 
         String hashAlgo = getHashAlgo();
         int iterationCount = getIterationCount();
@@ -289,7 +280,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         try {
             hashedPassword = passwordHandler.hashPassword(password, salt, hashAlgo);
         } catch (NoSuchAlgorithmException e) {
-            throw new CredentialStoreException("Error while hashing the password.", e);
+            throw new CredentialStoreConnectorException("Error while hashing the password.", e);
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -314,7 +305,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new CredentialStoreException("Error while storing user credential.", e);
+            throw new CredentialStoreConnectorException("Error while storing user credential.", e);
         }
     }
 
@@ -349,34 +340,34 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         return hashAlgo;
     }
 
-    private void updateCredential(String username, char[] password) throws CredentialStoreException {
+    private void updateCredential(String username, char[] password) throws CredentialStoreConnectorException {
 
-            String hashAlgo = getHashAlgo();
-            int iterationCount = getIterationCount();
-            int keyLength = getKeyLength();
+        String hashAlgo = getHashAlgo();
+        int iterationCount = getIterationCount();
+        int keyLength = getKeyLength();
 
-            String salt = IdentityUserMgtUtil.generateUUID();
+        String salt = IdentityUserMgtUtil.generateUUID();
 
-            // Get a password handler if there is a one. Otherwise use the default one.
-            PasswordHandler passwordHandler = ConnectorDataHolder.getInstance().getPasswordHandler(credentialStoreConfig
-                    .getProperties().get(UserCoreConstants.PASSWORD_HANDLER_NAME));
+        // Get a password handler if there is a one. Otherwise use the default one.
+        PasswordHandler passwordHandler = ConnectorDataHolder.getInstance().getPasswordHandler(credentialStoreConfig
+                .getProperties().get(UserCoreConstants.PASSWORD_HANDLER_NAME));
 
-            if (passwordHandler == null) {
-                passwordHandler = new DefaultPasswordHandler();
-                if (log.isDebugEnabled()) {
-                    log.debug("No password handler present. Using the default password handler.");
-                }
+        if (passwordHandler == null) {
+            passwordHandler = new DefaultPasswordHandler();
+            if (log.isDebugEnabled()) {
+                log.debug("No password handler present. Using the default password handler.");
             }
+        }
 
-            passwordHandler.setIterationCount(iterationCount);
-            passwordHandler.setKeyLength(keyLength);
+        passwordHandler.setIterationCount(iterationCount);
+        passwordHandler.setKeyLength(keyLength);
 
-            String hashedPassword;
-            try {
-                hashedPassword = passwordHandler.hashPassword(password, salt, hashAlgo);
-            } catch (NoSuchAlgorithmException e) {
-                throw new CredentialStoreException("Error while hashing the password.", e);
-            }
+        String hashedPassword;
+        try {
+            hashedPassword = passwordHandler.hashPassword(password, salt, hashAlgo);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CredentialStoreConnectorException("Error while hashing the password.", e);
+        }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
             //Update password.
@@ -399,12 +390,12 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new CredentialStoreException("Error while updating the password.", e);
+            throw new CredentialStoreConnectorException("Error while updating the password.", e);
         }
     }
 
     private String hashPassword(char[] password, String hashAlgo, String salt, int iterationCount, int keyLength)
-            throws SQLException, CredentialStoreException, NoSuchAlgorithmException {
+            throws SQLException, CredentialStoreConnectorException, NoSuchAlgorithmException {
 
         // Get a password handler if there is a one. Otherwise use the default one.
         PasswordHandler passwordHandler = ConnectorDataHolder.getInstance().getPasswordHandler(credentialStoreConfig

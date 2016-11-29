@@ -22,12 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.identity.mgt.bean.Attribute;
-import org.wso2.carbon.identity.mgt.bean.Group;
-import org.wso2.carbon.identity.mgt.bean.User;
 import org.wso2.carbon.identity.mgt.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.identity.mgt.exception.GroupNotFoundException;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreConnectorException;
-import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
 import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
 import org.wso2.carbon.identity.mgt.store.connector.IdentityStoreConnector;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.ConnectorConstants;
@@ -57,11 +54,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     protected DataSource dataSource;
     protected IdentityStoreConnectorConfig identityStoreConfig;
     protected String identityStoreId;
-    protected String connectorUserId;
-    protected String connectorGroupId;
+    protected String connectorUserIdAttribute;
+    protected String connectorGroupIdAttribute;
 
     @Override
-    public void init(IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreException {
+    public void init(IdentityStoreConnectorConfig identityStoreConfig) throws IdentityStoreConnectorException {
 
         Map<String, String> properties = identityStoreConfig.getProperties();
         this.identityStoreId = identityStoreConfig.getConnectorId();
@@ -71,7 +68,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             dataSource = ConnectorDataHolder.getInstance()
                     .getDataSource(properties.get(ConnectorConstants.DATA_SOURCE));
         } catch (DataSourceException e) {
-            throw new IdentityStoreException("Error occurred while initiating data source.", e);
+            throw new IdentityStoreConnectorException("Error occurred while initiating data source.", e);
         }
 
         loadQueries(properties);
@@ -80,9 +77,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             log.debug("JDBC identity store with id: {} initialized successfully.", identityStoreId);
         }
 
-        //TODO check whether this is okay to be a property
-        connectorUserId = identityStoreConfig.getProperties().get("connectorUserId");
-        connectorGroupId = identityStoreConfig.getProperties().get("connectorGroupId");
+        connectorUserIdAttribute = identityStoreConfig.getProperties().get("connectorUserId");
+        connectorGroupIdAttribute = identityStoreConfig.getProperties().get("connectorGroupId");
     }
 
     @Override
@@ -92,7 +88,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     @Override
     public String getConnectorUserId(String attributeName, String attributeValue) throws UserNotFoundException,
-            IdentityStoreException {
+            IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -110,12 +106,99 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 }
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("An error occurred while getting searching the user.", e);
+            throw new IdentityStoreConnectorException("An error occurred while getting searching the user.", e);
         }
     }
 
     @Override
-    public int getUserCount() throws IdentityStoreException {
+    public List<String> listConnectorUserIds(String attributeName, String attributeValue, int offset, int length)
+            throws IdentityStoreConnectorException {
+
+        // Get the max allowed row count if the length is -1.
+        if (length == -1) {
+            length = getMaxRowRetrievalCount();
+        }
+
+        List<String> userList = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE));
+            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
+                    attributeName);
+
+            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
+                    attributeValue);
+            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+
+            try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (resultSet.next()) {
+                    String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                    userList.add(userUniqueId);
+                }
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("{} users retrieved from identity store: {}.", userList.size(), identityStoreId);
+            }
+
+            return userList;
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("Error occurred while listing users.", e);
+        }
+    }
+
+    @Override
+    public List<String> listConnectorUserIdsByPattern(String attributeName, String filterPattern, int offset, int
+            length) throws IdentityStoreConnectorException {
+
+        // Get the max allowed row count if the length is -1.
+        if (length == -1) {
+            length = getMaxRowRetrievalCount();
+        }
+
+        // We are using SQL filters. So replace the '*' with '%'.
+        filterPattern = filterPattern.replace('*', '%');
+
+        List<String> userList = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE_PATTERN));
+            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
+                    attributeName);
+
+            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
+                    filterPattern);
+            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+
+            try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (resultSet.next()) {
+                    String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                    userList.add(userUniqueId);
+                }
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("{} users retrieved from identity store: {}.", userList.size(), identityStoreId);
+            }
+
+            return userList;
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("Error occurred while listing users.", e);
+        }
+    }
+
+    @Override
+    public int getUserCount() throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -129,62 +212,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 return 0;
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("An error occurred while getting user count.", e);
+            throw new IdentityStoreConnectorException("An error occurred while getting user count.", e);
         }
     }
 
     @Override
-    public List<User.UserBuilder> getUserBuilderList(String attributeName, String filterPattern, int offset, int
-            length) throws IdentityStoreException {
-        // Get the max allowed row count if the length is -1.
-        if (length == -1) {
-            length = getMaxRowRetrievalCount();
-        }
-
-        // We are using SQL filters. So replace the '*' with '%'.
-        filterPattern = filterPattern.replace('*', '%');
-
-        List<User.UserBuilder> userList = new ArrayList<>();
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE));
-            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
-                    attributeName);
-
-            listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
-                    filterPattern);
-            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
-
-            try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                while (resultSet.next()) {
-                    String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                    userList.add(new User.UserBuilder().setUserId(userUniqueId));
-                }
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("{} users retrieved from identity store: {}.", userList.size(), identityStoreId);
-            }
-
-            return userList;
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while listing users.", e);
-        }
-    }
-
-    @Override
-    public List<User.UserBuilder> getAllUserBuilderList(String attributeName, String filterPattern) throws
-            IdentityStoreException {
-        return getUserBuilderList(attributeName, filterPattern, 0, -1);
-    }
-
-    @Override
-    public List<Attribute> getUserAttributeValues(String userId) throws IdentityStoreException {
+    public List<Attribute> getUserAttributeValues(String userId) throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -210,13 +243,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 return userAttributes;
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving user attributes.", e);
+            throw new IdentityStoreConnectorException("Error occurred while retrieving user attributes.", e);
         }
     }
 
     @Override
     public List<Attribute> getUserAttributeValues(String userId, List<String> attributeNames)
-            throws IdentityStoreException {
+            throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -247,43 +280,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 return userAttributes;
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving user attributes.", e);
+            throw new IdentityStoreConnectorException("Error occurred while retrieving user attributes.", e);
         }
     }
 
     @Override
-    public Group.GroupBuilder getGroupBuilder(String attributeName, String attributeValue) throws
-            GroupNotFoundException, IdentityStoreException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attributeValue);
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                if (!resultSet.next()) {
-                    throw new GroupNotFoundException("Group not found for the given group name in " +
-                            identityStoreId);
-                }
-
-                String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Group with attribute {}: {} retrieved from identity store: {}.", attributeName,
-                            attributeValue, identityStoreId);
-                }
-
-                return new Group.GroupBuilder().setGroupId(groupId);
-            }
-
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving group.", e);
-        }
-    }
-
-    @Override
-    public int getGroupCount() throws IdentityStoreException {
+    public int getGroupCount() throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -297,65 +299,80 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 return 0;
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("An error occurred while getting group count.", e);
+            throw new IdentityStoreConnectorException("An error occurred while getting group count.", e);
         }
     }
 
     @Override
     public String getConnectorGroupId(String attributeName, String attributeValue) throws GroupNotFoundException,
-            IdentityStoreException {
-        return null;
+            IdentityStoreConnectorException {
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE));
+
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME, attributeName);
+            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attributeValue);
+
+            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
+                } else {
+                    throw new GroupNotFoundException("User not found with the given attribute");
+                }
+            }
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("An error occurred while getting searching the group.", e);
+        }
     }
 
     @Override
-    public List<Group.GroupBuilder> getGroupBuilderList(String filterPattern, int offset, int length)
-            throws IdentityStoreException {
+    public List<String> listConnectorGroupIds(String attributeName, String attributeValue, int offset, int length)
+            throws IdentityStoreConnectorException {
 
-        //TODO Check whether method is needed. If so need to change the implementation
         // Get the max allowed row count if the length is -1.
-//        if (length == -1) {
-//            length = getMaxRowRetrievalCount();
-//        }
-//
-//        // We are using SQL filters. So replace the '*' with '%'.
-//        filterPattern = filterPattern.replace('*', '%');
-//
-//        List<Group.GroupBuilder> groups = new ArrayList<>();
-//
-//        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-//
-//            NamedPreparedStatement listGroupsNamedPreparedStatement = new NamedPreparedStatement(
-//                    unitOfWork.getConnection(),
-//                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP));
-//            listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_NAME, filterPattern);
-//            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-//            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
-//
-//            try (ResultSet resultSet = listGroupsNamedPreparedStatement.getPreparedStatement().executeQuery()) {
-//
-//                while (resultSet.next()) {
-//                    String groupUniqueId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-////                    String groupName = resultSet.getString(DatabaseColumnNames.Group.GROUP_NAME);
-//                    groups.add(new Group.GroupBuilder().setGroupId(groupUniqueId));
-//                }
-//            }
-//
-//            if (log.isDebugEnabled()) {
-//                log.debug("{} groups retrieved for filter pattern {} from identity store: {}.", groups.size(),
-//                        filterPattern, identityStoreId);
-//            }
-//
-//            return groups;
-//
-//        } catch (SQLException e) {
-//            throw new IdentityStoreException("Error occurred while retrieving group list.");
-//        }
-        return new ArrayList<>();
+        if (length == -1) {
+            length = getMaxRowRetrievalCount();
+        }
+
+        List<String> groups = new ArrayList<>();
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement listGroupsNamedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP_BY_ATTRIBUTE));
+            listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
+                    attributeName);
+            listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
+                    attributeValue);
+            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
+            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+
+            try (ResultSet resultSet = listGroupsNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (resultSet.next()) {
+                    String groupUniqueId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
+                    groups.add(groupUniqueId);
+                }
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("{} groups retrieved for filter pattern {} from identity store: {}.", groups.size(),
+                        attributeValue, identityStoreId);
+            }
+
+            return groups;
+
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("Error occurred while retrieving group list.");
+        }
     }
 
-    //TODO This should be added to the interface
-    public List<Group.GroupBuilder> getGroupBuilderList(String attributeName, String filterPattern, int offset, int
-            length) throws IdentityStoreException {
+    @Override
+    public List<String> listConnectorGroupIdsByPattern(String attributeName, String filterPattern, int offset, int
+            length) throws IdentityStoreConnectorException {
 
         // Get the max allowed row count if the length is -1.
         if (length == -1) {
@@ -365,13 +382,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         // We are using SQL filters. So replace the '*' with '%'.
         filterPattern = filterPattern.replace('*', '%');
 
-        List<Group.GroupBuilder> groups = new ArrayList<>();
+        List<String> groups = new ArrayList<>();
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
             NamedPreparedStatement listGroupsNamedPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP_BY_ATTRIBUTE));
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_GROUP_BY_ATTRIBUTE_PATTERN));
             listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
                     attributeName);
             listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
@@ -383,7 +400,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
                 while (resultSet.next()) {
                     String groupUniqueId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-                    groups.add(new Group.GroupBuilder().setGroupId(groupUniqueId));
+                    groups.add(groupUniqueId);
                 }
             }
 
@@ -395,12 +412,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             return groups;
 
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving group list.");
+            throw new IdentityStoreConnectorException("Error occurred while retrieving group list.");
         }
     }
 
     @Override
-    public List<Attribute> getGroupAttributeValues(String groupId) throws IdentityStoreException {
+    public List<Attribute> getGroupAttributeValues(String groupId) throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -421,13 +438,14 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 return groupAttributes;
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving attribute values of the group.", e);
+            throw new IdentityStoreConnectorException("Error occurred while retrieving attribute values of the group" +
+                    ".", e);
         }
     }
 
     @Override
     public List<Attribute> getGroupAttributeValues(String groupId, List<String> attributeNames)
-            throws IdentityStoreException {
+            throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -453,72 +471,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 return groupAttributes;
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving attribute values of the group.", e);
+            throw new IdentityStoreConnectorException("Error occurred while retrieving attribute values of the group" +
+                    ".", e);
         }
     }
 
     @Override
-    public List<Group.GroupBuilder> getGroupBuildersOfUser(String userId) throws IdentityStoreException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUPS_OF_USER));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, userId);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                List<Group.GroupBuilder> groupList = new ArrayList<>();
-                while (resultSet.next()) {
-                    String groupId = resultSet.getString(DatabaseColumnNames.Group.GROUP_UNIQUE_ID);
-                    Group.GroupBuilder group = new Group.GroupBuilder().setGroupId(groupId);
-                    groupList.add(group);
-                }
-
-                if (log.isDebugEnabled()) {
-                    log.debug("{} groups retrieved for user id {} from identity store: {}.", groupList.size(),
-                            userId, identityStoreId);
-                }
-
-                return groupList;
-            }
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving groups of user.", e);
-        }
-    }
-
-    @Override
-    public List<User.UserBuilder> getUserBuildersOfGroup(String groupId) throws IdentityStoreException {
-
-        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_OF_GROUP));
-            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, groupId);
-
-            try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
-
-                List<User.UserBuilder> userList = new ArrayList<>();
-                while (resultSet.next()) {
-                    String userId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
-                    User.UserBuilder user = new User.UserBuilder().setUserId(userId);
-                    userList.add(user);
-                }
-
-                if (log.isDebugEnabled()) {
-                    log.debug("{} users retrieved for group: {} from identity store: {}.", userList.size(), groupId,
-                            identityStoreId);
-                }
-
-                return userList;
-            }
-        } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while retrieving users of group.", e);
-        }
-    }
-
-    @Override
-    public boolean isUserInGroup(String userId, String groupId) throws IdentityStoreException {
+    public boolean isUserInGroup(String userId, String groupId) throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
@@ -531,12 +490,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 return resultSet.next();
             }
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error while checking users in group.", e);
+            throw new IdentityStoreConnectorException("Error while checking users in group.", e);
         }
     }
 
     @Override
-    public boolean isReadOnly() throws IdentityStoreException {
+    public boolean isReadOnly() throws IdentityStoreConnectorException {
         return false;
     }
 
@@ -549,14 +508,14 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     public String addUser(List<Attribute> attributes) throws IdentityStoreConnectorException {
 
         String primaryAttributeValue = attributes.stream()
-                .filter(attribute -> attribute.getAttributeName().equals(connectorUserId))
+                .filter(attribute -> attribute.getAttributeName().equals(connectorUserIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
 
         if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
-            throw new IdentityStoreConnectorException("Primary Attribute " + connectorUserId + " is not found among " +
-                    "the attribute list");
+            throw new IdentityStoreConnectorException("Primary Attribute " + connectorUserIdAttribute + " is not " +
+                    "found among the attribute list");
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -588,9 +547,10 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public Map<String, String> addUsers(Map<String, List<Attribute>> attributes) throws IdentityStoreException {
+    public Map<String, String> addUsers(Map<String, List<Attribute>> attributes) throws
+            IdentityStoreConnectorException {
 
-        IdentityStoreException identityStoreException = new IdentityStoreException();
+        IdentityStoreConnectorException identityStoreException = new IdentityStoreConnectorException();
         Map<String, String> userIdsToReturn = new HashMap<>();
         attributes.entrySet().stream().forEach(entry -> {
             try {
@@ -609,11 +569,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     @Override
     public String updateUserAttributes(String userIdentifier, List<Attribute> attributes) throws
-            IdentityStoreException {
+            IdentityStoreConnectorException {
 
         //PUT operation
         String primaryAttributeValue = attributes.stream()
-                .filter(attribute -> attribute.getAttributeName().equals(connectorUserId))
+                .filter(attribute -> attribute.getAttributeName().equals(connectorUserIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
@@ -662,24 +622,24 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while updating user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while updating user.", e);
         }
         return userIdentifierNew;
     }
 
     @Override
     public String updateUserAttributes(String userIdentifier, List<Attribute> attributesToAdd,
-                                       List<Attribute> attributesToRemove) throws IdentityStoreException {
+                                       List<Attribute> attributesToRemove) throws IdentityStoreConnectorException {
 
         //PATCH operation
         String primaryAttributeToRemove = attributesToRemove.stream()
-                .filter(attribute -> attribute.getAttributeName().equals(connectorUserId))
+                .filter(attribute -> attribute.getAttributeName().equals(connectorUserIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
 
         String primaryAttributeValue = attributesToAdd.stream()
-                .filter(attribute -> attribute.getAttributeName().equals(connectorUserId))
+                .filter(attribute -> attribute.getAttributeName().equals(connectorUserIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
@@ -687,7 +647,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         //If primary attribute is in the remove list, new value should be in the add list.
         if (!StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) && StringUtils.isNullOrEmptyAfterTrim
                 (primaryAttributeValue)) {
-            throw new IdentityStoreException("Primary attribute of the connector cannot be removed");
+            throw new IdentityStoreConnectorException("Primary attribute of the connector cannot be removed");
         }
 
         String userIdentifierNew = userIdentifier;
@@ -774,13 +734,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while updating user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while updating user.", e);
         }
         return userIdentifierNew;
     }
 
     @Override
-    public void deleteUser(String userIdentifier) throws IdentityStoreException {
+    public void deleteUser(String userIdentifier) throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
@@ -790,12 +750,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeUpdate();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while deleting user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while deleting user.", e);
         }
     }
 
     @Override
-    public void updateGroupsOfUser(String userIdentifier, List<String> groupIdentifiers) throws IdentityStoreException {
+    public void updateGroupsOfUser(String userIdentifier, List<String> groupIdentifiers) throws
+            IdentityStoreConnectorException {
 
         //PUT operation
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -819,13 +780,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while updating groups of user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while updating groups of user.", e);
         }
     }
 
     @Override
     public void updateGroupsOfUser(String userIdentifier, List<String> groupIdentifiersToAdd,
-                                   List<String> groupIdentifiersToRemove) throws IdentityStoreException {
+                                   List<String> groupIdentifiersToRemove) throws IdentityStoreConnectorException {
 
         //PATCH operation
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -855,22 +816,23 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while updating groups of user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while updating groups of user.", e);
         }
     }
 
     @Override
-    public String addGroup(List<Attribute> attributes) throws IdentityStoreException {
+    public String addGroup(List<Attribute> attributes) throws IdentityStoreConnectorException {
 
         String primaryAttributeValue = attributes.stream()
-                .filter(attribute -> attribute.getAttributeName().equals(connectorGroupId))
+                .filter(attribute -> attribute.getAttributeName().equals(connectorGroupIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
 
         if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
-            throw new IdentityStoreException("Primary Attribute " + connectorGroupId + " is not found among the " +
-                    "attribute list");
+            throw new IdentityStoreConnectorException("Primary Attribute " + connectorGroupIdAttribute + " is not " +
+                    "found among " +
+                    "the attribute list");
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -895,22 +857,23 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while storing group.", e);
+            throw new IdentityStoreConnectorException("Error occurred while storing group.", e);
         }
 
         return primaryAttributeValue;
     }
 
     @Override
-    public Map<String, String> addGroups(Map<String, List<Attribute>> attributes) throws IdentityStoreException {
+    public Map<String, String> addGroups(Map<String, List<Attribute>> attributes) throws
+            IdentityStoreConnectorException {
 
-        IdentityStoreException identityStoreException = new IdentityStoreException();
+        IdentityStoreConnectorException identityStoreException = new IdentityStoreConnectorException();
         Map<String, String> groupIdsToReturn = new HashMap<>();
         attributes.entrySet().stream().forEach(entry -> {
             try {
                 String groupId = addGroup(entry.getValue());
                 groupIdsToReturn.put(entry.getKey(), groupId);
-            } catch (IdentityStoreException e) {
+            } catch (IdentityStoreConnectorException e) {
                 identityStoreException.addSuppressed(e);
             }
         });
@@ -923,10 +886,11 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     @Override
     public String updateGroupAttributes(String groupIdentifier, List<Attribute> attributes) throws
-            IdentityStoreException {
+            IdentityStoreConnectorException {
+
         //PUT operation
         String primaryAttributeValue = attributes.stream()
-                .filter(attribute -> attribute.getAttributeName().equals(connectorGroupId))
+                .filter(attribute -> attribute.getAttributeName().equals(connectorGroupIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
@@ -975,23 +939,23 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while updating user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while updating user.", e);
         }
         return groupIdentifierNew;
     }
 
     @Override
     public String updateGroupAttributes(String groupIdentifier, List<Attribute> attributesToAdd,
-                                        List<Attribute> attributesToRemove) throws IdentityStoreException {
+                                        List<Attribute> attributesToRemove) throws IdentityStoreConnectorException {
         //PATCH operation
         String primaryAttributeToRemove = attributesToRemove.stream()
-                .filter(attribute -> attribute.getAttributeName().equals(connectorGroupId))
+                .filter(attribute -> attribute.getAttributeName().equals(connectorGroupIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
 
         String primaryAttributeValue = attributesToAdd.stream()
-                .filter(attribute -> attribute.getAttributeName().equals(connectorGroupId))
+                .filter(attribute -> attribute.getAttributeName().equals(connectorGroupIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
                 .findFirst()
                 .orElse(null);
@@ -999,7 +963,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         //If primary attribute is in the remove list, new value should be in the add list.
         if (!StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) && StringUtils.isNullOrEmptyAfterTrim
                 (primaryAttributeValue)) {
-            throw new IdentityStoreException("Primary attribute of the connector cannot be removed");
+            throw new IdentityStoreConnectorException("Primary attribute of the connector cannot be removed");
         }
 
         String userIdentifierNew = groupIdentifier;
@@ -1085,13 +1049,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while updating user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while updating user.", e);
         }
         return userIdentifierNew;
     }
 
     @Override
-    public void deleteGroup(String groupIdentifier) throws IdentityStoreException {
+    public void deleteGroup(String groupIdentifier) throws IdentityStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
@@ -1101,12 +1065,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeUpdate();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while deleting user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while deleting user.", e);
         }
     }
 
     @Override
-    public void updateUsersOfGroup(String groupIdentifier, List<String> userIdentifiers) throws IdentityStoreException {
+    public void updateUsersOfGroup(String groupIdentifier, List<String> userIdentifiers) throws
+            IdentityStoreConnectorException {
 
         //PUT operation
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -1130,13 +1095,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while updating groups of user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while updating groups of user.", e);
         }
     }
 
     @Override
     public void updateUsersOfGroup(String groupIdentifier, List<String> userIdentifiersToAdd,
-                                   List<String> userIdentifiersToRemove) throws IdentityStoreException {
+                                   List<String> userIdentifiersToRemove) throws IdentityStoreConnectorException {
 
         //PATCH operation
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -1166,12 +1131,17 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            throw new IdentityStoreException("Error occurred while updating groups of user.", e);
+            throw new IdentityStoreConnectorException("Error occurred while updating groups of user.", e);
         }
     }
 
     @Override
     public void removeAddedUsersInAFailure(List<String> connectorUserIds) throws IdentityStoreConnectorException {
+        //TODO need to implement this
+    }
+
+    @Override
+    public void removeAddedGroupsInAFailure(List<String> connectorGroupIds) throws IdentityStoreConnectorException {
         //TODO need to implement this
     }
 

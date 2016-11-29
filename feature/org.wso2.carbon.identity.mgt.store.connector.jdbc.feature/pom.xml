@@ -70,8 +70,8 @@
                                     <includes>
                                         <include>conf/identity/jdbc-identity-connector.yml</include>
                                         <include>conf/identity/jdbc-credential-connector.yml</include>
-                                        <include>conf/identity/jdbc-authorization-connector.yml</include>
                                         <include>dbscripts/connector/h2.sql</include>
+                                        <include>dbscripts/connector/mysql.sql</include>
                                         <include>p2.inf</include>
                                     </includes>
                                 </resource>

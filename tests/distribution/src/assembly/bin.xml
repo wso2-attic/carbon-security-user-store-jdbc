@@ -18,7 +18,7 @@
 
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>wso2carbon-kernel-${pom.version}</baseDirectory>
+    <baseDirectory>org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}</baseDirectory>
     <id>carbon</id>
     <formats>
         <format>zip</format>
@@ -27,7 +27,7 @@
     <fileSets>
         <fileSet>
             <directory>target/wso2carbon-kernel-${project.version}</directory>
-            <outputDirectory></outputDirectory>
+            <outputDirectory>.</outputDirectory>
             <fileMode>644</fileMode>
             <excludes>
                 <exclude>**/eclipse.ini</exclude>
@@ -43,7 +43,7 @@
 
         <fileSet>
             <directory>target/wso2carbon-kernel-${project.version}</directory>
-            <outputDirectory></outputDirectory>
+            <outputDirectory>.</outputDirectory>
             <includes>
                 <include>**/*.sh</include>
                 <include>**/native/*</include>
@@ -53,7 +53,7 @@
 
         <fileSet>
             <directory>carbon-home</directory>
-            <outputDirectory></outputDirectory>
+            <outputDirectory>.</outputDirectory>
             <includes>
                 <include>**/*.html</include>
                 <include>**/*.txt</include>
