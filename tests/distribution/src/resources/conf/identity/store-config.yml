@@ -13,45 +13,16 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 ###############################################################################
+# Enable cache for stores
 enableCache: false
-credentialStore:
 identityStore:
-authorizationStore:
-
-storeConnectors:
-
- identityStoreConnectors:
- -
-    connectorId: "JDBCIS1"
-    connectorType: "JDBCIdentityStore"
-    domainName: "carbon"
-    uniqueAttributes:
-      - username
-      - email
-    otherAttributes:
-      - firstName
-      - lastName
-    properties:
-      dataSource: "WSO2_CARBON_DB"
-      hashAlgorithm: "SHA256"
-      databaseType: "MySQL"
-      connectorGroupId: "groupname"
-      connectorUs erId: "username"
-
- credentialStoreConnectors:
+ enableCache: true
+ cacheConfigs:
   -
-    connectorId: "JDBCCS1"
-    connectorType: "JDBCCredentialStore"
-    domainName: "carbon"
-    properties:
-      dataSource: "WSO2_CARBON_DB"
-      databaseType: "MySQL"
-
- authorizationStoreConnectors:
-  -
-    connectorId: "JDBCAS1"
-    connectorType: "JDBCAuthorizationStore"
-    properties:
-      dataSource: "WSO2_CARBON_DB"
-      databaseType: "MySQL"
-      priority: 2
+   name: "CACHE-USERNAME"
+   enableCache: true
+   expireTime: 300
+   maxCapacity: 1000
+   statisticsEnabled: true
+credentialStore:
+ enableCache: false
