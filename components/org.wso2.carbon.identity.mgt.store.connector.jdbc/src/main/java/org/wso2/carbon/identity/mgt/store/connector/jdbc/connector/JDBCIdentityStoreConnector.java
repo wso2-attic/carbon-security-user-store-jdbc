@@ -32,7 +32,6 @@ import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.DatabaseColumn
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.internal.ConnectorDataHolder;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.UnitOfWork;
-import org.wso2.carbon.kernel.utils.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,6 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 /**
@@ -507,13 +508,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public String addUser(List<Attribute> attributes) throws IdentityStoreConnectorException {
 
-        String primaryAttributeValue = attributes.stream()
+        Optional<String> primaryAttributeValue = attributes.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorUserIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
-        if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+        if (!primaryAttributeValue.isPresent()) {
             throw new IdentityStoreConnectorException("Primary Attribute " + connectorUserIdAttribute + " is not " +
                     "found among the attribute list");
         }
@@ -523,7 +523,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                     .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER));
             addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
-                    primaryAttributeValue);
+                    primaryAttributeValue.get());
             addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
@@ -535,7 +535,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
                         .getAttributeValue());
                 namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
-                        primaryAttributeValue);
+                        primaryAttributeValue.get());
                 namedPreparedStatement.getPreparedStatement().addBatch();
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
@@ -543,7 +543,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         } catch (SQLException e) {
             throw new IdentityStoreConnectorException("Error occurred while storing user.", e);
         }
-        return primaryAttributeValue;
+        return primaryAttributeValue.get();
     }
 
     @Override
@@ -572,30 +572,29 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             IdentityStoreConnectorException {
 
         //PUT operation
-        String primaryAttributeValue = attributes.stream()
+        Optional<String> primaryAttributeValue = attributes.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorUserIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
         String userIdentifierNew = userIdentifier;
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             //Update the primary attribute of the connector
-            if (!StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+            if (primaryAttributeValue.isPresent()) {
                 NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                         .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes
                         .SQL_QUERY_UPDATE_USER));
                 addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
                         userIdentifier);
                 addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
-                        .USER_UNIQUE_ID_UPDATE, primaryAttributeValue);
+                        .USER_UNIQUE_ID_UPDATE, primaryAttributeValue.get());
                 addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
                 //If the primary attribute of the connector is also going to be updated, new value should be used for
                 // the other queries.
-                userIdentifierNew = primaryAttributeValue;
+                userIdentifierNew = primaryAttributeValue.get();
             }
 
             //Delete the existing attributes
@@ -632,61 +631,54 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                                        List<Attribute> attributesToRemove) throws IdentityStoreConnectorException {
 
         //PATCH operation
-        String primaryAttributeToRemove = attributesToRemove.stream()
+        Optional<String> primaryAttributeToRemove = attributesToRemove.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorUserIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
-        String primaryAttributeValue = attributesToAdd.stream()
+        Optional<String> primaryAttributeValue = attributesToAdd.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorUserIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
-        //If primary attribute is in the remove list, new value should be in the add list.
-        if (!StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) && StringUtils.isNullOrEmptyAfterTrim
-                (primaryAttributeValue)) {
+        // If primary attribute is in the remove list, new value should be in the add list.
+        if (primaryAttributeToRemove.isPresent() && !primaryAttributeValue.isPresent()) {
             throw new IdentityStoreConnectorException("Primary attribute of the connector cannot be removed");
         }
 
         String userIdentifierNew = userIdentifier;
 
-        //Filter the attributes to add and update
+        // Fetch the existing attributes of the user
         List<Attribute> currentAttributes = getUserAttributeValues(userIdentifier);
-        Map<String, String> attributeMap = new HashMap<>();
-        for (Attribute attribute : currentAttributes) {
-            attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
-        }
 
-        List<Attribute> filteredAttributesToAdd = new ArrayList<>();
-        List<Attribute> filteredAttributesToUpdate = new ArrayList<>();
+        // Filter the attributes to add and update
+        // If the same attribute is present in the database already, update the value.
+        // If the same attribute is not present in the database, add the attribute.
+        // Map has a list of already existing attributes of the user with the key "true".
+        // Map has a list of new attributes of the user with the key "false".
+        Map<Boolean, List<Attribute>> attributeFilteredMap = attributesToAdd.stream()
+                .collect(Collectors.partitioningBy(a -> currentAttributes.parallelStream().anyMatch(ca -> ca
+                        .getAttributeName().equals(a.getAttributeName()))));
 
-        for (Attribute attribute : attributesToAdd) {
-            if (attributeMap.get(attribute.getAttributeName()) != null) {
-                filteredAttributesToUpdate.add(attribute);
-            } else {
-                filteredAttributesToAdd.add(attribute);
-            }
-        }
+        List<Attribute> filteredAttributesToAdd = attributeFilteredMap.get(false);
+        List<Attribute> filteredAttributesToUpdate = attributeFilteredMap.get(true);
+
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
-
             //Update the primary attribute of the connector
-            if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) || !StringUtils.isNullOrEmptyAfterTrim
-                    (primaryAttributeValue)) {
+            if (primaryAttributeValue.isPresent()) {
                 NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                         .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes
                         .SQL_QUERY_UPDATE_USER));
                 addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
                         userIdentifier);
                 addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
-                        .USER_UNIQUE_ID_UPDATE, primaryAttributeValue);
+                        .USER_UNIQUE_ID_UPDATE, primaryAttributeValue.get());
                 addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
                 //If the primary attribute of the connector is also going to be updated, new value should be used for
                 // the other queries.
-                userIdentifierNew = primaryAttributeValue;
+                userIdentifierNew = primaryAttributeValue.get();
             }
 
             //Delete the existing attributes
@@ -823,13 +815,12 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public String addGroup(List<Attribute> attributes) throws IdentityStoreConnectorException {
 
-        String primaryAttributeValue = attributes.stream()
+        Optional<String> primaryAttributeValue = attributes.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorGroupIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
-        if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+        if (!primaryAttributeValue.isPresent()) {
             throw new IdentityStoreConnectorException("Primary Attribute " + connectorGroupIdAttribute + " is not " +
                     "found among " +
                     "the attribute list");
@@ -839,7 +830,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             NamedPreparedStatement addGroupNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                     .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP));
             addGroupNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
-                    primaryAttributeValue);
+                    primaryAttributeValue.get());
             addGroupNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
             NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
@@ -851,7 +842,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                 namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE, attribute
                         .getAttributeValue());
                 namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
-                        primaryAttributeValue);
+                        primaryAttributeValue.get());
                 namedPreparedStatement.getPreparedStatement().addBatch();
             }
             namedPreparedStatement.getPreparedStatement().executeBatch();
@@ -860,7 +851,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             throw new IdentityStoreConnectorException("Error occurred while storing group.", e);
         }
 
-        return primaryAttributeValue;
+        return primaryAttributeValue.get();
     }
 
     @Override
@@ -889,30 +880,29 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             IdentityStoreConnectorException {
 
         //PUT operation
-        String primaryAttributeValue = attributes.stream()
+        Optional<String> primaryAttributeValue = attributes.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorGroupIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
         String groupIdentifierNew = groupIdentifier;
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             //Update the primary attribute of the connector
-            if (!StringUtils.isNullOrEmptyAfterTrim(primaryAttributeValue)) {
+            if (primaryAttributeValue.isPresent()) {
                 NamedPreparedStatement addGroupNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                         .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes
                         .SQL_QUERY_UPDATE_GROUP));
                 addGroupNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
                         groupIdentifier);
                 addGroupNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
-                        .GROUP_UNIQUE_ID_UPDATE, primaryAttributeValue);
+                        .GROUP_UNIQUE_ID_UPDATE, primaryAttributeValue.get());
                 addGroupNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
                 //If the primary attribute of the connector is also going to be updated, new value should be used for
                 // the other queries.
-                groupIdentifierNew = primaryAttributeValue;
+                groupIdentifierNew = primaryAttributeValue.get();
             }
 
             //Delete the existing attributes
@@ -948,60 +938,54 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     public String updateGroupAttributes(String groupIdentifier, List<Attribute> attributesToAdd,
                                         List<Attribute> attributesToRemove) throws IdentityStoreConnectorException {
         //PATCH operation
-        String primaryAttributeToRemove = attributesToRemove.stream()
+        Optional<String> primaryAttributeToRemove = attributesToRemove.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorGroupIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
-        String primaryAttributeValue = attributesToAdd.stream()
+        Optional<String> primaryAttributeValue = attributesToAdd.stream()
                 .filter(attribute -> attribute.getAttributeName().equals(connectorGroupIdAttribute))
                 .map(attribute -> attribute.getAttributeValue())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
         //If primary attribute is in the remove list, new value should be in the add list.
-        if (!StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) && StringUtils.isNullOrEmptyAfterTrim
-                (primaryAttributeValue)) {
+        if (primaryAttributeToRemove.isPresent() && !primaryAttributeValue.isPresent()) {
             throw new IdentityStoreConnectorException("Primary attribute of the connector cannot be removed");
         }
 
         String userIdentifierNew = groupIdentifier;
 
-        //Filter the attributes to add and update
+        // Fetch the existing attributes of the user
         List<Attribute> currentAttributes = getUserAttributeValues(groupIdentifier);
-        Map<String, String> attributeMap = new HashMap<>();
-        for (Attribute attribute : currentAttributes) {
-            attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
-        }
 
-        List<Attribute> filteredAttributesToAdd = new ArrayList<>();
-        List<Attribute> filteredAttributesToUpdate = new ArrayList<>();
+        // Filter the attributes to add and update
+        // If the same attribute is present in the database already, update the value.
+        // If the same attribute is not present in the database, add the attribute.
+        // Map has a list of already existing attributes of the user with the key "true".
+        // Map has a list of new attributes of the user with the key "false".
+        Map<Boolean, List<Attribute>> attributeFilteredMap = attributesToAdd.stream()
+                .collect(Collectors.partitioningBy(a -> currentAttributes.parallelStream().anyMatch(ca -> ca
+                        .getAttributeName().equals(a.getAttributeName()))));
 
-        for (Attribute attribute : attributesToAdd) {
-            if (attributeMap.get(attribute.getAttributeName()) != null) {
-                filteredAttributesToUpdate.add(attribute);
-            } else {
-                filteredAttributesToAdd.add(attribute);
-            }
-        }
+        List<Attribute> filteredAttributesToAdd = attributeFilteredMap.get(false);
+        List<Attribute> filteredAttributesToUpdate = attributeFilteredMap.get(true);
+
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
             //Update the primary attribute of the connector
-            if (StringUtils.isNullOrEmptyAfterTrim(primaryAttributeToRemove) || !StringUtils.isNullOrEmptyAfterTrim
-                    (primaryAttributeValue)) {
+            if (primaryAttributeValue.isPresent()) {
                 NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
                         .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes
                         .SQL_QUERY_UPDATE_GROUP));
                 addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
                         groupIdentifier);
                 addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders
-                        .GROUP_UNIQUE_ID_UPDATE, primaryAttributeValue);
+                        .GROUP_UNIQUE_ID_UPDATE, primaryAttributeValue.get());
                 addUserNamedPreparedStatement.getPreparedStatement().executeUpdate();
 
                 //If the primary attribute of the connector is also going to be updated, new value should be used for
                 // the other queries.
-                userIdentifierNew = primaryAttributeValue;
+                userIdentifierNew = primaryAttributeValue.get();
             }
 
             //Delete the existing attributes

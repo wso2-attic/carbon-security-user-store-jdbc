@@ -31,6 +31,7 @@ domains:
      databaseType: "MySQL"
      connectorUserId: "username"
      connectorGroupId: "groupname"
+     maxRowLimit: 1000
    attributeMappings:
    -
     attribute: "username"
@@ -54,3 +55,5 @@ domains:
       dataSource: "WSO2_CARBON_DB"
       databaseType: "MySQL"
       hashAlgorithm: "SHA256"
+      keyLength: 256
+      iterationCount: 4096

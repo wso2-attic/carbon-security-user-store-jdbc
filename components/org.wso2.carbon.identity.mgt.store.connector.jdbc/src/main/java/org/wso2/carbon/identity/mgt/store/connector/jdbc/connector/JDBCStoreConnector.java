@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.ConnectorConst
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.queries.MySQLFamilySQLQueryFactory;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Represents a JDBC based store connector.
@@ -51,9 +52,8 @@ public abstract class JDBCStoreConnector {
         }
 
         // If there are matching queries in the properties, we have to override the default and replace with them.
-        //TODO don't modify the map
-        sqlQueries.keySet().stream()
+        sqlQueries.putAll(sqlQueries.keySet().stream()
                 .filter(properties::containsKey)
-                .forEach(key -> sqlQueries.put(key, properties.get(key)));
+                .collect(Collectors.toMap(key -> key, properties::get)));
     }
 }
