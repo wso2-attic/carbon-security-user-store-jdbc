@@ -21,12 +21,13 @@ VALUES ('darshana'),
 
 INSERT INTO UM_ATTRIBUTES (ATTR_NAME)
 VALUES ('email'),
-  ('firstname'),
-  ('lastname'),
+  ('firstName'),
+  ('lastName'),
   ('reportsto'),
   ('username'),
-  ('groupname'),
-  ('createdon');
+  ('groupName'),
+  ('createdon'),
+  ('organization');
 
 INSERT INTO UM_PASSWORD (PASSWORD, USER_UNIQUE_ID)
 VALUES ('3opCozpRixH6BvSXyr0513v1nyFWpdcQy7F6r6P/LFE=', 'admin');
@@ -82,10 +83,10 @@ VALUES ('1', '1');
 -- INSERT INTO UM_USER_ATTRIBUTES (ATTR_ID, ATTR_VALUE, USER_ID)
 -- VALUES ((SELECT ID
 --          FROM UM_ATTRIBUTES
---          WHERE UM_ATTRIBUTES.ATTR_NAME = 'firstname'), 'Jayanga', 1),
+--          WHERE UM_ATTRIBUTES.ATTR_NAME = 'firstName'), 'Jayanga', 1),
 --   ((SELECT ID
 --     FROM UM_ATTRIBUTES
---     WHERE UM_ATTRIBUTES.ATTR_NAME = 'lastname'), 'Kaushalya', 1);
+--     WHERE UM_ATTRIBUTES.ATTR_NAME = 'lastName'), 'Kaushalya', 1);
 
 INSERT INTO UM_ROLE_PERMISSION (ROLE_ID, PERMISSION_ID)
 VALUES ('1', '1'), ('1', '2'), ('1', '3'), ('1', '4'),
