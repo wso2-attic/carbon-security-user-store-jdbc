@@ -22,12 +22,9 @@ import org.ops4j.pax.exam.util.Filter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.mgt.bean.Attribute;
-import org.wso2.carbon.identity.mgt.bean.Group;
-import org.wso2.carbon.identity.mgt.bean.User;
 import org.wso2.carbon.identity.mgt.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.identity.mgt.exception.GroupNotFoundException;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreConnectorException;
-import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
 import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
 import org.wso2.carbon.identity.mgt.store.connector.IdentityStoreConnector;
 import org.wso2.carbon.identity.mgt.store.connector.IdentityStoreConnectorFactory;
@@ -49,7 +46,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
 
     private static IdentityStoreConnector identityStoreConnector;
 
-    private void initConnector() throws IdentityStoreException {
+    private void initConnector() throws IdentityStoreConnectorException {
         Assert.assertNotNull(identityStoreConnectorFactory);
         Assert.assertTrue(identityStoreConnectorFactory instanceof JDBCIdentityStoreConnectorFactory);
         identityStoreConnector = (IdentityStoreConnector)
@@ -68,7 +65,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 2)
-    public void testAddUserConnector() throws IdentityStoreConnectorException, IdentityStoreException {
+    public void testAddUserConnector() throws IdentityStoreConnectorException {
 
         //As beforeClass is not supported, connector is initialized here
         initConnector();
@@ -107,7 +104,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 3)
-    public void testAddGroup() throws IdentityStoreException {
+    public void testAddGroup() throws IdentityStoreConnectorException {
 
         List<Attribute> attributes = new ArrayList<>();
         Attribute attribute1 = new Attribute();
@@ -126,84 +123,8 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         Assert.assertEquals(attributeRetrieved.size(), 2);
     }
 
-    @Test(priority = 4)
-    public void testGroupsOfUserPut() throws IdentityStoreException {
-
-        List<String> groups = new ArrayList();
-        groups.add("engineering");
-
-        identityStoreConnector.updateGroupsOfUser("maduranga", groups);
-        List<Group.GroupBuilder> groupBuilders = identityStoreConnector.getGroupBuildersOfUser("maduranga");
-        Assert.assertEquals(groupBuilders.size(), 1);
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("maduranga", "engineering"));
-
-        groups = new ArrayList();
-        //These groups are added from the test data set
-        groups.add("is");
-        groups.add("sales");
-
-        identityStoreConnector.updateGroupsOfUser("maduranga", groups);
-
-        groupBuilders = identityStoreConnector.getGroupBuildersOfUser("maduranga");
-        Assert.assertEquals(groupBuilders.size(), 2);
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("maduranga", "is"));
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("maduranga", "sales"));
-    }
-
-    @Test(priority = 5)
-    public void testGroupsOfUserPatch() throws IdentityStoreException {
-
-        List<String> groupsToAdd = new ArrayList();
-        groupsToAdd.add("engineering");
-
-        List<String> groupsToRemove = new ArrayList();
-        groupsToRemove.add("sales");
-
-        identityStoreConnector.updateGroupsOfUser("maduranga", groupsToAdd, groupsToRemove);
-
-        List<Group.GroupBuilder> groupBuilders = identityStoreConnector.getGroupBuildersOfUser("maduranga");
-
-        Assert.assertEquals(groupBuilders.size(), 2);
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("maduranga", "is"));
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("maduranga", "engineering"));
-    }
-
-    @Test(priority = 6)
-    public void testUsersOfGroupPut() throws IdentityStoreException {
-
-        List<String> users = new ArrayList();
-        users.add("darshana");
-        users.add("thanuja");
-
-        identityStoreConnector.updateUsersOfGroup("engineering", users);
-
-        List<User.UserBuilder> groupBuilders = identityStoreConnector.getUserBuildersOfGroup("engineering");
-
-        Assert.assertEquals(groupBuilders.size(), 2);
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("darshana", "engineering"));
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("thanuja", "engineering"));
-    }
-
-    @Test(priority = 7)
-    public void testUsersOfGroupPatch() throws IdentityStoreException {
-
-        List<String> usersToAdd = new ArrayList();
-        usersToAdd.add("maduranga");
-
-        List<String> usersToRemove = new ArrayList();
-        usersToRemove.add("darshana");
-
-        identityStoreConnector.updateUsersOfGroup("engineering", usersToAdd, usersToRemove);
-
-        List<User.UserBuilder> groupBuilders = identityStoreConnector.getUserBuildersOfGroup("engineering");
-
-        Assert.assertEquals(groupBuilders.size(), 2);
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("thanuja", "engineering"));
-        Assert.assertTrue(identityStoreConnector.isUserInGroup("maduranga", "engineering"));
-    }
-
     @Test(priority = 8)
-    public void testUpdateUserAttributesPut() throws IdentityStoreException {
+    public void testUpdateUserAttributesPut() throws IdentityStoreConnectorException {
 
         List<Attribute> attributesToUpdate = new ArrayList();
         Attribute attribute1 = new Attribute();
@@ -235,7 +156,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 9)
-    public void testUpdateUserAttributesPatch() throws IdentityStoreException {
+    public void testUpdateUserAttributesPatch() throws IdentityStoreConnectorException {
 
         List<Attribute> attributesToUpdate = new ArrayList();
         Attribute attribute1 = new Attribute();
@@ -272,7 +193,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 10)
-    public void testDeleteUser() throws UserNotFoundException, IdentityStoreException {
+    public void testDeleteUser() throws UserNotFoundException, IdentityStoreConnectorException {
 
         identityStoreConnector.deleteUser("maduranga");
         List<Attribute> userAttributeValues = identityStoreConnector.getUserAttributeValues("maduranga");
@@ -281,7 +202,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 11)
-    public void testUpdateGroupAttributesPut() throws IdentityStoreException {
+    public void testUpdateGroupAttributesPut() throws IdentityStoreConnectorException {
 
         List<Attribute> attributesToUpdate = new ArrayList();
         Attribute attribute1 = new Attribute();
@@ -313,7 +234,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 12)
-    public void testUpdateGroupAttributesPatch() throws IdentityStoreException {
+    public void testUpdateGroupAttributesPatch() throws IdentityStoreConnectorException {
 
         String now = LocalDateTime.now().toString();
 
@@ -350,11 +271,12 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         Assert.assertEquals(attributeMap.get("createdon"), now);
     }
 
-    //TODO change the expectedExceptions to GroupNotFoundException
-    @Test(priority = 13, expectedExceptions = {Exception.class}, expectedExceptionsMessageRegExp = "Group not found.*")
-    public void testDeleteGroup() throws IdentityStoreException, GroupNotFoundException {
+    @Test(priority = 13)
+    public void testDeleteGroup() throws IdentityStoreConnectorException, GroupNotFoundException {
 
         identityStoreConnector.deleteGroup("engineering");
-        identityStoreConnector.getGroupBuilder("groupname", "engineering");
+        List<Attribute> groups = identityStoreConnector.getGroupAttributeValues("engineering");
+        Assert.assertNotNull(groups);
     }
+
 }

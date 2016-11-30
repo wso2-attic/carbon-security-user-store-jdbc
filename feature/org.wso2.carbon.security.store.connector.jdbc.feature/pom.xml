@@ -70,6 +70,7 @@
                                     <includes>
                                         <include>conf/identity/jdbc-authorization-connector.yml</include>
                                         <include>dbscripts/authorization/h2.sql</include>
+                                        <include>dbscripts/authorization/mysql.sql</include>
                                         <include>p2.inf</include>
                                     </includes>
                                 </resource>

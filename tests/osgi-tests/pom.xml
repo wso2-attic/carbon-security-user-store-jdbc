@@ -226,7 +226,7 @@
                                 </goals>
                                 <configuration>
                                     <outputDirectory>
-                                        ${project.build.directory}/wso2carbon-kernel-${project.version}/conf
+                                        ${project.build.directory}/org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}/conf
                                     </outputDirectory>
                                     <overwrite>true</overwrite>
                                     <resources>
@@ -252,7 +252,7 @@
                             <systemProperties>
                                 <property>
                                     <name>carbon.home</name>
-                                    <value>${basedir}/target/wso2carbon-kernel-${project.version}</value>
+                                    <value>${basedir}/target/org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}</value>
                                 </property>
                             </systemProperties>
 
@@ -319,9 +319,9 @@
                                 <configuration>
                                     <autocommit>true</autocommit>
                                     <srcFiles>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/connector/h2.sql</srcFile>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/authorization/h2.sql</srcFile>
-                                        <srcFile>${basedir}/target/wso2carbon-kernel-${project.version}/dbscripts/identity-mgt/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}/dbscripts/connector/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}/dbscripts/authorization/h2.sql</srcFile>
+                                        <srcFile>${basedir}/target/org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}/dbscripts/identity-mgt/h2.sql</srcFile>
                                     </srcFiles>
                                     <onError>abort</onError>
                                 </configuration>
