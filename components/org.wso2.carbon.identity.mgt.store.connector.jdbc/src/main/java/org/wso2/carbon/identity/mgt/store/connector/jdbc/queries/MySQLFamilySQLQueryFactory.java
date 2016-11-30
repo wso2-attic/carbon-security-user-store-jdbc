@@ -195,7 +195,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "WHERE GROUP_UNIQUE_ID = :group_id;)";
 
     private static final String LIST_GROUP_BY_ATTRIBUTE_PATTERN =
-            "SELECT UM_GROUP.USER_UNIQUE_ID " +
+            "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
                     "FROM UM_GROUP LEFT JOIN UM_GROUP_ATTRIBUTES " +
                     "ON UM_GROUP_ATTRIBUTES.GROUP_ID = UM_GROUP.ID " +
                     "WHERE UM_GROUP_ATTRIBUTES.ATTR_ID = " +
@@ -207,7 +207,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "OFFSET :offset;";
 
     private static final String LIST_GROUP_BY_ATTRIBUTE =
-            "SELECT UM_GROUP.USER_UNIQUE_ID " +
+            "SELECT UM_GROUP.GROUP_UNIQUE_ID " +
                     "FROM UM_GROUP LEFT JOIN UM_GROUP_ATTRIBUTES " +
                     "ON UM_GROUP_ATTRIBUTES.GROUP_ID = UM_GROUP.ID " +
                     "WHERE UM_GROUP_ATTRIBUTES.ATTR_ID = " +
@@ -375,7 +375,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
             "SELECT ATTR_NAME, ATTR_VALUE " +
                     "FROM UM_GROUP_ATTRIBUTES LEFT JOIN UM_ATTRIBUTES " +
                     "ON UM_GROUP_ATTRIBUTES.ATTR_ID = UM_ATTRIBUTES.ID " +
-                    "WHERE GROUP_ID = (SELECT GROUP_ID " +
+                    "WHERE GROUP_ID = (SELECT ID " +
                     "FROM UM_GROUP " +
                     "WHERE GROUP_UNIQUE_ID = :group_id;)";
 

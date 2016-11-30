@@ -59,7 +59,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         properties.put("hashAlgorithm", "SHA256");
         properties.put("databaseType", "MySQL");
         properties.put("connectorUserId", "username");
-        properties.put("connectorGroupId", "groupname");
+        properties.put("connectorGroupId", "groupName");
         identityStoreConnectorConfig.setProperties(properties);
         identityStoreConnector.init(identityStoreConnectorConfig);
     }
@@ -80,11 +80,11 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         attribute2.setAttributeValue("maduranga@wso2.com");
         attributes.add(attribute2);
         Attribute attribute3 = new Attribute();
-        attribute3.setAttributeName("firstname");
+        attribute3.setAttributeName("firstName");
         attribute3.setAttributeValue("Maduranga");
         attributes.add(attribute3);
         Attribute attribute4 = new Attribute();
-        attribute4.setAttributeName("lastname");
+        attribute4.setAttributeName("lastName");
         attribute4.setAttributeValue("Siriwardena");
         attributes.add(attribute4);
 
@@ -99,16 +99,16 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         }
         Assert.assertEquals(attributeMap.get("username"), "maduranga");
         Assert.assertEquals(attributeMap.get("email"), "maduranga@wso2.com");
-        Assert.assertEquals(attributeMap.get("firstname"), "Maduranga");
-        Assert.assertEquals(attributeMap.get("lastname"), "Siriwardena");
+        Assert.assertEquals(attributeMap.get("firstName"), "Maduranga");
+        Assert.assertEquals(attributeMap.get("lastName"), "Siriwardena");
     }
 
     @Test(priority = 3)
-    public void testAddGroup() throws IdentityStoreConnectorException {
+    public void testAddGroupConnector() throws IdentityStoreConnectorException {
 
         List<Attribute> attributes = new ArrayList<>();
         Attribute attribute1 = new Attribute();
-        attribute1.setAttributeName("groupname");
+        attribute1.setAttributeName("groupName");
         attribute1.setAttributeValue("engineering");
         attributes.add(attribute1);
         Attribute attribute2 = new Attribute();
@@ -124,7 +124,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 8)
-    public void testUpdateUserAttributesPut() throws IdentityStoreConnectorException {
+    public void testUpdateUserAttributesPutConnector() throws IdentityStoreConnectorException {
 
         List<Attribute> attributesToUpdate = new ArrayList();
         Attribute attribute1 = new Attribute();
@@ -136,7 +136,7 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         attribute2.setAttributeValue("maduranga1@wso2.com");
         attributesToUpdate.add(attribute2);
         Attribute attribute3 = new Attribute();
-        attribute3.setAttributeName("firstname");
+        attribute3.setAttributeName("firstName");
         attribute3.setAttributeValue("Maduranga1");
         attributesToUpdate.add(attribute3);
 
@@ -152,11 +152,11 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         }
         Assert.assertEquals(attributeMap.get("username"), "maduranga1");
         Assert.assertEquals(attributeMap.get("email"), "maduranga1@wso2.com");
-        Assert.assertEquals(attributeMap.get("firstname"), "Maduranga1");
+        Assert.assertEquals(attributeMap.get("firstName"), "Maduranga1");
     }
 
     @Test(priority = 9)
-    public void testUpdateUserAttributesPatch() throws IdentityStoreConnectorException {
+    public void testUpdateUserAttributesPatchConnector() throws IdentityStoreConnectorException {
 
         List<Attribute> attributesToUpdate = new ArrayList();
         Attribute attribute1 = new Attribute();
@@ -168,13 +168,13 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         attribute2.setAttributeValue("maduranga@wso2.com");
         attributesToUpdate.add(attribute2);
         Attribute attribute3 = new Attribute();
-        attribute3.setAttributeName("lastname");
+        attribute3.setAttributeName("lastName");
         attribute3.setAttributeValue("Siriwardena1");
         attributesToUpdate.add(attribute3);
 
         List<Attribute> attributesToDelete = new ArrayList();
         Attribute attribute5 = new Attribute();
-        attribute5.setAttributeName("firstname");
+        attribute5.setAttributeName("firstName");
         attribute5.setAttributeValue("Maduranga1");
         attributesToDelete.add(attribute5);
 
@@ -189,11 +189,11 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         Assert.assertEquals(attributesRetrieved.size(), 3);
         Assert.assertEquals(attributeMap.get("username"), "maduranga");
         Assert.assertEquals(attributeMap.get("email"), "maduranga@wso2.com");
-        Assert.assertEquals(attributeMap.get("lastname"), "Siriwardena1");
+        Assert.assertEquals(attributeMap.get("lastName"), "Siriwardena1");
     }
 
     @Test(priority = 10)
-    public void testDeleteUser() throws UserNotFoundException, IdentityStoreConnectorException {
+    public void testDeleteUserConnector() throws UserNotFoundException, IdentityStoreConnectorException {
 
         identityStoreConnector.deleteUser("maduranga");
         List<Attribute> userAttributeValues = identityStoreConnector.getUserAttributeValues("maduranga");
@@ -202,11 +202,11 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
     }
 
     @Test(priority = 11)
-    public void testUpdateGroupAttributesPut() throws IdentityStoreConnectorException {
+    public void testUpdateGroupAttributesPutConnector() throws IdentityStoreConnectorException {
 
         List<Attribute> attributesToUpdate = new ArrayList();
         Attribute attribute1 = new Attribute();
-        attribute1.setAttributeName("groupname");
+        attribute1.setAttributeName("groupName");
         attribute1.setAttributeValue("engineering1");
         attributesToUpdate.add(attribute1);
         Attribute attribute2 = new Attribute();
@@ -228,19 +228,19 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         for (Attribute attribute : attributesRetrieved) {
             attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
         }
-        Assert.assertEquals(attributeMap.get("groupname"), "engineering1");
+        Assert.assertEquals(attributeMap.get("groupName"), "engineering1");
         Assert.assertEquals(attributeMap.get("email"), "engineering1@wso2.com");
         Assert.assertEquals(attributeMap.get("reportsto"), "director1@wso2.com");
     }
 
     @Test(priority = 12)
-    public void testUpdateGroupAttributesPatch() throws IdentityStoreConnectorException {
+    public void testUpdateGroupAttributesPatchConnector() throws IdentityStoreConnectorException {
 
         String now = LocalDateTime.now().toString();
 
         List<Attribute> attributesToUpdate = new ArrayList();
         Attribute attribute1 = new Attribute();
-        attribute1.setAttributeName("groupname");
+        attribute1.setAttributeName("groupName");
         attribute1.setAttributeValue("engineering");
         attributesToUpdate.add(attribute1);
         Attribute attribute2 = new Attribute();
@@ -266,13 +266,13 @@ public class JDBCIdentityConnectorTests extends JDBCConnectorTests {
         for (Attribute attribute : attributesRetrieved) {
             attributeMap.put(attribute.getAttributeName(), attribute.getAttributeValue());
         }
-        Assert.assertEquals(attributeMap.get("groupname"), "engineering");
+        Assert.assertEquals(attributeMap.get("groupName"), "engineering");
         Assert.assertEquals(attributeMap.get("email"), "engineering@wso2.com");
         Assert.assertEquals(attributeMap.get("createdon"), now);
     }
 
     @Test(priority = 13)
-    public void testDeleteGroup() throws IdentityStoreConnectorException, GroupNotFoundException {
+    public void testDeleteGroupConnector() throws IdentityStoreConnectorException, GroupNotFoundException {
 
         identityStoreConnector.deleteGroup("engineering");
         List<Attribute> groups = identityStoreConnector.getGroupAttributeValues("engineering");
