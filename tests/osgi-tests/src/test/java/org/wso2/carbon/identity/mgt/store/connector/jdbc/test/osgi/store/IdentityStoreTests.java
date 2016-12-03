@@ -537,7 +537,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers"})
     public void testGetClaims() throws IdentityStoreException, UserNotFoundException {
 
-        List<Claim> claims = realmService.getIdentityStore().getClaims(users.get(0).getUniqueUserId());
+        List<Claim> claims = realmService.getIdentityStore().getClaimsOfUser(users.get(0).getUniqueUserId());
         Assert.assertNotNull(claims, "Failed to get the claims.");
         Assert.assertTrue(!claims.isEmpty() && claims.size() > 0, "Number of claims received in the " +
                 "response is invalid.");
@@ -546,7 +546,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers"})
     public void testGetClaimsByDomain() throws IdentityStoreException, UserNotFoundException {
 
-        List<Claim> claims = realmService.getIdentityStore().getClaims(users.get(1).getUniqueUserId(), "PRIMARY");
+        List<Claim> claims = realmService.getIdentityStore().getClaimsOfUser(users.get(1).getUniqueUserId(), "PRIMARY");
         Assert.assertNotNull(claims, "Failed to get the claims.");
         Assert.assertTrue(!claims.isEmpty() && claims.size() > 0, "Number of claims received in the " +
                 "response is invalid.");
@@ -559,7 +559,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
                 new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/username"),
                 new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/email"));
 
-        List<Claim> claims = realmService.getIdentityStore().getClaims(users.get(0).getUniqueUserId(), metaClaims);
+        List<Claim> claims = realmService.getIdentityStore().getClaimsOfUser(users.get(0).getUniqueUserId(),
+                metaClaims);
         Assert.assertNotNull(claims, "Failed to get the claims.");
         Assert.assertTrue(!claims.isEmpty() && claims.size() == 2, "Number of claims received in the " +
                 "response is invalid.");
@@ -572,7 +573,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
                 new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/username"),
                 new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/email"));
 
-        List<Claim> claims = realmService.getIdentityStore().getClaims(users.get(1).getUniqueUserId(), metaClaims,
+        List<Claim> claims = realmService.getIdentityStore().getClaimsOfUser(users.get(1).getUniqueUserId(), metaClaims,
                 "PRIMARY");
         Assert.assertNotNull(claims, "Failed to get the claims.");
         Assert.assertTrue(!claims.isEmpty() && claims.size() == 2, "Number of claims received in the " +
