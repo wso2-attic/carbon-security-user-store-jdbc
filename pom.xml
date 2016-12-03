@@ -164,17 +164,22 @@
                 <artifactId>org.wso2.carbon.security.caas</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi.services</artifactId>
+                <version>${org.wso2.eclipse.osgi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+                <version>${equinox.osgi.version}</version>
+            </dependency>
 
             <!-- OSGI Tests-->
             <dependency>
                 <groupId>net.minidev.wso2</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>${json.smart.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.minidev</groupId>
-                <artifactId>asm</artifactId>
-                <version>${net.minidev.asm.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.com.nimbusds</groupId>
@@ -384,10 +389,6 @@
         <netty.version>4.0.30.Final</netty.version>
         <nimbus.version>2.26.1.wso2v3</nimbus.version>
         <json.smart.version>2.1.0.wso2v1</json.smart.version>
-        <slf4j.api.version>1.7.12</slf4j.api.version>
-        <rs-api.version>2.0</rs-api.version>
-        <gson.version>2.2.4</gson.version>
-        <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
         <carbon.core.version>5.1.0</carbon.core.version>
         <org.osgi.core.version>6.0.0</org.osgi.core.version>
@@ -413,6 +414,9 @@
         <org.wso2.carbon.messaging.version>1.0.3</org.wso2.carbon.messaging.version>
         <pax.logging.api.version>1.9.0</pax.logging.api.version>
         <commons.dbcp.version>1.4</commons.dbcp.version>
+
+        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
+        <org.wso2.eclipse.osgi.version>3.4.0.v20140312-2051</org.wso2.eclipse.osgi.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
