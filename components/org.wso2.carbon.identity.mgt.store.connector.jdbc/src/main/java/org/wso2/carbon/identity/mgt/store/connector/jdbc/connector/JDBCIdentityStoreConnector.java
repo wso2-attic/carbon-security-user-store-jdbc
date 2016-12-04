@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 /**
- * Identity store connector for JDBC based stores.
+ * Connector for JDBC based identity stores.
  *
  * @since 1.0.0
  */
@@ -112,9 +112,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public List<String> listConnectorUserIds(String attributeName, String attributeValue, int offset, int length)
+    public List<String> listConnectorUserIds(String attributeName, String attributeValue, int startIndex, int length)
             throws IdentityStoreConnectorException {
 
+        // Database handles start index as 0
+        if (startIndex > 0) {
+            startIndex--;
+        }
         // Get the max allowed row count if the length is -1.
         if (length == -1) {
             length = getMaxRowRetrievalCount();
@@ -133,7 +137,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
                     attributeValue);
             listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, startIndex);
 
             try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -154,9 +158,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public List<String> listConnectorUserIdsByPattern(String attributeName, String filterPattern, int offset, int
+    public List<String> listConnectorUserIdsByPattern(String attributeName, String filterPattern, int startIndex, int
             length) throws IdentityStoreConnectorException {
 
+        // Database handles start index as 0
+        if (startIndex > 0) {
+            startIndex--;
+        }
         // Get the max allowed row count if the length is -1.
         if (length == -1) {
             length = getMaxRowRetrievalCount();
@@ -178,7 +186,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
                     filterPattern);
             listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+            listUsersNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, startIndex);
 
             try (ResultSet resultSet = listUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -329,9 +337,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public List<String> listConnectorGroupIds(String attributeName, String attributeValue, int offset, int length)
+    public List<String> listConnectorGroupIds(String attributeName, String attributeValue, int startIndex, int length)
             throws IdentityStoreConnectorException {
 
+        // Database handles start index as 0
+        if (startIndex > 0) {
+            startIndex--;
+        }
         // Get the max allowed row count if the length is -1.
         if (length == -1) {
             length = getMaxRowRetrievalCount();
@@ -349,7 +361,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
                     attributeValue);
             listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, startIndex);
 
             try (ResultSet resultSet = listGroupsNamedPreparedStatement.getPreparedStatement().executeQuery()) {
 
@@ -372,9 +384,13 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     }
 
     @Override
-    public List<String> listConnectorGroupIdsByPattern(String attributeName, String filterPattern, int offset, int
+    public List<String> listConnectorGroupIdsByPattern(String attributeName, String filterPattern, int startIndex, int
             length) throws IdentityStoreConnectorException {
 
+        // Database handles start index as 0
+        if (startIndex > 0) {
+            startIndex--;
+        }
         // Get the max allowed row count if the length is -1.
         if (length == -1) {
             length = getMaxRowRetrievalCount();
@@ -395,7 +411,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             listGroupsNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
                     filterPattern);
             listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.LENGTH, length);
-            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, offset);
+            listGroupsNamedPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.OFFSET, startIndex);
 
             try (ResultSet resultSet = listGroupsNamedPreparedStatement.getPreparedStatement().executeQuery()) {
 

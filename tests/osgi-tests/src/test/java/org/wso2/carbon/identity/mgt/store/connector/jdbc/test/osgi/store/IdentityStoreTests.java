@@ -211,7 +211,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     public void testListUsersByClaimOffsetAndLength() throws IdentityStoreException {
 
         Claim claim = new Claim("http://wso2.org/claims", "http://wso2.org/claims/lastName", "Decker");
-        List<User> users = realmService.getIdentityStore().listUsers(claim, 0, 2);
+        List<User> users = realmService.getIdentityStore().listUsers(claim, 1, 2);
 
         Assert.assertNotNull(users, "Failed to list the users.");
         Assert.assertTrue(!users.isEmpty() && users.size() == 2, "Number of users received in the response " +
@@ -222,7 +222,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     public void testListUsersByClaimOffsetAndLengthInADomain() throws IdentityStoreException {
 
         Claim claim = new Claim("http://wso2.org/claims", "http://wso2.org/claims/lastName", "Decker");
-        List<User> users = realmService.getIdentityStore().listUsers(claim, 0, 2, "PRIMARY");
+        List<User> users = realmService.getIdentityStore().listUsers(claim, 1, 2, "PRIMARY");
 
         Assert.assertNotNull(users, "Failed to list the users.");
         Assert.assertTrue(!users.isEmpty() && users.size() == 2, "Number of users received in the response " +
@@ -233,7 +233,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     public void testListUsersByMetaClaimFilterPatternOffsetAndLength() throws IdentityStoreException {
 
         MetaClaim metaClaim = new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/lastName");
-        List<User> users = realmService.getIdentityStore().listUsers(metaClaim, "*cke*", 0, 2);
+        List<User> users = realmService.getIdentityStore().listUsers(metaClaim, "*cke*", 1, 2);
 
         Assert.assertNotNull(users, "Failed to list the users.");
         Assert.assertTrue(!users.isEmpty() && users.size() == 2, "Number of users received in the response " +
@@ -244,7 +244,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     public void testListUsersByMetaClaimFilterPatternOffsetAndLengthInDomain() throws IdentityStoreException {
 
         MetaClaim metaClaim = new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/lastName");
-        List<User> users = realmService.getIdentityStore().listUsers(metaClaim, "*cke*", 0, 2, "PRIMARY");
+        List<User> users = realmService.getIdentityStore().listUsers(metaClaim, "*cke*", 1, 2, "PRIMARY");
 
         Assert.assertNotNull(users, "Failed to list the users.");
         Assert.assertTrue(!users.isEmpty() && users.size() == 2, "Number of users received in the response " +
@@ -373,7 +373,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addGroups"})
     public void testListGroupsByOffsetAndLength() throws IdentityStoreException {
 
-        List<Group> groups = realmService.getIdentityStore().listGroups(2, 3);
+        List<Group> groups = realmService.getIdentityStore().listGroups(1, 3);
 
         Assert.assertNotNull(groups, "Failed to list the users.");
         Assert.assertTrue(!groups.isEmpty() && groups.size() == 3, "Number of users received in the response " +
@@ -383,7 +383,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addGroups"})
     public void testListGroupsByOffsetAndLengthInADomain() throws IdentityStoreException {
 
-        List<Group> groups = realmService.getIdentityStore().listGroups(0, 2, "PRIMARY");
+        List<Group> groups = realmService.getIdentityStore().listGroups(1, 2, "PRIMARY");
 
         Assert.assertNotNull(groups, "Failed to list the groups.");
         Assert.assertTrue(!groups.isEmpty() && groups.size() == 2, "Number of groups received in the response " +
@@ -394,7 +394,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     public void testListGroupsByClaimOffsetAndLength() throws IdentityStoreException {
 
         Claim claim = new Claim("http://wso2.org/claims", "http://wso2.org/claims/organization", "Society");
-        List<Group> groups = realmService.getIdentityStore().listGroups(claim, 0, 2);
+        List<Group> groups = realmService.getIdentityStore().listGroups(claim, 1, 2);
 
         Assert.assertNotNull(groups, "Failed to list the groups.");
         Assert.assertTrue(!groups.isEmpty() && groups.size() == 2, "Number of groups received in the response " +
@@ -405,7 +405,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     public void testListGroupsByClaimOffsetAndLengthInADomain() throws IdentityStoreException {
 
         Claim claim = new Claim("http://wso2.org/claims", "http://wso2.org/claims/organization", "Society");
-        List<Group> groups = realmService.getIdentityStore().listGroups(claim, 0, 2, "PRIMARY");
+        List<Group> groups = realmService.getIdentityStore().listGroups(claim, 1, 2, "PRIMARY");
 
         Assert.assertNotNull(groups, "Failed to list the groups.");
         Assert.assertTrue(!groups.isEmpty() && groups.size() == 2, "Number of groups received in the response " +
@@ -416,7 +416,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     public void testListGroupsByMetaClaimFilterPatternOffsetAndLength() throws IdentityStoreException {
 
         MetaClaim metaClaim = new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/organization");
-        List<Group> groups = realmService.getIdentityStore().listGroups(metaClaim, "*cie*", 0, 2);
+        List<Group> groups = realmService.getIdentityStore().listGroups(metaClaim, "*cie*", 1, 2);
 
         Assert.assertNotNull(groups, "Failed to list the groups.");
         Assert.assertTrue(!groups.isEmpty() && groups.size() == 2, "Number of groups received in the response " +
@@ -427,7 +427,7 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     public void testListGroupsByMetaClaimFilterPatternOffsetAndLengthInDomain() throws IdentityStoreException {
 
         MetaClaim metaClaim = new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/organization");
-        List<Group> groups = realmService.getIdentityStore().listGroups(metaClaim, "*cie*", 0, 2, "PRIMARY");
+        List<Group> groups = realmService.getIdentityStore().listGroups(metaClaim, "*cie*", 1, 2, "PRIMARY");
 
         Assert.assertNotNull(groups, "Failed to list the groups.");
         Assert.assertTrue(!groups.isEmpty() && groups.size() == 2, "Number of groups received in the response " +

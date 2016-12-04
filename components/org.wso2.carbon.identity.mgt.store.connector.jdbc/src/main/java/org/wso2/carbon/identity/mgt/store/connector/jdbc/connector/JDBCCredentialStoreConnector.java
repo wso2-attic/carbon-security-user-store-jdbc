@@ -46,7 +46,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.sql.DataSource;
 
 /**
- * JDBC connector for the credential store.
+ * Connector for the JDBC based credential store.
  *
  * @since 1.0.0
  */
