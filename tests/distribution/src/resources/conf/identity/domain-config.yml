@@ -29,8 +29,6 @@ domains:
    properties:
      dataSource: "WSO2_CARBON_DB"
      databaseType: "MySQL"
-     connectorUserId: "username"
-     connectorGroupId: "groupName"
      maxRowLimit: 1000
    attributeMappings:
    -
