@@ -1008,12 +1008,42 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
     @Override
     public void removeAddedUsersInAFailure(List<String> connectorUserIds) throws IdentityStoreConnectorException {
-        //TODO need to implement this
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_USER));
+            for (String connectorUserId : connectorUserIds) {
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, connectorUserId);
+                namedPreparedStatement.getPreparedStatement().addBatch();
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("Error occurred remove added users in failure.", e);
+        }
     }
 
     @Override
     public void removeAddedGroupsInAFailure(List<String> connectorGroupIds) throws IdentityStoreConnectorException {
-        //TODO need to implement this
+
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_GROUP));
+            for (String connectorGroupId : connectorGroupIds) {
+                namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID, connectorGroupId);
+                namedPreparedStatement.getPreparedStatement().addBatch();
+            }
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("Error occurred remove added users in failure.", e);
+        }
     }
 
     /**
