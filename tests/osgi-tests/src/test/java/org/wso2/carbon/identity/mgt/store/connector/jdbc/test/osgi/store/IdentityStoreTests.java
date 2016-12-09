@@ -51,6 +51,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(groups = "addUsers")
     public void testAddUser() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         UserModel userModel = new UserModel();
         List<Claim> claims = Arrays
                 .asList(new Claim("http://wso2.org/claims", "http://wso2.org/claims/username", "lucifer"),
@@ -75,6 +77,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(groups = "addUsers")
     public void testAddUserByDomain() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         UserModel userModel = new UserModel();
         List<Claim> claims = Arrays.asList(
                 new Claim("http://wso2.org/claims", "http://wso2.org/claims/username", "chloe"),
@@ -92,6 +96,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
     @Test(groups = "addUsers")
     public void testAddUsers() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         UserModel userModel1 = new UserModel();
         List<Claim> claims1 = Arrays.asList(
@@ -120,6 +126,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
     @Test(groups = "addUsers")
     public void testAddUsersByDomain() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         UserModel userModel1 = new UserModel();
         List<Claim> claims1 = Arrays.asList(
@@ -150,23 +158,17 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers"})
     public void testGetUserByUniqueUserId() throws IdentityStoreException, UserNotFoundException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         User user = realmService.getIdentityStore().getUser(users.get(0).getUniqueUserId());
 
         Assert.assertNotNull(user, "Failed to receive the user.");
     }
 
     @Test(dependsOnGroups = {"addUsers"})
-    public void testGetUserByUniqueUserIdAndDomain() throws IdentityStoreException, UserNotFoundException {
+    public void testGetUserByClaim() throws IdentityStoreException, UserNotFoundException {
 
         Assert.assertNotNull(realmService, "Failed to get realm service instance");
-
-        User user = realmService.getIdentityStore().getUser(users.get(0).getUniqueUserId(), "PRIMARY");
-
-        Assert.assertNotNull(user, "Failed to receive the user.");
-    }
-
-    @Test(dependsOnGroups = {"addUsers"})
-    public void testGetUserByClaim() throws IdentityStoreException, UserNotFoundException {
 
         User user = realmService.getIdentityStore()
                 .getUser(new Claim("http://wso2.org/claims", "http://wso2" + ".org/claims/username", "lucifer"));
@@ -179,6 +181,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers"})
     public void testGetUserByClaimAndDomain() throws IdentityStoreException, UserNotFoundException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         User user = realmService.getIdentityStore().getUser(new Claim("http://wso2.org/claims", "http://wso2" +
                 ".org/claims/username", "chloe"), "PRIMARY");
 
@@ -190,6 +194,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers"})
     public void testListUsersByOffsetAndLength() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         List<User> users = realmService.getIdentityStore().listUsers(2, 3);
 
         Assert.assertNotNull(users, "Failed to list the users.");
@@ -200,6 +206,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers"})
     public void testListUsersByOffsetAndLengthInADomain() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         List<User> users = realmService.getIdentityStore().listUsers(2, 3, "PRIMARY");
 
         Assert.assertNotNull(users, "Failed to list the users.");
@@ -209,6 +217,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
     @Test(dependsOnGroups = {"addUsers"})
     public void testListUsersByClaimOffsetAndLength() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         Claim claim = new Claim("http://wso2.org/claims", "http://wso2.org/claims/lastName", "Decker");
         List<User> users = realmService.getIdentityStore().listUsers(claim, 1, 2);
@@ -221,6 +231,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers"})
     public void testListUsersByClaimOffsetAndLengthInADomain() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         Claim claim = new Claim("http://wso2.org/claims", "http://wso2.org/claims/lastName", "Decker");
         List<User> users = realmService.getIdentityStore().listUsers(claim, 1, 2, "PRIMARY");
 
@@ -231,6 +243,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
     @Test(dependsOnGroups = {"addUsers"})
     public void testListUsersByMetaClaimFilterPatternOffsetAndLength() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         MetaClaim metaClaim = new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/lastName");
         List<User> users = realmService.getIdentityStore().listUsers(metaClaim, "*cke*", 1, 2);
@@ -243,6 +257,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers"})
     public void testListUsersByMetaClaimFilterPatternOffsetAndLengthInDomain() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         MetaClaim metaClaim = new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/lastName");
         List<User> users = realmService.getIdentityStore().listUsers(metaClaim, "*cke*", 1, 2, "PRIMARY");
 
@@ -253,6 +269,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
     @Test(groups = "addGroups")
     public void testAddGroup() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         GroupModel groupModel = new GroupModel();
         List<Claim> claims = Arrays.asList(
@@ -270,6 +288,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(groups = "addGroups")
     public void testAddGroupByDomain() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         GroupModel groupModel = new GroupModel();
         List<Claim> claims = Arrays.asList(
                 new Claim("http://wso2.org/claims", "http://wso2.org/claims/groupName", "Demons"),
@@ -285,6 +305,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
     @Test(groups = "addGroups")
     public void testAddGroups() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         GroupModel groupModel1 = new GroupModel();
         List<Claim> claims1 = Arrays.asList(
@@ -309,6 +331,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
     @Test(groups = "addGroups")
     public void testAddGroupsByDomain() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         GroupModel groupModel1 = new GroupModel();
         List<Claim> claims1 = Arrays.asList(
@@ -335,21 +359,17 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addGroups"})
     public void testGetGroupByUniqueGroupId() throws IdentityStoreException, GroupNotFoundException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         Group group = realmService.getIdentityStore().getGroup(groups.get(0).getUniqueGroupId());
 
         Assert.assertNotNull(group, "Failed to receive the group.");
     }
 
     @Test(dependsOnGroups = {"addGroups"})
-    public void testGetGroupByUniqueGroupIdAndDomain() throws IdentityStoreException, GroupNotFoundException {
-
-        Group user = realmService.getIdentityStore().getGroup(groups.get(0).getUniqueGroupId(), "PRIMARY");
-
-        Assert.assertNotNull(user, "Failed to receive the group.");
-    }
-
-    @Test(dependsOnGroups = {"addGroups"})
     public void testGetGroupByClaim() throws IdentityStoreException, GroupNotFoundException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         Group group = realmService.getIdentityStore().getGroup(new Claim("http://wso2.org/claims", "http://wso2" +
                 ".org/claims/groupName", "Angels"));
@@ -362,6 +382,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addGroups"})
     public void testGetGroupByClaimAndDomain() throws IdentityStoreException, GroupNotFoundException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         Group group = realmService.getIdentityStore().getGroup(new Claim("http://wso2.org/claims", "http://wso2" +
                 ".org/claims/groupName", "Demons"), "PRIMARY");
 
@@ -373,7 +395,9 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addGroups"})
     public void testListGroupsByOffsetAndLength() throws IdentityStoreException {
 
-        List<Group> groups = realmService.getIdentityStore().listGroups(1, 3);
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
+        List<Group> groups = realmService.getIdentityStore().listGroups(2, 3);
 
         Assert.assertNotNull(groups, "Failed to list the users.");
         Assert.assertTrue(!groups.isEmpty() && groups.size() == 3, "Number of users received in the response " +
@@ -383,15 +407,19 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addGroups"})
     public void testListGroupsByOffsetAndLengthInADomain() throws IdentityStoreException {
 
-        List<Group> groups = realmService.getIdentityStore().listGroups(1, 2, "PRIMARY");
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
+        List<Group> groups = realmService.getIdentityStore().listGroups(2, 3, "PRIMARY");
 
         Assert.assertNotNull(groups, "Failed to list the groups.");
-        Assert.assertTrue(!groups.isEmpty() && groups.size() == 2, "Number of groups received in the response " +
+        Assert.assertTrue(!groups.isEmpty() && groups.size() == 3, "Number of groups received in the response " +
                 "is invalid.");
     }
 
     @Test(dependsOnGroups = {"addGroups"})
     public void testListGroupsByClaimOffsetAndLength() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         Claim claim = new Claim("http://wso2.org/claims", "http://wso2.org/claims/organization", "Society");
         List<Group> groups = realmService.getIdentityStore().listGroups(claim, 1, 2);
@@ -404,6 +432,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addGroups"})
     public void testListGroupsByClaimOffsetAndLengthInADomain() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         Claim claim = new Claim("http://wso2.org/claims", "http://wso2.org/claims/organization", "Society");
         List<Group> groups = realmService.getIdentityStore().listGroups(claim, 1, 2, "PRIMARY");
 
@@ -414,6 +444,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
     @Test(dependsOnGroups = {"addGroups"})
     public void testListGroupsByMetaClaimFilterPatternOffsetAndLength() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         MetaClaim metaClaim = new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/organization");
         List<Group> groups = realmService.getIdentityStore().listGroups(metaClaim, "*cie*", 1, 2);
@@ -426,6 +458,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addGroups"})
     public void testListGroupsByMetaClaimFilterPatternOffsetAndLengthInDomain() throws IdentityStoreException {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         MetaClaim metaClaim = new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/organization");
         List<Group> groups = realmService.getIdentityStore().listGroups(metaClaim, "*cie*", 1, 2, "PRIMARY");
 
@@ -437,6 +471,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     @Test(dependsOnGroups = {"addUsers", "addGroups"}, groups = "addGroupsToUser")
     public void testUpdateGroupsOfUser() {
 
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
         try {
             realmService.getIdentityStore().updateGroupsOfUser(users.get(0).getUniqueUserId(), Arrays.asList(groups.get
                     (0).getUniqueGroupId(), groups.get(1).getUniqueGroupId()));
@@ -445,19 +481,10 @@ public class IdentityStoreTests extends JDBCConnectorTests {
         }
     }
 
-    @Test(dependsOnGroups = {"addUsers", "addGroups"}, groups = "addGroupsToUser")
-    public void testUpdateGroupsOfUserByDomain() {
-
-        try {
-            realmService.getIdentityStore().updateGroupsOfUser(users.get(1).getUniqueUserId(), Arrays.asList(groups.get
-                    (0).getUniqueGroupId(), groups.get(1).getUniqueGroupId()), "PRIMARY");
-        } catch (IdentityStoreException e) {
-            Assert.fail("Failed to update groups of user.");
-        }
-    }
-
     @Test(dependsOnGroups = {"addUsers", "addGroups"}, groups = "addUsersToGroup")
     public void testUpdateUsersOfGroup() {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         try {
             realmService.getIdentityStore().updateUsersOfGroup(groups.get(3).getUniqueGroupId(), Arrays.asList(users.get
@@ -467,19 +494,10 @@ public class IdentityStoreTests extends JDBCConnectorTests {
         }
     }
 
-    @Test(dependsOnGroups = {"addUsers", "addGroups"}, groups = "addUsersToGroup")
-    public void testUpdateUsersOfGroupByDomain() {
-
-        try {
-            realmService.getIdentityStore().updateUsersOfGroup(groups.get(4).getUniqueGroupId(), Arrays.asList(users.get
-                    (4).getUniqueUserId(), users.get(5).getUniqueUserId()), "PRIMARY");
-        } catch (IdentityStoreException e) {
-            Assert.fail("Failed to update groups of user.");
-        }
-    }
-
     @Test(dependsOnGroups = {"addGroupsToUser", "addUsersToGroup"})
     public void testGetGroupsOfUser() throws IdentityStoreException, UserNotFoundException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         List<Group> groupsOfUser = realmService.getIdentityStore().getGroupsOfUser(users.get(0).getUniqueUserId());
         Assert.assertNotNull(groupsOfUser, "Failed to get the groups.");
@@ -488,17 +506,9 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     }
 
     @Test(dependsOnGroups = {"addGroupsToUser", "addUsersToGroup"})
-    public void testGetGroupsOfUserByDomain() throws IdentityStoreException, UserNotFoundException {
-
-        List<Group> groupsOfUser = realmService.getIdentityStore().getGroupsOfUser(users.get(1).getUniqueUserId(),
-                "PRIMARY");
-        Assert.assertNotNull(groupsOfUser, "Failed to get the groups.");
-        Assert.assertTrue(!groupsOfUser.isEmpty() && groupsOfUser.size() > 0, "Number of groups received in the " +
-                "response is invalid.");
-    }
-
-    @Test(dependsOnGroups = {"addGroupsToUser", "addUsersToGroup"})
     public void testGetUsersOfGroup() throws IdentityStoreException, GroupNotFoundException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         List<User> usersOfGroup = realmService.getIdentityStore().getUsersOfGroup(groups.get(3).getUniqueGroupId());
         Assert.assertNotNull(usersOfGroup, "Failed to get the users.");
@@ -507,17 +517,9 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     }
 
     @Test(dependsOnGroups = {"addGroupsToUser", "addUsersToGroup"})
-    public void testGetUsersOfGroupByDomain() throws IdentityStoreException, GroupNotFoundException {
+    public void testIsUserInGroup() throws IdentityStoreException, UserNotFoundException, GroupNotFoundException {
 
-        List<User> usersOfGroup = realmService.getIdentityStore().getUsersOfGroup(groups.get(4).getUniqueGroupId(),
-                "PRIMARY");
-        Assert.assertNotNull(usersOfGroup, "Failed to get the users.");
-        Assert.assertTrue(!usersOfGroup.isEmpty() && usersOfGroup.size() > 0, "Number of users received in the " +
-                "response is invalid.");
-    }
-
-    @Test(dependsOnGroups = {"addGroupsToUser", "addUsersToGroup"})
-    public void testIsUserInGroup() throws IdentityStoreException, UserNotFoundException {
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         boolean isUserInGroup = realmService.getIdentityStore().isUserInGroup(users.get(0).getUniqueUserId(), groups
                 .get(0).getUniqueGroupId());
@@ -525,17 +527,10 @@ public class IdentityStoreTests extends JDBCConnectorTests {
         Assert.assertTrue(isUserInGroup, "Is user exists in group failed.");
     }
 
-    @Test(dependsOnGroups = {"addGroupsToUser", "addUsersToGroup"})
-    public void testIsUserInGroupByDomain() throws IdentityStoreException, UserNotFoundException {
-
-        boolean isUserInGroup = realmService.getIdentityStore().isUserInGroup(users.get(1).getUniqueUserId(), groups
-                .get(1).getUniqueGroupId(), "PRIMARY");
-
-        Assert.assertTrue(isUserInGroup, "Is user exists in group failed.");
-    }
-
     @Test(dependsOnGroups = {"addUsers"})
     public void testGetClaims() throws IdentityStoreException, UserNotFoundException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         List<Claim> claims = realmService.getIdentityStore().getClaimsOfUser(users.get(0).getUniqueUserId());
         Assert.assertNotNull(claims, "Failed to get the claims.");
@@ -544,16 +539,9 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     }
 
     @Test(dependsOnGroups = {"addUsers"})
-    public void testGetClaimsByDomain() throws IdentityStoreException, UserNotFoundException {
-
-        List<Claim> claims = realmService.getIdentityStore().getClaimsOfUser(users.get(1).getUniqueUserId(), "PRIMARY");
-        Assert.assertNotNull(claims, "Failed to get the claims.");
-        Assert.assertTrue(!claims.isEmpty() && claims.size() > 0, "Number of claims received in the " +
-                "response is invalid.");
-    }
-
-    @Test(dependsOnGroups = {"addUsers"})
     public void testGetClaimFromMetaClaims() throws IdentityStoreException, UserNotFoundException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         List<MetaClaim> metaClaims = Arrays.asList(
                 new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/username"),
@@ -567,21 +555,9 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     }
 
     @Test(dependsOnGroups = {"addUsers"})
-    public void testGetClaimFromMetaClaimsByDomain() throws IdentityStoreException, UserNotFoundException {
-
-        List<MetaClaim> metaClaims = Arrays.asList(
-                new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/username"),
-                new MetaClaim("http://wso2.org/claims", "http://wso2.org/claims/email"));
-
-        List<Claim> claims = realmService.getIdentityStore().getClaimsOfUser(users.get(1).getUniqueUserId(), metaClaims,
-                "PRIMARY");
-        Assert.assertNotNull(claims, "Failed to get the claims.");
-        Assert.assertTrue(!claims.isEmpty() && claims.size() == 2, "Number of claims received in the " +
-                "response is invalid.");
-    }
-
-    @Test(dependsOnGroups = {"addUsers"})
     public void testUpdateUserClaims() throws UserNotFoundException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
 
         List<Claim> claims = Arrays
                 .asList(new Claim("http://wso2.org/claims", "http://wso2.org/claims/username", "lucifer"),
@@ -590,21 +566,6 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
         try {
             realmService.getIdentityStore().updateUserClaims(users.get(0).getUniqueUserId(), claims);
-        } catch (IdentityStoreException e) {
-            Assert.fail("Failed to update user claims.");
-        }
-    }
-
-    @Test(dependsOnGroups = {"addUsers"})
-    public void testUpdateUserClaimsByDomain() throws UserNotFoundException {
-
-        List<Claim> claims = Arrays.asList(
-                new Claim("http://wso2.org/claims", "http://wso2.org/claims/username", "chloe"),
-                new Claim("http://wso2.org/claims", "http://wso2.org/claims/firstName", "UpdatedChloe"),
-                new Claim("http://wso2.org/claims", "http://wso2.org/claims/email", "up.chloe@wso2.com"));
-
-        try {
-            realmService.getIdentityStore().updateUserClaims(users.get(1).getUniqueUserId(), claims, "PRIMARY");
         } catch (IdentityStoreException e) {
             Assert.fail("Failed to update user claims.");
         }
