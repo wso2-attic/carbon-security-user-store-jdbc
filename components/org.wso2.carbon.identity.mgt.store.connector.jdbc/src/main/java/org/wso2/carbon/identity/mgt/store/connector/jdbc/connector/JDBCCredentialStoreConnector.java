@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.mgt.store.connector.jdbc.connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.identity.mgt.callback.IdentityCallback;
 import org.wso2.carbon.identity.mgt.config.CredentialStoreConnectorConfig;
 import org.wso2.carbon.identity.mgt.exception.AuthenticationFailure;
 import org.wso2.carbon.identity.mgt.exception.CredentialStoreConnectorException;
@@ -161,26 +160,8 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public void updateCredential(Callback[] callbacks) throws CredentialStoreConnectorException {
-        Map<String, String> userData = null;
-        char[] password = null;
-
-        for (Callback callback : callbacks) {
-            if (callback instanceof IdentityCallback) {
-                userData = (Map<String, String>) ((IdentityCallback) callback).getContent();
-            } else if (callback instanceof PasswordCallback) {
-                password = ((PasswordCallback) callback).getPassword();
-            }
-        }
-
-        if (userData == null || userData.get(UserCoreConstants.USER_ID) == null) {
-            throw new CredentialStoreConnectorException("No enough data to update the credential");
-        }
-        updateCredential(userData.get(UserCoreConstants.USER_ID), password);
-    }
-
-    @Override
-    public void updateCredential(String username, Callback[] callbacks) throws CredentialStoreConnectorException {
+    public String updateCredentials(String username, List<Callback> callbacks) throws
+            CredentialStoreConnectorException {
         char[] password = null;
         for (Callback callback : callbacks) {
             if (callback instanceof PasswordCallback) {
@@ -189,10 +170,11 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         }
 
         updateCredential(username, password);
+        return username;
     }
 
     @Override
-    public String addCredential(Callback[] callbacks) throws CredentialStoreConnectorException {
+    public String addCredential(List<Callback> callbacks) throws CredentialStoreConnectorException {
 
         char[] password = null;
 
@@ -220,19 +202,9 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     }
 
     @Override
-    public void addCredential(String username, Callback[] callbacks) throws CredentialStoreConnectorException {
-
-        char[] password = null;
-        for (Callback callback : callbacks) {
-            if (callback instanceof PasswordCallback) {
-                password = ((PasswordCallback) callback).getPassword();
-            }
-        }
-
-        if (password == null) {
-            throw new CredentialStoreConnectorException("Data required for authentication is missing.");
-        }
-        addCredential(username, password);
+    public String updateCredentials(String s, List<Callback> list, List<Callback> list1) throws
+            CredentialStoreConnectorException {
+        return null;
     }
 
     @Override
