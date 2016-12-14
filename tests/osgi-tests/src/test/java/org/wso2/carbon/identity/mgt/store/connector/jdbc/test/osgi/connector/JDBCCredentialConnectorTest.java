@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnector;
 import org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -116,16 +117,13 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
     public void testAddCredentialCallback() throws CredentialStoreConnectorException, IdentityStoreException,
             AuthenticationFailure {
 
-        Callback[] callbacks = new Callback[1];
         PasswordCallback passwordCallback = new PasswordCallback("password", false);
 
         passwordCallback.setPassword(new char[]{'m', 'a', 'd', 'u', 'r', 'a', 'n', 'g', 'a'});
 
-        callbacks[0] = passwordCallback;
+        connectorUserId = credentialStoreConnector.addCredential(Collections.singletonList(passwordCallback));
 
-        connectorUserId = credentialStoreConnector.addCredential(callbacks);
-
-        credentialStoreConnector.authenticate(connectorUserId, callbacks);
+        credentialStoreConnector.authenticate(connectorUserId, new Callback[]{passwordCallback});
         //No need for assertions. If the authentication fails, the test will fail
     }
 
@@ -133,53 +131,16 @@ public class JDBCCredentialConnectorTest extends JDBCConnectorTests {
     public void testUpdateCredentialCallback() throws CredentialStoreConnectorException, IdentityStoreException,
             AuthenticationFailure {
 
-        Callback[] callbacks = new Callback[1];
         PasswordCallback passwordCallback = new PasswordCallback("password", false);
 
         passwordCallback.setPassword(new char[]{'m', 'a', 'd', 'u', 'r', 'a', 'n', 'g', 'a', '1'});
 
-        callbacks[0] = passwordCallback;
-
-        credentialStoreConnector.updateCredential(connectorUserId, callbacks);
-        credentialStoreConnector.authenticate(connectorUserId, callbacks);
+        credentialStoreConnector.updateCredentials(connectorUserId, Collections.singletonList(passwordCallback));
+        credentialStoreConnector.authenticate(connectorUserId, new Callback[]{passwordCallback});
         //No need for assertions. If the authentication fails, the test will fail
     }
 
-    @Test(priority = 6)
-    public void testAddCredentialUsername() throws CredentialStoreConnectorException, IdentityStoreException,
-            AuthenticationFailure {
-
-        Callback[] callbacks = new Callback[1];
-        PasswordCallback passwordCallback = new PasswordCallback("password", false);
-
-        passwordCallback.setPassword(new char[]{'t', 'h', 'a', 'n', 'u', 'j', 'a'});
-
-        callbacks[0] = passwordCallback;
-
-        credentialStoreConnector.addCredential("thanuja", callbacks);
-
-        credentialStoreConnector.authenticate("thanuja", callbacks);
-        //No need for assertions. If the authentication fails, the test will fail
-    }
-
-    @Test(priority = 7)
-    public void testUpdateCredentialUsername() throws CredentialStoreConnectorException, IdentityStoreException,
-            AuthenticationFailure {
-
-        Callback[] callbacks = new Callback[1];
-        PasswordCallback passwordCallback = new PasswordCallback("password", false);
-
-        passwordCallback.setPassword(new char[]{'t', 'h', 'a', 'n', 'u', 'j', 'a', '1'});
-
-        callbacks[0] = passwordCallback;
-
-        credentialStoreConnector.updateCredential("thanuja", callbacks);
-
-        credentialStoreConnector.authenticate("thanuja", callbacks);
-        //No need for assertions. If the authentication fails, the test will fail
-    }
-
-    @Test(priority = 8, expectedExceptions = {Throwable.class}, expectedExceptionsMessageRegExp =
+    @Test(priority = 6, expectedExceptions = {Throwable.class}, expectedExceptionsMessageRegExp =
             "Invalid username or password*")
     public void testDeleteCredential() throws CredentialStoreConnectorException, AuthenticationFailure {
 
