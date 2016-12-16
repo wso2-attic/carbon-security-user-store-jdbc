@@ -24,7 +24,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.testng.annotations.Listeners;
-import org.wso2.carbon.identity.mgt.service.RealmService;
+import org.wso2.carbon.identity.mgt.RealmService;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
 import org.wso2.carbon.security.caas.user.core.bean.Action;

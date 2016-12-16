@@ -21,13 +21,13 @@ package org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector;
 import org.ops4j.pax.exam.util.Filter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.identity.mgt.bean.Attribute;
-import org.wso2.carbon.identity.mgt.config.IdentityStoreConnectorConfig;
+import org.wso2.carbon.identity.mgt.connector.Attribute;
+import org.wso2.carbon.identity.mgt.connector.IdentityStoreConnector;
+import org.wso2.carbon.identity.mgt.connector.IdentityStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.connector.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.identity.mgt.exception.GroupNotFoundException;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreConnectorException;
 import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
-import org.wso2.carbon.identity.mgt.store.connector.IdentityStoreConnector;
-import org.wso2.carbon.identity.mgt.store.connector.IdentityStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.factory.JDBCIdentityStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
 

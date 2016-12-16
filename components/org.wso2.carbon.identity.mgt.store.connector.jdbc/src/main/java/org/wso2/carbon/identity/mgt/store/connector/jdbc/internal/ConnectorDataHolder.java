@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.mgt.store.connector.jdbc.internal;
 
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.identity.mgt.util.PasswordHandler;
+import org.wso2.carbon.identity.mgt.impl.util.PasswordHandler;
 
 import java.util.HashMap;
 import java.util.Map;
