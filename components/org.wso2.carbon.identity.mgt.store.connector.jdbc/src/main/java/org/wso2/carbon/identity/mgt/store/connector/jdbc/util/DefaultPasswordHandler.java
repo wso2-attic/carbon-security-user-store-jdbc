@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.mgt.store.connector.jdbc.util;
 
 
 import org.wso2.carbon.identity.mgt.exception.StoreException;
-import org.wso2.carbon.identity.mgt.util.PasswordHandler;
+import org.wso2.carbon.identity.mgt.impl.util.PasswordHandler;
 
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;

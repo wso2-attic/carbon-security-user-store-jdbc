@@ -20,9 +20,9 @@ package org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector;
 
 import org.testng.Assert;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
+import org.wso2.carbon.identity.mgt.impl.JDBCUniqueIdResolver;
+import org.wso2.carbon.identity.mgt.resolver.UniqueIdResolver;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
-import org.wso2.carbon.identity.mgt.user.UniqueIdResolver;
-import org.wso2.carbon.identity.mgt.user.impl.JDBCUniqueIdResolver;
 import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;

@@ -21,12 +21,12 @@ package org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector;
 import org.ops4j.pax.exam.util.Filter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.carbon.identity.mgt.config.CredentialStoreConnectorConfig;
+import org.wso2.carbon.identity.mgt.connector.CredentialStoreConnector;
+import org.wso2.carbon.identity.mgt.connector.CredentialStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.connector.config.CredentialStoreConnectorConfig;
 import org.wso2.carbon.identity.mgt.exception.AuthenticationFailure;
 import org.wso2.carbon.identity.mgt.exception.CredentialStoreConnectorException;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
-import org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnector;
-import org.wso2.carbon.identity.mgt.store.connector.CredentialStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
 
 import java.util.Collections;
