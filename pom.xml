@@ -41,9 +41,9 @@
 
     <modules>
         <module>components/org.wso2.carbon.identity.mgt.store.connector.jdbc</module>
-        <module>components/org.wso2.carbon.security.store.connector.jdbc</module>
+        <!--<module>components/org.wso2.carbon.security.store.connector.jdbc</module>-->
         <module>feature/org.wso2.carbon.identity.mgt.store.connector.jdbc.feature</module>
-        <module>feature/org.wso2.carbon.security.store.connector.jdbc.feature</module>
+        <!--<module>feature/org.wso2.carbon.security.store.connector.jdbc.feature</module>-->
         <module>tests</module>
     </modules>
 
@@ -162,7 +162,7 @@
             <dependency>
                 <groupId>org.wso2.carbon.security.caas</groupId>
                 <artifactId>org.wso2.carbon.security.caas</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${carbon.security.caas.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.eclipse.osgi</groupId>
@@ -334,7 +334,7 @@
             <dependency>
                 <groupId>org.wso2.carbon.security.caas</groupId>
                 <artifactId>org.wso2.carbon.security.caas.feature</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${carbon.security.caas.version}</version>
                 <type>zip</type>
             </dependency>
 
@@ -382,7 +382,7 @@
         <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
 
-        <carbon.security.caas.version>1.0.0-SNAPSHOT</carbon.security.caas.version>
+        <carbon.security.caas.version>1.0.0-m2</carbon.security.caas.version>
 
         <!-- OSGI Test related -->
 
