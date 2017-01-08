@@ -27,9 +27,9 @@ import org.testng.annotations.Listeners;
 import org.wso2.carbon.identity.mgt.RealmService;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-import org.wso2.carbon.security.caas.user.core.bean.Action;
-import org.wso2.carbon.security.caas.user.core.bean.Permission;
-import org.wso2.carbon.security.caas.user.core.bean.Resource;
+//import org.wso2.carbon.security.caas.user.core.bean.Action;
+//import org.wso2.carbon.security.caas.user.core.bean.Permission;
+//import org.wso2.carbon.security.caas.user.core.bean.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,10 +54,10 @@ public class JDBCConnectorTests {
     public static final String DEFAULT_NAMESPACE = "reg";
     public static final String DEFAULT_AUTHORIZATION_STORE = "JDBCAuthorizationStore";
     public static final String DEFAULT_RESOURCE_PATH = "root/resource/id";
-    public static final Resource DEFAULT_RESOURCE = new Resource(DEFAULT_NAMESPACE, DEFAULT_RESOURCE_PATH,
-            "41dadd2aea6e11e59ce95e5517507c66");
-    public static final Action ACTION_ADD = new Action(DEFAULT_NAMESPACE, "add");
-    public static final Permission DEFAULT_PERMISSION = new Permission(DEFAULT_RESOURCE, ACTION_ADD);
+//    public static final Resource DEFAULT_RESOURCE = new Resource(DEFAULT_NAMESPACE, DEFAULT_RESOURCE_PATH,
+//            "41dadd2aea6e11e59ce95e5517507c66");
+//    public static final Action ACTION_ADD = new Action(DEFAULT_NAMESPACE, "add");
+//    public static final Permission DEFAULT_PERMISSION = new Permission(DEFAULT_RESOURCE, ACTION_ADD);
 
     @Inject
     protected RealmService realmService;

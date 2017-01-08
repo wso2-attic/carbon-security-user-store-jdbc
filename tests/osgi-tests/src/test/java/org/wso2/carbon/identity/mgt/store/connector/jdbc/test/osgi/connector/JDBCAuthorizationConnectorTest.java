@@ -18,18 +18,17 @@
 
 package org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector;
 
-import org.testng.Assert;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreException;
 import org.wso2.carbon.identity.mgt.impl.JDBCUniqueIdResolver;
 import org.wso2.carbon.identity.mgt.resolver.UniqueIdResolver;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
-import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConnectorConfig;
 import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
 import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;
 import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory;
 
-import java.util.Properties;
 import javax.inject.Inject;
+
+//import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConnectorConfig;
 
 public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
     private static final String DEFAULT_RESOURCE_NAME_ADD = "root/resource/new";
@@ -63,16 +62,16 @@ public class JDBCAuthorizationConnectorTest extends JDBCConnectorTests {
     private static AuthorizationStoreConnector authorizationStoreConnector;
 
     private void initConnector() throws IdentityStoreException, AuthorizationStoreException {
-        Assert.assertNotNull(authorizationStoreConnectorFactory);
-        authorizationStoreConnector = authorizationStoreConnectorFactory.getInstance();
-        AuthorizationStoreConnectorConfig authorizationStoreConnectorConfig = new AuthorizationStoreConnectorConfig();
-        authorizationStoreConnectorConfig.setConnectorId(DEFAULT_AUTHORIZATION_STORE);
-        authorizationStoreConnectorConfig.setConnectorType("JDBCAuthorizationStore");
-        Properties properties = new Properties();
-        properties.setProperty("dataSource", "WSO2_CARBON_DB");
-        properties.setProperty("databaseType", "MySQL");
-        authorizationStoreConnectorConfig.setProperties(properties);
-        authorizationStoreConnector.init(authorizationStoreConnectorConfig);
+//        Assert.assertNotNull(authorizationStoreConnectorFactory);
+//        authorizationStoreConnector = authorizationStoreConnectorFactory.getInstance();
+//        AuthorizationStoreConnectorConfig authorizationStoreConnectorConfig = new AuthorizationStoreConnectorConfig();
+//        authorizationStoreConnectorConfig.setConnectorId(DEFAULT_AUTHORIZATION_STORE);
+//        authorizationStoreConnectorConfig.setConnectorType("JDBCAuthorizationStore");
+//        Properties properties = new Properties();
+//        properties.setProperty("dataSource", "WSO2_CARBON_DB");
+//        properties.setProperty("databaseType", "MySQL");
+//        authorizationStoreConnectorConfig.setProperties(properties);
+//        authorizationStoreConnector.init(authorizationStoreConnectorConfig);
     }
 
 //    @Test(priority = 1)
