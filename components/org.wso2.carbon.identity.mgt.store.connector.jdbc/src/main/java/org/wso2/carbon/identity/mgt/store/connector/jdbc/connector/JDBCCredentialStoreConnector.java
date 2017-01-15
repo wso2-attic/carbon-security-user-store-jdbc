@@ -38,6 +38,7 @@ import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.security.auth.callback.Callback;
@@ -188,23 +189,71 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             }
         }
 
-        String username = IdentityUserMgtUtil.generateUUID();
+        String userId = IdentityUserMgtUtil.generateUUID();
+        Map<String, char[]> passwordMap = new HashMap<>();
+        passwordMap.put(userId, password);
 
-        addCredential(username, password);
-        return username;
+        addCredential(passwordMap);
+
+        return userId;
 
     }
 
     @Override
     public Map<String, String> addCredentials(Map<String, List<Callback>> userUniqueIdToCallbacksMap) throws
             CredentialStoreConnectorException {
-        return null;
+
+        Map<String, char[]> passwordMap = new HashMap<>();
+        Map<String, String> usersIds = new HashMap<>();
+        for (Map.Entry<String, List<Callback>> entry : userUniqueIdToCallbacksMap.entrySet()) {
+            char[] password = null;
+
+            for (Callback callback : entry.getValue()) {
+                if (callback instanceof PasswordCallback) {
+                    if (password == null) {
+                        password = ((PasswordCallback) callback).getPassword();
+                    } else {
+                        throw new CredentialStoreConnectorException("Multiple passwords found");
+                    }
+                }
+            }
+
+            String userId = IdentityUserMgtUtil.generateUUID();
+            passwordMap.put(userId, password);
+            usersIds.put(entry.getKey(), userId);
+
+        }
+        addCredential(passwordMap);
+        return usersIds;
     }
 
     @Override
-    public String updateCredentials(String s, List<Callback> list, List<Callback> list1) throws
-            CredentialStoreConnectorException {
-        return null;
+    public String updateCredentials(String userIdentifier, List<Callback> credentialsToAdd,
+                                    List<Callback> credentialsToRemove) throws CredentialStoreConnectorException {
+
+        char[] password = null;
+        for (Callback callback : credentialsToAdd) {
+            if (callback instanceof PasswordCallback) {
+                password = ((PasswordCallback) callback).getPassword();
+            }
+        }
+        // As the credential store store containing the passwords can have one password per user, if there is a
+        // password in the credentialsToAdd list, update the credential of the user. Otherwise if there is a
+        // password in the credentialsToRemove, delete it
+        if (password != null) {
+            updateCredential(userIdentifier, password);
+        } else {
+            for (Callback callback : credentialsToRemove) {
+                if (callback instanceof PasswordCallback) {
+                    password = ((PasswordCallback) callback).getPassword();
+                }
+            }
+            //TODO: do we need to check if this password is matching with the password stored?
+            if (password != null) {
+                deleteCredential(userIdentifier);
+            }
+        }
+        return userIdentifier;
     }
 
     @Override
@@ -226,7 +275,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         }
     }
 
-    private void addCredential(String username, char[] password) throws CredentialStoreConnectorException {
+    private void addCredential(Map<String, char[]> passwordMap) throws CredentialStoreConnectorException {
 
         String hashAlgo = getHashAlgo();
         int iterationCount = getIterationCount();
@@ -248,37 +297,46 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         passwordHandler.setIterationCount(iterationCount);
         passwordHandler.setKeyLength(keyLength);
 
-        String hashedPassword;
-        try {
-            hashedPassword = passwordHandler.hashPassword(password, salt, hashAlgo);
-        } catch (NoSuchAlgorithmException e) {
-            throw new CredentialStoreConnectorException("Error while hashing the password.", e);
-        }
-
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-            //Store password.
             NamedPreparedStatement addPasswordPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_CREDENTIAL));
-            addPasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, username);
-            addPasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD, hashedPassword);
-            addPasswordPreparedStatement.getPreparedStatement().executeUpdate();
-
-            //Store password info.
             NamedPreparedStatement addPasswordInfoPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO));
-            addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD_SALT, salt);
-            addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.HASH_ALGO, hashAlgo);
-            addPasswordInfoPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.ITERATION_COUNT, iterationCount);
-            addPasswordInfoPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.KEY_LENGTH, keyLength);
-            addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, username);
-            addPasswordInfoPreparedStatement.getPreparedStatement().executeUpdate();
+            for (Map.Entry<String, char[]> entry : passwordMap.entrySet()) {
+                String hashedPassword;
+                try {
+                    hashedPassword = passwordHandler.hashPassword(entry.getValue(), salt, hashAlgo);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new CredentialStoreConnectorException("Error while hashing the password.", e);
+                }
 
+                //Store password.
+
+                addPasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, entry
+                        .getKey());
+
+                addPasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD, hashedPassword);
+                addPasswordPreparedStatement.getPreparedStatement().addBatch();
+
+                //Store password info.
+                addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD_SALT, salt);
+                addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.HASH_ALGO, hashAlgo);
+                addPasswordInfoPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.ITERATION_COUNT,
+                        iterationCount);
+                addPasswordInfoPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.KEY_LENGTH, keyLength);
+                addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, entry
+                        .getKey());
+                addPasswordInfoPreparedStatement.getPreparedStatement().addBatch();
+            }
+            addPasswordPreparedStatement.getPreparedStatement().executeBatch();
+            addPasswordInfoPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
             throw new CredentialStoreConnectorException("Error while storing user credential.", e);
         }
+
     }
 
     private int getKeyLength() {
