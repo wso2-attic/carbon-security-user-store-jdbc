@@ -556,14 +556,46 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
         IdentityStoreConnectorException identityStoreException = new IdentityStoreConnectorException();
         Map<String, String> userIdsToReturn = new HashMap<>();
-        attributes.entrySet().stream().forEach(entry -> {
-            try {
-                String userId = addUser(entry.getValue());
-                userIdsToReturn.put(entry.getKey(), userId);
-            } catch (IdentityStoreConnectorException e) {
-                identityStoreException.addSuppressed(e);
-            }
-        });
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            NamedPreparedStatement addUserNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER));
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_USER_ATTRIBUTES));
+            attributes.entrySet().stream().forEach(entry -> {
+                try {
+                    String connectorUniqueId = IdentityUserMgtUtil.generateUUID();
+
+                    try {
+                        addUserNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                                connectorUniqueId);
+                        addUserNamedPreparedStatement.getPreparedStatement().addBatch();
+
+                        for (Attribute attribute : entry.getValue()) {
+                            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
+                                    attribute
+
+                                    .getAttributeName());
+                            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
+                                    attribute
+                                            .getAttributeValue());
+                            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                                    connectorUniqueId);
+                            namedPreparedStatement.getPreparedStatement().addBatch();
+                        }
+                    } catch (SQLException e) {
+                        throw new IdentityStoreConnectorException("Error occurred while storing user.", e);
+                    }
+                    userIdsToReturn.put(entry.getKey(), connectorUniqueId);
+                } catch (IdentityStoreConnectorException e) {
+                    identityStoreException.addSuppressed(e);
+                }
+            });
+            addUserNamedPreparedStatement.getPreparedStatement().executeBatch();
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("Error occurred while getting database connection.", e);
+        }
 
         if (identityStoreException.getSuppressed().length > 0) {
             throw identityStoreException;
@@ -801,14 +833,45 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
         IdentityStoreConnectorException identityStoreException = new IdentityStoreConnectorException();
         Map<String, String> groupIdsToReturn = new HashMap<>();
-        attributes.entrySet().stream().forEach(entry -> {
-            try {
-                String groupId = addGroup(entry.getValue());
-                groupIdsToReturn.put(entry.getKey(), groupId);
-            } catch (IdentityStoreConnectorException e) {
-                identityStoreException.addSuppressed(e);
-            }
-        });
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            NamedPreparedStatement addGroupNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP));
+            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(),
+                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_GROUP_ATTRIBUTES));
+            attributes.entrySet().stream().forEach(entry -> {
+                try {
+                    String connectorUniqueId = IdentityUserMgtUtil.generateUUID();
+                    try {
+
+                        addGroupNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                                connectorUniqueId);
+                        addGroupNamedPreparedStatement.getPreparedStatement().addBatch();
+
+                        for (Attribute attribute : entry.getValue()) {
+                            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
+                                    attribute.getAttributeName());
+                            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_VALUE,
+                                    attribute
+                                            .getAttributeValue());
+                            namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_UNIQUE_ID,
+                                    connectorUniqueId);
+                            namedPreparedStatement.getPreparedStatement().addBatch();
+                        }
+                    } catch (SQLException e) {
+                        throw new IdentityStoreConnectorException("Error occurred while storing group.", e);
+                    }
+                    groupIdsToReturn.put(entry.getKey(), connectorUniqueId);
+                } catch (IdentityStoreConnectorException e) {
+                    identityStoreException.addSuppressed(e);
+                }
+            });
+            addGroupNamedPreparedStatement.getPreparedStatement().executeBatch();
+            namedPreparedStatement.getPreparedStatement().executeBatch();
+            unitOfWork.endTransaction();
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("Error occurred while getting database connection.", e);
+        }
 
         if (identityStoreException.getSuppressed().length > 0) {
             throw identityStoreException;
