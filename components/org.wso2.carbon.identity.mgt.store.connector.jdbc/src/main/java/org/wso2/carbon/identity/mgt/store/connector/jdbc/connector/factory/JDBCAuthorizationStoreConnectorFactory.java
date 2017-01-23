@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.store.connector.jdbc.connector.factory;
+package org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.factory;
 
 
-import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnectorFactory;
-import org.wso2.carbon.security.store.connector.jdbc.connector.JDBCAuthorizationConnector;
+import org.wso2.carbon.identity.mgt.connector.AuthorizationStoreConnector;
+import org.wso2.carbon.identity.mgt.connector.AuthorizationStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.JDBCAuthorizationConnector;
 
 /**
  * JDBC based authorization store connector factory.

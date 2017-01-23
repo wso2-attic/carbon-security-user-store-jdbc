@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.identity.mgt.connector.CredentialStoreConnector;
 import org.wso2.carbon.identity.mgt.connector.config.CredentialStoreConnectorConfig;
+import org.wso2.carbon.identity.mgt.constant.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.exception.AuthenticationFailure;
 import org.wso2.carbon.identity.mgt.exception.CredentialStoreConnectorException;
 import org.wso2.carbon.identity.mgt.impl.util.IdentityUserMgtUtil;
@@ -33,7 +34,6 @@ import org.wso2.carbon.identity.mgt.store.connector.jdbc.internal.ConnectorDataH
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.DefaultPasswordHandler;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.UnitOfWork;
-import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
@@ -285,7 +285,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
         // Get a password handler if there is a one. Otherwise use the default one.
         PasswordHandler passwordHandler = ConnectorDataHolder.getInstance().getPasswordHandler(credentialStoreConfig
-                .getProperties().get(UserCoreConstants.PASSWORD_HANDLER_NAME));
+                .getProperties().get(IdentityMgtConstants.PASSWORD_HANDLER_NAME));
 
         if (passwordHandler == null) {
             passwordHandler = new DefaultPasswordHandler();
@@ -380,7 +380,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
         // Get a password handler if there is a one. Otherwise use the default one.
         PasswordHandler passwordHandler = ConnectorDataHolder.getInstance().getPasswordHandler(credentialStoreConfig
-                .getProperties().get(UserCoreConstants.PASSWORD_HANDLER_NAME));
+                .getProperties().get(IdentityMgtConstants.PASSWORD_HANDLER_NAME));
 
         if (passwordHandler == null) {
             passwordHandler = new DefaultPasswordHandler();
@@ -429,7 +429,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
         // Get a password handler if there is a one. Otherwise use the default one.
         PasswordHandler passwordHandler = ConnectorDataHolder.getInstance().getPasswordHandler(credentialStoreConfig
-                .getProperties().get(UserCoreConstants.PASSWORD_HANDLER_NAME));
+                .getProperties().get(IdentityMgtConstants.PASSWORD_HANDLER_NAME));
 
         if (passwordHandler == null) {
             passwordHandler = new DefaultPasswordHandler();

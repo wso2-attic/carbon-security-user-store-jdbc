@@ -27,12 +27,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
+import org.wso2.carbon.identity.mgt.connector.AuthorizationStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.connector.CredentialStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.connector.IdentityStoreConnectorFactory;
+import org.wso2.carbon.identity.mgt.constant.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.impl.util.PasswordHandler;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.factory.JDBCAuthorizationStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.factory.JDBCCredentialStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.factory.JDBCIdentityStoreConnectorFactory;
-import org.wso2.carbon.security.caas.user.core.constant.UserCoreConstants;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -69,6 +71,11 @@ public class ConnectorComponent {
         connectorProperties.put("connector-type", "JDBCCredentialStore");
         bundleContext.registerService(CredentialStoreConnectorFactory.class, new JDBCCredentialStoreConnectorFactory(),
                 connectorProperties);
+
+        connectorProperties = new Hashtable<>();
+        connectorProperties.put("connector-type", "JDBCAuthorizationStore");
+        bundleContext.registerService(AuthorizationStoreConnectorFactory.class,
+                                      new JDBCAuthorizationStoreConnectorFactory(), connectorProperties);
 
         log.info("JDBC user store bundle successfully activated.");
     }
@@ -112,24 +119,24 @@ public class ConnectorComponent {
     protected void registerPasswordHandler(PasswordHandler passwordHandler, Map<String, String> properties) {
 
         if (passwordHandler != null) {
-            ConnectorDataHolder.getInstance().setPasswordHandler(properties.get(UserCoreConstants
-                            .PASSWORD_HANDLER_NAME),
+            ConnectorDataHolder.getInstance().setPasswordHandler(
+                    properties.get(IdentityMgtConstants.PASSWORD_HANDLER_NAME),
                     passwordHandler);
             if (log.isDebugEnabled()) {
-                log.debug("Password handler for name {} registered.", properties.get(UserCoreConstants
-                        .PASSWORD_HANDLER_NAME));
+                log.debug("Password handler for name {} registered.",
+                          properties.get(IdentityMgtConstants.PASSWORD_HANDLER_NAME));
             }
         }
     }
 
     protected void unregisterPasswordHandler(PasswordHandler passwordHandler, Map<String, String> properties) {
 
-        ConnectorDataHolder.getInstance().setPasswordHandler(properties.get(UserCoreConstants.PASSWORD_HANDLER_NAME),
-                null);
+        ConnectorDataHolder.getInstance().setPasswordHandler(
+                properties.get(IdentityMgtConstants.PASSWORD_HANDLER_NAME), null);
 
         if (log.isDebugEnabled()) {
-            log.debug("Password handler for name {} unregistered.", properties.get(UserCoreConstants
-                    .PASSWORD_HANDLER_NAME));
+            log.debug("Password handler for name {} unregistered.",
+                      properties.get(IdentityMgtConstants.PASSWORD_HANDLER_NAME));
         }
     }
 }
