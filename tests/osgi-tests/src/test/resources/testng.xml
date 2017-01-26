@@ -27,7 +27,6 @@
             <!--<class name="org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector.JDBCAuthorizationConnectorTest"/>-->
             <class name="org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.connector.JDBCIdentityConnectorTests"/>
             <class name="org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.store.IdentityStoreTests"/>
-            <!--<class name="IdentityStoreTests"/>-->
         </classes>
     </test>
 </suite>

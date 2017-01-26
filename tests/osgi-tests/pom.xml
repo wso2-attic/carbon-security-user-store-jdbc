@@ -154,10 +154,6 @@
             <artifactId>org.wso2.carbon.identity.mgt.store.connector.jdbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.security.userstore</groupId>
-            <artifactId>org.wso2.carbon.security.store.connector.jdbc</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-log4j2</artifactId>
         </dependency>
@@ -320,7 +316,6 @@
                                     <autocommit>true</autocommit>
                                     <srcFiles>
                                         <srcFile>${basedir}/target/org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}/dbscripts/connector/h2.sql</srcFile>
-                                        <srcFile>${basedir}/target/org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}/dbscripts/authorization/h2.sql</srcFile>
                                         <srcFile>${basedir}/target/org.wso2.carbon.identity.connector.jdbc.distribution-${project.version}/dbscripts/identity-mgt/h2.sql</srcFile>
                                     </srcFiles>
                                     <onError>abort</onError>

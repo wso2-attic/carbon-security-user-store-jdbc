@@ -326,12 +326,6 @@
                 <version>${org.wso2.carbon.identity.mgt.version}</version>
                 <type>zip</type>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.security.caas</groupId>
-                <artifactId>org.wso2.carbon.security.caas.feature</artifactId>
-                <version>${carbon.security.caas.version}</version>
-                <type>zip</type>
-            </dependency>
 
             <!-- PAX Exam-->
             <dependency>
@@ -376,8 +370,6 @@
         <carbon.datasources.version>1.0.0</carbon.datasources.version>
         <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
-
-        <carbon.security.caas.version>1.0.0-m2</carbon.security.caas.version>
 
         <!-- OSGI Test related -->
 
