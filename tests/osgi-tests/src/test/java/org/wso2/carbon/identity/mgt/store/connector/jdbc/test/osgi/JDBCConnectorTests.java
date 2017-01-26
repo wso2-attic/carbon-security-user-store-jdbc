@@ -27,9 +27,6 @@ import org.testng.annotations.Listeners;
 import org.wso2.carbon.identity.mgt.RealmService;
 import org.wso2.carbon.osgi.test.util.CarbonSysPropConfiguration;
 import org.wso2.carbon.osgi.test.util.OSGiTestConfigurationUtils;
-//import org.wso2.carbon.security.caas.user.core.bean.Action;
-//import org.wso2.carbon.security.caas.user.core.bean.Permission;
-//import org.wso2.carbon.security.caas.user.core.bean.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +58,9 @@ public class JDBCConnectorTests {
 
     @Inject
     protected RealmService realmService;
+
+//    @Inject
+//    protected AuthorizationService authorizationService;
 
     @Configuration
     public Option[] createConfiguration() {
@@ -98,10 +98,6 @@ public class JDBCConnectorTests {
         optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.security.userstore")
                 .artifactId("org.wso2.carbon.identity.mgt.store.connector.jdbc")
-                .versionAsInProject());
-        optionList.add(mavenBundle()
-                .groupId("org.wso2.carbon.security.userstore")
-                .artifactId("org.wso2.carbon.security.store.connector.jdbc")
                 .versionAsInProject());
         optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.identity.mgt")
