@@ -52,6 +52,25 @@ public class ConnectorConstants {
         public static final String ITERATION_COUNT = "iteration_count";
         public static final String KEY_LENGTH = "key_length";
         public static final String PASSWORD = "password";
+        public static final String ROLE_NAME = "role_name";
+        public static final String ROLE_ID = "role_id";
+        public static final String PERMISSION_ID = "permission_id";
+        public static final String ACTION_NAMESPACE = "action_namespace";
+        public static final String USERNAME = "username";
+        public static final String GROUP_NAME = "group_name";
+        public static final String IDENTITY_STORE_ID = "identity_store_id";
+        public static final String HASHED_PASSWORD = "hashed_password";
+        public static final String ROLE_UNIQUE_ID = "role_unique_id";
+        public static final String RESOURCE_NAME = "resource_name";
+        public static final String ACTION_NAME = "action_name";
+        public static final String RESOURCE_NAMESPACE = "resource_namespace";
+        public static final String RESOURCE_ID = "resource_id";
+        public static final String ACTION_ID = "action_id";
+        public static final String NAMESPACE = "namespace";
+        public static final String DESCRIPTION = "description";
+        public static final String NAMESPACE_ID = "namespace_id";
+        public static final String USER_UNIQUE_ID_UPDATE = "user_unique_id_update";
+        public static final String GROUP_UNIQUE_ID_UPDATE = "group_unique_id_update";
     }
 
     /**
@@ -99,5 +118,50 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_UPDATE_CREDENTIAL = "sql_query_update_credential";
         public static final String SQL_QUERY_UPDATE_PASSWORD_INFO = "sql_query_update_password_info";
         public static final String SQL_QUERY_DELETE_CREDENTIAL = "sql_query_delete_credential";
+        public static final String SQL_QUERY_GET_ROLE = "sql_query_get_role";
+        public static final String SQL_QUERY_GET_ROLES_FOR_USER = "sql_query_get_roles_for_user";
+        public static final String SQL_QUERY_GET_PERMISSIONS_FROM_RESOURCE_FOR_ROLE =
+                "sql_query_get_permissions_from_resource_for_role";
+        public static final String SQL_QUERY_GET_ROLES_FOR_GROUP = "sql_query_get_roles_for_group";
+        public static final String SQL_QUERY_ADD_PERMISSION = "sql_query_add_permission";
+        public static final String SQL_QUERY_ADD_ROLE = "sql_query_add_role";
+        public static final String SQL_QUERY_ADD_PERMISSIONS_TO_ROLE = "sql_query_add_role_permission";
+        public static final String SQL_QUERY_ADD_PERMISSIONS_TO_ROLE_BY_UNIQUE_ID =
+                "sql_query_add_permissions_to_role_by_unique_id";
+        public static final String SQL_QUERY_GET_USERS_OF_ROLE = "sql_query_get_users_of_role";
+        public static final String SQL_QUERY_GET_GROUPS_OF_ROLE = "sql_query_get_groups_of_role";
+        public static final String SQL_QUERY_DELETE_ROLE = "sql_query_delete_role";
+        public static final String SQL_QUERY_DELETE_PERMISSION = "sql_query_delete_permission";
+        public static final String SQL_QUERY_IS_USER_IN_ROLE = "sql_query_is_user_in_role";
+        public static final String SQL_QUERY_IS_GROUP_IN_ROLE = "sql_query_is_group_in_role";
+        public static final String SQL_QUERY_DELETE_ROLES_FROM_USER = "sql_query_delete_roles_of_user";
+        public static final String SQL_QUERY_ADD_ROLES_TO_USER = "sql_query_add_roles_to_user";
+        public static final String SQL_QUERY_ADD_ROLES_TO_GROUP = "sql_query_add_roles_to_group";
+        public static final String SQL_QUERY_DELETE_ROLES_FROM_GROUP = "sql_query_delete_roles_from_group";
+        public static final String SQL_QUERY_DELETE_GROUPS_FROM_ROLE = "sql_query_delete_groups_from_role";
+        public static final String SQL_QUERY_DELETE_USERS_FROM_ROLE = "sql_query_delete_users_of_role";
+        public static final String SQL_QUERY_DELETE_PERMISSIONS_FROM_ROLE = "sql_query_delete_permissions_from_role";
+        public static final String SQL_QUERY_DELETE_GIVEN_ROLES_FROM_USER = "sql_query_delete_given_roles_from_user";
+        public static final String SQL_QUERY_DELETE_GIVEN_ROLES_FROM_GROUP = "sql_query_delete_given_roles_from_group";
+        public static final String SQL_QUERY_DELETE_GIVEN_PERMISSIONS_FROM_ROLE =
+                "sql_query_delete_given_permissions_from_role";
+        public static final String SQL_QUERY_GET_PERMISSION = "sql_query_get_permission";
+        public static final String SQL_QUERY_ADD_RESOURCE = "sql_query_add_resource_if_not_exist";
+        public static final String SQL_QUERY_ADD_ACTION = "sql_query_add_action_if_not_exist";
+        public static final String SQL_QUERY_GET_RESOURCE_ID = "sql_query_get_resource_id";
+        public static final String SQL_QUERY_GET_ACTION_ID = "sql_query_get_action_id";
+        public static final String SQL_QUERY_GET_PERMISSIONS_FROM_ACTION_FOR_ROLE =
+                "sql_query_get_permissions_from_action_for_role";
+        public static final String SQL_QUERY_GET_NAMESPACE_ID = "sql_query_get_namespace_id";
+        public static final String SQL_QUERY_ADD_NAMESPACE = "sql_query_add_namespace";
+        public static final String SQL_QUERY_COUNT_ROLES = "sql_query_count_roles";
+        public static final String SQL_QUERY_COUNT_PERMISSIONS = "sql_query_count_permissions";
+        public static final String SQL_QUERY_LIST_ROLES = "sql_query_list_roles";
+        public static final String SQL_QUERY_GET_RESOURCES = "sql_query_get_resources";
+        public static final String SQL_QUERY_GET_ACTIONS = "sql_query_get_actions";
+        public static final String SQL_QUERY_LIST_PERMISSIONS = "sql_query_list_permissions";
+        public static final String SQL_QUERY_DELETE_RESOURCE = "sql_query_delete_resource";
+        public static final String SQL_QUERY_DELETE_ACTION = "sql_query_delete_action";
+
     }
 }

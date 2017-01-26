@@ -16,32 +16,34 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.store.connector.jdbc.connector;
+package org.wso2.carbon.identity.mgt.store.connector.jdbc.connector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.exception.DataSourceException;
-import org.wso2.carbon.security.caas.user.core.bean.Action;
-import org.wso2.carbon.security.caas.user.core.bean.Group;
-import org.wso2.carbon.security.caas.user.core.bean.Permission;
-import org.wso2.carbon.security.caas.user.core.bean.Resource;
-import org.wso2.carbon.security.caas.user.core.bean.Role;
-import org.wso2.carbon.security.caas.user.core.bean.User;
-import org.wso2.carbon.security.caas.user.core.config.AuthorizationStoreConnectorConfig;
-import org.wso2.carbon.security.caas.user.core.exception.AuthorizationStoreException;
-import org.wso2.carbon.security.caas.user.core.exception.PermissionNotFoundException;
-import org.wso2.carbon.security.caas.user.core.exception.RoleNotFoundException;
-import org.wso2.carbon.security.caas.user.core.store.connector.AuthorizationStoreConnector;
-import org.wso2.carbon.security.store.connector.jdbc.constant.ConnectorConstants;
-import org.wso2.carbon.security.store.connector.jdbc.constant.DatabaseColumnNames;
-import org.wso2.carbon.security.store.connector.jdbc.internal.ConnectorDataHolder;
-import org.wso2.carbon.security.store.connector.jdbc.util.NamedPreparedStatement;
-import org.wso2.carbon.security.store.connector.jdbc.util.UnitOfWork;
+import org.wso2.carbon.identity.mgt.Action;
+import org.wso2.carbon.identity.mgt.Group;
+import org.wso2.carbon.identity.mgt.Permission;
+import org.wso2.carbon.identity.mgt.Resource;
+import org.wso2.carbon.identity.mgt.Role;
+import org.wso2.carbon.identity.mgt.User;
+import org.wso2.carbon.identity.mgt.connector.AuthorizationStoreConnector;
+import org.wso2.carbon.identity.mgt.connector.config.AuthorizationStoreConnectorConfig;
+import org.wso2.carbon.identity.mgt.exception.AuthorizationStoreException;
+import org.wso2.carbon.identity.mgt.exception.PermissionNotFoundException;
+import org.wso2.carbon.identity.mgt.exception.RoleNotFoundException;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.DatabaseColumnNames;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.internal.ConnectorDataHolder;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.NamedPreparedStatement;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.UnitOfWork;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -59,11 +61,12 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     private AuthorizationStoreConnectorConfig authorizationStoreConfig;
     private DataSource dataSource;
 
-    public void init(AuthorizationStoreConnectorConfig authorizationStoreConfig)
+    @Override
+    public void init(String storeId, AuthorizationStoreConnectorConfig authorizationStoreConfig)
             throws AuthorizationStoreException {
 
-        Properties properties = authorizationStoreConfig.getProperties();
-        this.authorizationStoreId = authorizationStoreConfig.getConnectorId();
+        Properties properties = authorizationStoreConfig.getStoreProperties();
+        this.authorizationStoreId = authorizationStoreConfig.getConnectorType();
         this.authorizationStoreConfig = authorizationStoreConfig;
 
         try {
@@ -73,7 +76,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             throw new AuthorizationStoreException("Error while setting the data source.", e);
         }
 
-        loadQueries(properties);
+        Map<String, String> mapOfProperties = new HashMap<String, String>();
+        properties.putAll(mapOfProperties);
+        loadQueries(mapOfProperties);
 
         if (log.isDebugEnabled()) {
             log.debug("JDBC authorization store with the id of '{}' initialized.", authorizationStoreId);
@@ -85,8 +90,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
 
-            NamedPreparedStatement namedPreparedStatement = new NamedPreparedStatement(unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLE));
+            NamedPreparedStatement namedPreparedStatement =
+                    new NamedPreparedStatement(unitOfWork.getConnection(),
+                                               sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_GET_ROLE));
             namedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_NAME, roleName);
 
             try (ResultSet resultSet = namedPreparedStatement.getPreparedStatement().executeQuery()) {
@@ -299,7 +305,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     Resource.ResourceBuilder resource = new Resource.ResourceBuilder()
                             .setResourceNamespace(namespace)
                             .setResourceId(resourceId)
-                            .setOwnerId(userId);
+                            .setUserId(userId);
                     resources.add(resource);
                 }
             }
@@ -343,7 +349,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public List<Role.RoleBuilder> getRolesForUser(String userId, String identityStoreId)
+    public List<Role.RoleBuilder> getRolesForUser(String userId)
             throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
@@ -358,8 +364,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
                     String roleUniqueId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
-                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleUniqueId)
-                            .setAuthorizationStoreConnectorId(authorizationStoreId));
+                    roles.add(new Role.RoleBuilder().setRoleName(roleName)
+                                                    .setRoleId(roleUniqueId)
+                                                    .setAuthorizationStoreId(authorizationStoreId));
                 }
 
                 if (log.isDebugEnabled()) {
@@ -375,7 +382,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public List<Role.RoleBuilder> getRolesForGroup(String groupId, String identityStoreId)
+    public List<Role.RoleBuilder> getRolesForGroup(String groupId)
             throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
@@ -391,8 +398,9 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 while (resultSet.next()) {
                     String roleId = resultSet.getString(DatabaseColumnNames.Role.ROLE_UNIQUE_ID);
                     String roleName = resultSet.getString(DatabaseColumnNames.Role.ROLE_NAME);
-                    roles.add(new Role.RoleBuilder().setRoleName(roleName).setRoleId(roleId)
-                            .setAuthorizationStoreConnectorId(authorizationStoreId));
+                    roles.add(new Role.RoleBuilder().setRoleName(roleName)
+                                                    .setRoleId(roleId)
+                                                    .setAuthorizationStoreId(authorizationStoreId));
                 }
 
                 if (log.isDebugEnabled()) {
@@ -563,6 +571,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 }
             }
 
+
             if (log.isDebugEnabled()) {
                 log.debug("{} users of role: {} retrieved from from authorization store: {}.", userBuilders.size(),
                         roleId, authorizationStoreId);
@@ -672,8 +681,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
             addResourcePreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, userId);
 
             addResourcePreparedStatement.getPreparedStatement().executeUpdate();
-            return new Resource.ResourceBuilder().setResourceNamespace(resourceNamespace).setResourceId(resourceId)
-                    .setOwnerId(userId);
+            return new Resource.ResourceBuilder().setResourceNamespace(resourceNamespace)
+                                                 .setResourceId(resourceId).setUserId(userId);
 
         } catch (SQLException e) {
             throw new AuthorizationStoreException("An error occurred while adding the resource.", e);
@@ -848,8 +857,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public void updateRolesInUser(String userId, String identityStoreId, List<Role> roles)
-            throws AuthorizationStoreException {
+    public void updateRolesInUser(String userId, List<Role> roles) throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
@@ -889,7 +897,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public void updateRolesInUser(String userId, String identityStoreId, List<Role> addList, List<Role> removeList)
+    public void updateRolesInUser(String userId, List<Role> addList, List<Role> removeList)
             throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -955,7 +963,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_USER));
 
             for (User user : users) {
-                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+                addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUniqueUserId());
                 addUsersPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
                 addUsersPreparedStatement.getPreparedStatement().addBatch();
             }
@@ -987,7 +995,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
                 for (User user : removeList) {
                     unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+                    unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
+                                                        user.getUniqueUserId());
                     unAssingPreparedStatement.getPreparedStatement().addBatch();
                 }
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
@@ -1005,7 +1014,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
                 for (User user : addList) {
                     assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID, user.getUserId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_ID,
+                                                      user.getUniqueUserId());
                     assignPreparedStatement.getPreparedStatement().addBatch();
                 }
                 assignPreparedStatement.getPreparedStatement().executeBatch();
@@ -1024,8 +1034,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public void updateRolesInGroup(String groupId, String identityStoreId, List<Role> roles)
-            throws AuthorizationStoreException {
+    public void updateRolesInGroup(String groupId, List<Role> roles) throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
 
@@ -1066,7 +1075,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public void updateRolesInGroup(String groupId, String identityStoreId, List<Role> addList, List<Role> removeList)
+    public void updateRolesInGroup(String groupId, List<Role> addList, List<Role> removeList)
             throws AuthorizationStoreException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
@@ -1135,7 +1144,8 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_ROLES_TO_GROUP));
 
             for (Group group : groups) {
-                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
+                addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID,
+                                                     group.getUniqueGroupId());
                 addGroupsPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
                 addGroupsPreparedStatement.getPreparedStatement().addBatch();
             }
@@ -1168,7 +1178,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
                 for (Group group : removeList) {
                     unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
                     unAssingPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID,
-                            group.getGroupId());
+                            group.getUniqueGroupId());
                     unAssingPreparedStatement.getPreparedStatement().addBatch();
                 }
                 unAssingPreparedStatement.getPreparedStatement().executeBatch();
@@ -1186,8 +1196,10 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
 
                 for (Group group : addList) {
                     assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ROLE_ID, roleId);
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
-                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID, group.getGroupId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID,
+                                                      group.getUniqueGroupId());
+                    assignPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.GROUP_ID,
+                                                      group.getUniqueGroupId());
                     assignPreparedStatement.getPreparedStatement().addBatch();
                 }
                 assignPreparedStatement.getPreparedStatement().executeBatch();
@@ -1306,7 +1318,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     }
 
     @Override
-    public String getAuthorizationStoreConnectorId() {
+    public String getAuthorizationStoreId() {
         return authorizationStoreId;
     }
 
@@ -1362,7 +1374,7 @@ public class JDBCAuthorizationConnector extends JDBCStoreConnector implements Au
     private int getMaxRowRetrievalCount() {
 
         int length;
-        String maxValue = authorizationStoreConfig.getProperties().getProperty(ConnectorConstants.MAX_ROW_LIMIT);
+        String maxValue = authorizationStoreConfig.getStoreProperties().getProperty(ConnectorConstants.MAX_ROW_LIMIT);
 
         if (maxValue == null) {
 

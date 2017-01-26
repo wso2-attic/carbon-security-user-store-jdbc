@@ -104,10 +104,6 @@ public class JDBCConnectorTests {
                 .artifactId("org.wso2.carbon.security.store.connector.jdbc")
                 .versionAsInProject());
         optionList.add(mavenBundle()
-                .groupId("org.wso2.carbon.security.caas")
-                .artifactId("org.wso2.carbon.security.caas")
-                .versionAsInProject());
-        optionList.add(mavenBundle()
                 .groupId("org.wso2.carbon.identity.mgt")
                 .artifactId("org.wso2.carbon.identity.mgt")
                 .versionAsInProject());
