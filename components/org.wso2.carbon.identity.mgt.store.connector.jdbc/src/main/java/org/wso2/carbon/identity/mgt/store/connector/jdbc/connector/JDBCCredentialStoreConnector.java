@@ -400,7 +400,8 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-            //Update password.
+
+            // Update password.
             NamedPreparedStatement updatePasswordPreparedStatement = new NamedPreparedStatement(
                     unitOfWork.getConnection(),
                     sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL));
