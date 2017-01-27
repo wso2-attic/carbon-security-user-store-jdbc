@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.security.userstore</groupId>
         <artifactId>org.wso2.carbon.identity.connector.jdbc.parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.1.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -97,7 +97,7 @@
         </org.osgi.service.component.annotations.version.range>
         <org.osgi.service.jndi.version.range>[1.0.0, 1.1.0)</org.osgi.service.jndi.version.range>
         <org.wso2.carbon.datasource.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.datasource.version.range>
-        <org.wso2.carbon.identity.mgt.range>[1.0.0, 1.1.0)</org.wso2.carbon.identity.mgt.range>
+        <org.wso2.carbon.identity.mgt.range>[0.1.0, 1.0.0)</org.wso2.carbon.identity.mgt.range>
 
         <!-- Dependency package version ranges -->
 

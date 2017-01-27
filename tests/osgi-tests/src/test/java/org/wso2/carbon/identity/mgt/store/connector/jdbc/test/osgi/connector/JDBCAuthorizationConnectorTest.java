@@ -49,20 +49,20 @@
 //    private static final String DEFAULT_ACTION_NAME_ADD = "newaction";
 //    private static final String DEFAULT_ROLE_NAME_ADD = "newrole";
 //
-//    public static final String USER_UNIQUE_ID_1 = "5b19a9d5-9c49-4e29-9742-d02562cd371a";
-//    public static final String USER_UNIQUE_ID_2 = "61b1c460-6da6-47d6-a19a-213f6cdc4607";
-//    public static final String USER_UNIQUE_ID_3 = "2eddfa92-dd25-469a-9274-2fe140183814";
-//    public static final String USER_UNIQUE_ID_4 = "9a601918-67de-44c9-abb5-f7b7aba25672";
+//    private static final String USER_UNIQUE_ID_1 = "5b19a9d5-9c49-4e29-9742-d02562cd371a";
+//    private static final String USER_UNIQUE_ID_2 = "61b1c460-6da6-47d6-a19a-213f6cdc4607";
+//    private static final String USER_UNIQUE_ID_3 = "2eddfa92-dd25-469a-9274-2fe140183814";
+//    private static final String USER_UNIQUE_ID_4 = "9a601918-67de-44c9-abb5-f7b7aba25672";
 //
-//    public static final String GROUP_UNIQUE_ID_1 = "6cadeebd-f7af-4178-ad2e-4879e706b64b";
-//    public static final String GROUP_UNIQUE_ID_2 = "849697e0-e88a-40b3-86ca-d5e3b81f1e7d";
-//    public static final String GROUP_UNIQUE_ID_3 = "cb587488-d2b9-42b6-b059-3253049bb637";
-//    public static final String GROUP_UNIQUE_ID_4 = "63c2ec5d-d235-4a59-b265-8c1216517223";
+//    private static final String GROUP_UNIQUE_ID_1 = "6cadeebd-f7af-4178-ad2e-4879e706b64b";
+//    private static final String GROUP_UNIQUE_ID_2 = "849697e0-e88a-40b3-86ca-d5e3b81f1e7d";
+//    private static final String GROUP_UNIQUE_ID_3 = "cb587488-d2b9-42b6-b059-3253049bb637";
+//    private static final String GROUP_UNIQUE_ID_4 = "63c2ec5d-d235-4a59-b265-8c1216517223";
 //
-//    public static final String ROLE_UNIQUE_ID_1 = "eb9ba8c4-0436-4439-91dd-27694d01ed94";
-//    public static final String ROLE_UNIQUE_ID_2 = "fb54ecc0-b3a8-42ad-b4e8-2200fa4fc590";
-//    public static final String ROLE_UNIQUE_ID_3 = "3b6270cb-cdf1-4e8b-8027-066a6651a0c3";
-//    public static final String ROLE_UNIQUE_ID_4 = "c9bc2c9f-f753-45bb-9a2d-66845dc7e1c9";
+//    private static final String ROLE_UNIQUE_ID_1 = "eb9ba8c4-0436-4439-91dd-27694d01ed94";
+//    private static final String ROLE_UNIQUE_ID_2 = "fb54ecc0-b3a8-42ad-b4e8-2200fa4fc590";
+//    private static final String ROLE_UNIQUE_ID_3 = "3b6270cb-cdf1-4e8b-8027-066a6651a0c3";
+//    private static final String ROLE_UNIQUE_ID_4 = "c9bc2c9f-f753-45bb-9a2d-66845dc7e1c9";
 //
 //    static final UniqueIdResolver UNIQUE_ID_RESOLVER = new JDBCUniqueIdResolver();
 //
@@ -91,7 +91,7 @@
 //    @Test(priority = 1)
 //    public void testAddResource() throws AuthorizationStoreException, IdentityStoreException {
 //
-//        //As beforeClass is not supported, connector is initialized here
+//        // As beforeClass is not supported, connector is initialized here
 //        initConnector();
 //        authorizationStoreConnector.addResource(DEFAULT_NAMESPACE, DEFAULT_RESOURCE_NAME_ADD, DEFAULT_USER_ID);
 //        List<Resource.ResourceBuilder> resourceBuilders = authorizationStoreConnector.getResources
@@ -204,13 +204,13 @@
 //        List<User> userList = new ArrayList<>();
 //        User user1 = new User.UserBuilder()
 //                .setUserId(USER_UNIQUE_ID_1)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userList.add(user1);
 //
 //        User user2 = new User.UserBuilder()
 //                .setUserId(USER_UNIQUE_ID_2)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userList.add(user2);
 //
@@ -238,20 +238,20 @@
 //        List<User> userListRemove = new ArrayList<>();
 //        User user1 = new User.UserBuilder()
 //                .setUserId(USER_UNIQUE_ID_1)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userListRemove.add(user1);
 //
 //        List<User> userListAdd = new ArrayList<>();
 //        User user2 = new User.UserBuilder()
 //                .setUserId(USER_UNIQUE_ID_3)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userListAdd.add(user2);
 //
 //        User user3 = new User.UserBuilder()
 //                .setUserId(USER_UNIQUE_ID_4)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userListAdd.add(user3);
 //
@@ -274,13 +274,13 @@
 //        List<Group> userList = new ArrayList<>();
 //        Group user1 = new Group.GroupBuilder()
 //                .setGroupId(GROUP_UNIQUE_ID_1)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userList.add(user1);
 //
 //        Group user2 = new Group.GroupBuilder()
 //                .setGroupId(GROUP_UNIQUE_ID_2)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userList.add(user2);
 //
@@ -309,20 +309,20 @@
 //        List<Group> userListRemove = new ArrayList<>();
 //        Group user1 = new Group.GroupBuilder()
 //                .setGroupId(GROUP_UNIQUE_ID_1)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userListRemove.add(user1);
 //
 //        List<Group> userListAdd = new ArrayList<>();
 //        Group user2 = new Group.GroupBuilder()
 //                .setGroupId(GROUP_UNIQUE_ID_3)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userListAdd.add(user2);
 //
 //        Group user3 = new Group.GroupBuilder()
 //                .setGroupId(GROUP_UNIQUE_ID_4)
-//                .setAuthorizationStore(authorizationService.getAuthorizationStore())
+////                .setAuthorizationStore(authorizationService.getAuthorizationStore())
 //                .setIdentityStore(realmService.getIdentityStore()).build();
 //        userListAdd.add(user3);
 //
@@ -460,5 +460,4 @@
 //        Action action = new Action(DEFAULT_NAMESPACE, DEFAULT_ACTION_NAME_ADD);
 //        authorizationStoreConnector.getPermission(resource, action);
 //    }
-//
 //}

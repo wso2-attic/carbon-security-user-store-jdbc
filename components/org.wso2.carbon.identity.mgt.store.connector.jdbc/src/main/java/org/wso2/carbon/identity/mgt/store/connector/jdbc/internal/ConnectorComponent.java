@@ -27,12 +27,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
-import org.wso2.carbon.identity.mgt.connector.AuthorizationStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.connector.CredentialStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.connector.IdentityStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.constant.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.impl.util.PasswordHandler;
-import org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.factory.JDBCAuthorizationStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.factory.JDBCCredentialStoreConnectorFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.connector.factory.JDBCIdentityStoreConnectorFactory;
 
@@ -72,10 +70,10 @@ public class ConnectorComponent {
         bundleContext.registerService(CredentialStoreConnectorFactory.class, new JDBCCredentialStoreConnectorFactory(),
                 connectorProperties);
 
-        connectorProperties = new Hashtable<>();
-        connectorProperties.put("connector-type", "JDBCAuthorizationStore");
-        bundleContext.registerService(AuthorizationStoreConnectorFactory.class,
-                                      new JDBCAuthorizationStoreConnectorFactory(), connectorProperties);
+//        connectorProperties = new Hashtable<>();
+//        connectorProperties.put("connector-type", "JDBCAuthorizationStore");
+//        bundleContext.registerService(AuthorizationStoreConnectorFactory.class,
+//                                      new JDBCAuthorizationStoreConnectorFactory(), connectorProperties);
 
         log.info("JDBC user store bundle successfully activated.");
     }
