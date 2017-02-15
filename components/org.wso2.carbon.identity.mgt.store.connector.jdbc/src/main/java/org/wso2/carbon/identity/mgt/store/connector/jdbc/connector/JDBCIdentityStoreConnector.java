@@ -551,7 +551,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("{} users retrieved from identity store: {}.", userIdsToReturn.size());
+                log.debug("Users retrieved from identity store: {}.", userIdsToReturn.size());
             }
 
         } catch (SQLException e) {

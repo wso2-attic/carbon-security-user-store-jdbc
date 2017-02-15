@@ -254,7 +254,6 @@ public class IdentityStoreTests extends JDBCConnectorTests {
 
         List<User> users = realmService.getIdentityStore().listUsers(claims, 1, 1);
 
-
         Assert.assertNotNull(users, "Failed to list the users.");
         Assert.assertTrue(!users.isEmpty() && users.size() == 1 , "Number of users received in the response " +
                 "is invalid.");

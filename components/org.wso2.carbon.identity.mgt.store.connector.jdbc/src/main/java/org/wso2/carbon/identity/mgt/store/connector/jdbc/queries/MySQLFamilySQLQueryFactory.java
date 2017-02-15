@@ -76,14 +76,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
                     "LIMIT :length; " +
                     "OFFSET :offset;";
 
-    private static final String LIST_USERS_BY_ATTRIBUTES =
-            "SELECT UM_USER.USER_UNIQUE_ID " +
-                    "FROM UM_USER WHERE UM_USER.ID IN (SELECT USER_ID " +
-                    "FROM UM_USER_ATTRIBUTES WHERE ATTR_ID IN (" +
-                    "SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME IN (" +
-                    ":attr_names;)) AND ATTR_VALUE IN (" +
-                    ":attr_values;))";
-
     private static final String LIST_USERS_BY_ATTRIBUTE =
             "SELECT UM_USER.USER_UNIQUE_ID " +
                     "FROM UM_USER LEFT JOIN UM_USER_ATTRIBUTES " +
@@ -243,7 +235,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_PASSWORD_DATA, GET_PASSWORD_DATA);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_FROM_ATTRIBUTE, GET_USER_FROM_ATTRIBUTE);
-        sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USERS_FROM_ATTRIBUTES, LIST_USERS_BY_ATTRIBUTES);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE, GET_GROUP_FROM_ATTRIBUTE);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_GET_USER_ATTRIBUTES, GET_USER_ATTRIBUTES);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE_PATTERN,
