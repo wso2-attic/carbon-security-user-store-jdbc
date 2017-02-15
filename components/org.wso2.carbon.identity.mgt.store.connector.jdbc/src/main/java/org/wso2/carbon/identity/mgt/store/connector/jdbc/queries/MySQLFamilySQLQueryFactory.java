@@ -285,8 +285,7 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     public String getQuerryForUserIdFromMultipleAttributes(List<Attribute> attributes, int offset, int length) {
         StringBuilder getUniqueUserQuerry = new StringBuilder();
-         getUniqueUserQuerry.append("SELECT UM_USER.USER_UNIQUE_ID " +
-                 "FROM UM_USER WHERE UM_USER.ID IN");
+         getUniqueUserQuerry.append("SELECT UM_USER.USER_UNIQUE_ID FROM UM_USER WHERE UM_USER.ID IN");
         int count = 1;
         for (Attribute attribute : attributes) {
             getUniqueUserQuerry
