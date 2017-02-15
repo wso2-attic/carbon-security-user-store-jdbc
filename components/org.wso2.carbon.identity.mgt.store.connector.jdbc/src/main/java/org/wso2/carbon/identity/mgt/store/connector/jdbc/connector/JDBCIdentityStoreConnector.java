@@ -26,11 +26,13 @@ import org.wso2.carbon.identity.mgt.connector.IdentityStoreConnector;
 import org.wso2.carbon.identity.mgt.connector.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.identity.mgt.exception.GroupNotFoundException;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreConnectorException;
+import org.wso2.carbon.identity.mgt.exception.StoreException;
 import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
 import org.wso2.carbon.identity.mgt.impl.util.IdentityUserMgtUtil;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.ConnectorConstants;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.DatabaseColumnNames;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.internal.ConnectorDataHolder;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.queries.MySQLFamilySQLQueryFactory;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.UnitOfWork;
 
@@ -51,7 +53,6 @@ import javax.sql.DataSource;
 public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements IdentityStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCIdentityStoreConnector.class);
-
     protected DataSource dataSource;
     protected IdentityStoreConnectorConfig identityStoreConfig;
     protected String identityStoreId;
@@ -123,10 +124,8 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         List<String> userList = new ArrayList<>();
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
-
-            NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE));
+            NamedPreparedStatement listUsersNamedPreparedStatement = new NamedPreparedStatement(unitOfWork
+                    .getConnection(), sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_LIST_USERS_BY_ATTRIBUTE));
             listUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE_NAME,
                     attributeName);
 
@@ -515,6 +514,50 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
     @Override
     public IdentityStoreConnectorConfig getIdentityStoreConfig() {
         return identityStoreConfig;
+    }
+
+    @Override
+    public List<String> getUsers(List<Attribute> attributes, int offset, int length)
+            throws IdentityStoreConnectorException {
+
+        List<String> userIdsToReturn = new ArrayList<>();
+        Map<String, String> properties = identityStoreConfig.getProperties();
+        String databaseType =  properties.get(ConnectorConstants.DATABASE_TYPE);
+        String sqlQuerryForUserAttributes;
+
+        if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") ||
+                databaseType.equalsIgnoreCase("H2"))) {
+
+            sqlQuerryForUserAttributes = new MySQLFamilySQLQueryFactory()
+                    .getQuerryForUserIdFromMultipleAttributes(attributes, offset, length);
+
+            if (log.isDebugEnabled()) {
+                log.debug("{} sql queries loaded for database type: {}.", sqlQueries.size(), databaseType);
+            }
+        } else {
+            throw new StoreException("Invalid or unsupported database type specified in the configuration.");
+        }
+        try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+
+            NamedPreparedStatement getUsersNamedPreparedStatement = new NamedPreparedStatement(
+                    unitOfWork.getConnection(), sqlQuerryForUserAttributes);
+
+            try (ResultSet resultSet = getUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+
+                while (resultSet.next()) {
+                    String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
+                    userIdsToReturn.add(userUniqueId);
+                }
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("{} users retrieved from identity store: {}.", userIdsToReturn.size());
+            }
+
+        } catch (SQLException e) {
+            throw new IdentityStoreConnectorException("Error occurred while getting database connection.", e);
+        }
+        return userIdsToReturn;
     }
 
     @Override

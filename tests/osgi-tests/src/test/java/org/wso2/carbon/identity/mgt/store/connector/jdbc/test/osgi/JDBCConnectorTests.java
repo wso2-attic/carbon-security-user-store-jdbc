@@ -108,6 +108,18 @@ public class JDBCConnectorTests {
                 .artifactId("commons-io")
                 .versionAsInProject());
         optionList.add(mavenBundle()
+                .groupId("org.wso2.carbon.identity.commons")
+                .artifactId("org.wso2.carbon.identity.commons")
+                .versionAsInProject());
+        optionList.add(mavenBundle()
+                .groupId("org.wso2.carbon.identity.commons")
+                .artifactId("org.wso2.carbon.identity.event")
+                .versionAsInProject());
+        optionList.add(mavenBundle()
+                .groupId("org.apache.commons")
+                .artifactId("commons-lang3")
+                .versionAsInProject());
+        optionList.add(mavenBundle()
                 .groupId("com.zaxxer")
                 .artifactId("HikariCP")
                 .versionAsInProject());

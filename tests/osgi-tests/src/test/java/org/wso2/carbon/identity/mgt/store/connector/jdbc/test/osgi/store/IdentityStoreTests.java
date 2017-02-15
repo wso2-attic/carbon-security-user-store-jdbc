@@ -242,6 +242,25 @@ public class IdentityStoreTests extends JDBCConnectorTests {
     }
 
     @Test(dependsOnGroups = {"addUsers"})
+    public void testListUsersByClaimsOffsetAndLength() throws IdentityStoreException {
+
+        Assert.assertNotNull(realmService, "Failed to get realm service instance");
+
+        List<Claim> claims = new ArrayList<>();
+        Claim claim1 = new Claim("http://wso2.org/claims", "http://wso2.org/claims/lastName", "Espinoza");
+        claims.add(claim1);
+        Claim claim2 = new Claim("http://wso2.org/claims", "http://wso2.org/claims/email", "dan@wso2.com");
+        claims.add(claim2);
+
+        List<User> users = realmService.getIdentityStore().listUsers(claims, 1, 1);
+
+
+        Assert.assertNotNull(users, "Failed to list the users.");
+        Assert.assertTrue(!users.isEmpty() && users.size() == 1 , "Number of users received in the response " +
+                "is invalid.");
+    }
+
+    @Test(dependsOnGroups = {"addUsers"})
     public void testListUsersByMetaClaimFilterPatternOffsetAndLength() throws IdentityStoreException {
 
         Assert.assertNotNull(realmService, "Failed to get realm service instance");

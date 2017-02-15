@@ -40,6 +40,7 @@ public class ConnectorConstants {
 
         public static final String ATTRIBUTE_NAME = "attr_name";
         public static final String ATTRIBUTE_VALUE = "attr_value";
+        public static final String ATTRIBUTE_VALUES = "attr_values";
         public static final String USER_ID = "user_id";
         public static final String GROUP_ID = "group_id";
         public static final String LENGTH = "length";
@@ -81,6 +82,7 @@ public class ConnectorConstants {
         public static final String SQL_QUERY_GET_GROUP_FROM_ATTRIBUTE = "sql_query_get_group_from_attribute";
         public static final String SQL_QUERY_GET_PASSWORD_DATA = "sql_query_get_password_data";
         public static final String SQL_QUERY_GET_USER_FROM_ATTRIBUTE = "sql_query_get_user_from_attribute";
+        public static final String SQL_QUERY_GET_USERS_FROM_ATTRIBUTES = "sql_query_get_users_from_attributes";
         public static final String SQL_QUERY_GET_USER_ATTRIBUTES = "sql_query_get_user_attributes";
         public static final String SQL_QUERY_LIST_USERS_BY_ATTRIBUTE_PATTERN =
                 "sql_query_list_users_by_attribute_pattern";

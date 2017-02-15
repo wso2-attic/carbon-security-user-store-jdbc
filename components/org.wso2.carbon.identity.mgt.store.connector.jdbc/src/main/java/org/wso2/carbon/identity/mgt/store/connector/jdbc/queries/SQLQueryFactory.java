@@ -18,7 +18,10 @@
 
 package org.wso2.carbon.identity.mgt.store.connector.jdbc.queries;
 
+import org.wso2.carbon.identity.mgt.connector.Attribute;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,4 +51,7 @@ public abstract class SQLQueryFactory {
     public Map<String, String> getQueries() {
         return sqlQueries;
     }
+
+    public abstract String getQuerryForUserIdFromMultipleAttributes(List<Attribute> attributes, int offset, int length);
+
 }
