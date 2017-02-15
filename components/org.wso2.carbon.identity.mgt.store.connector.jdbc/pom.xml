@@ -97,6 +97,7 @@
         <org.osgi.service.jndi.version.range>[1.0.0, 1.1.0)</org.osgi.service.jndi.version.range>
         <org.wso2.carbon.datasource.version.range>[1.0.0, 1.1.0)</org.wso2.carbon.datasource.version.range>
         <org.wso2.carbon.identity.mgt.range>[0.1.0, 1.0.0)</org.wso2.carbon.identity.mgt.range>
+        <org.wso2.carbon.identity.commons.range>[0.1.0, 1.0.0)</org.wso2.carbon.identity.commons.range>
 
         <!-- Dependency package version ranges -->
 

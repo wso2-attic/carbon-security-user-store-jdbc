@@ -18,7 +18,10 @@
 
 package org.wso2.carbon.identity.mgt.store.connector.jdbc.queries;
 
+import org.wso2.carbon.identity.mgt.connector.Attribute;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.ConnectorConstants;
+
+import java.util.List;
 
 /**
  * SQL queries for MySQL family based databases.
@@ -278,5 +281,29 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL, UPDATE_CREDENTIAL);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_PASSWORD_INFO, UPDATE_PASSWORD_INFO);
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_CREDENTIAL, DELETE_CREDENTIAL);
+    }
+
+    public String getQuerryForUserIdFromMultipleAttributes(List<Attribute> attributes, int offset, int length) {
+        StringBuilder getUniqueUserQuerry = new StringBuilder();
+         getUniqueUserQuerry.append("SELECT UM_USER.USER_UNIQUE_ID FROM UM_USER WHERE UM_USER.ID IN");
+        int count = 1;
+        for (Attribute attribute : attributes) {
+            getUniqueUserQuerry
+                    .append(" (SELECT UM_USER_ATTRIBUTES.USER_ID FROM UM_USER_ATTRIBUTES" +
+                            " WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = '")
+                    .append(attribute.getAttributeName())
+                    .append("' ) AND ATTR_VALUE = '")
+                    .append(attribute.getAttributeValue())
+                    .append("')");
+            if (count < attributes.size()) {
+                getUniqueUserQuerry.append(" AND ");
+            }
+            ++count;
+        }
+        getUniqueUserQuerry.append(" GROUP BY USER_UNIQUE_ID LIMIT ");
+        getUniqueUserQuerry.append(length);
+        getUniqueUserQuerry.append(";");
+
+        return getUniqueUserQuerry.toString();
     }
 }

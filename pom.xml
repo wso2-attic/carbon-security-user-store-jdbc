@@ -154,6 +154,21 @@
                 <version>${org.wso2.carbon.identity.mgt.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.identity.commons</groupId>
+                <artifactId>org.wso2.carbon.identity.commons</artifactId>
+                <version>${carbon.identity.commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.commons</groupId>
+                <artifactId>org.wso2.carbon.identity.event</artifactId>
+                <version>${carbon.identity.commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.lang.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core</artifactId>
                 <version>${carbon.core.version}</version>
@@ -325,6 +340,12 @@
                 <version>${org.wso2.carbon.identity.mgt.version}</version>
                 <type>zip</type>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.commons</groupId>
+                <artifactId>org.wso2.carbon.identity.common.feature</artifactId>
+                <version>${carbon.identity.commons.version}</version>
+                <type>zip</type>
+            </dependency>
 
             <!-- PAX Exam-->
             <dependency>
@@ -364,7 +385,8 @@
     <properties>
         <carbon.security.userstore.jdbc.version>0.1.2-SNAPSHOT</carbon.security.userstore.jdbc.version>
 
-        <org.wso2.carbon.identity.mgt.version>0.1.1</org.wso2.carbon.identity.mgt.version>
+        <org.wso2.carbon.identity.mgt.version>0.1.15</org.wso2.carbon.identity.mgt.version>
+        <carbon.identity.commons.version>0.1.17</carbon.identity.commons.version>
         <carbon.jndi.version>1.0.0</carbon.jndi.version>
         <carbon.datasources.version>1.0.0</carbon.datasources.version>
         <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
@@ -400,6 +422,7 @@
         <org.wso2.carbon.messaging.version>1.0.3</org.wso2.carbon.messaging.version>
         <pax.logging.api.version>1.9.0</pax.logging.api.version>
         <commons.dbcp.version>1.4</commons.dbcp.version>
+        <commons.lang.version>3.4</commons.lang.version>
 
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <org.wso2.eclipse.osgi.version>3.4.0.v20140312-2051</org.wso2.eclipse.osgi.version>

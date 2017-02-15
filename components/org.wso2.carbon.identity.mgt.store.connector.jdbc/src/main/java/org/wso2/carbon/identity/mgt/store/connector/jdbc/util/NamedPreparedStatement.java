@@ -131,7 +131,6 @@ public class NamedPreparedStatement {
      * @throws SQLException SQL Exception.
      */
     public void setString(String name, List<String> values) throws SQLException {
-
         int indexInc = 0;
         for (String value : values) {
             preparedStatement.setString(getIndex(name) + indexInc, value);
