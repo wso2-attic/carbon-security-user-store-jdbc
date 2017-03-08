@@ -127,6 +127,14 @@ public class JDBCConnectorTests {
                 .groupId("com.h2database")
                 .artifactId("h2")
                 .versionAsInProject());
+        optionList.add(mavenBundle()
+                .groupId("org.wso2.carbon.lcm")
+                .artifactId("org.wso2.carbon.lcm.core")
+                .versionAsInProject());
+        optionList.add(mavenBundle()
+                .groupId("org.wso2.carbon.lcm")
+                .artifactId("org.wso2.carbon.lcm.sql")
+                .versionAsInProject());
 
         CarbonSysPropConfiguration sysPropConfiguration = new CarbonSysPropConfiguration();
         sysPropConfiguration.setCarbonHome(System.getProperty("carbon.home"));

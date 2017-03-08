@@ -154,6 +154,28 @@
                 <version>${org.wso2.carbon.identity.mgt.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.lcm</groupId>
+                <artifactId>org.wso2.carbon.lcm.core</artifactId>
+                <version>${org.wso2.carbon.lcm.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.h2database.wso2</groupId>
+                        <artifactId>h2-database-engine</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.lcm</groupId>
+                <artifactId>org.wso2.carbon.lcm.sql</artifactId>
+                <version>${org.wso2.carbon.lcm.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.h2database.wso2</groupId>
+                        <artifactId>h2-database-engine</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon.identity.commons</groupId>
                 <artifactId>org.wso2.carbon.identity.commons</artifactId>
                 <version>${carbon.identity.commons.version}</version>
@@ -341,6 +363,18 @@
                 <type>zip</type>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.lcm</groupId>
+                <artifactId>org.wso2.carbon.lcm.core.feature</artifactId>
+                <version>${org.wso2.carbon.lcm.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.lcm</groupId>
+                <artifactId>org.wso2.carbon.lcm.sql.feature</artifactId>
+                <version>${org.wso2.carbon.lcm.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon.identity.commons</groupId>
                 <artifactId>org.wso2.carbon.identity.common.feature</artifactId>
                 <version>${carbon.identity.commons.version}</version>
@@ -385,12 +419,13 @@
     <properties>
         <carbon.security.userstore.jdbc.version>0.1.3-SNAPSHOT</carbon.security.userstore.jdbc.version>
 
-        <org.wso2.carbon.identity.mgt.version>0.1.15</org.wso2.carbon.identity.mgt.version>
-        <carbon.identity.commons.version>0.1.17</carbon.identity.commons.version>
+        <org.wso2.carbon.identity.mgt.version>0.1.36</org.wso2.carbon.identity.mgt.version>
+        <carbon.identity.commons.version>0.1.23</carbon.identity.commons.version>
         <carbon.jndi.version>1.0.0</carbon.jndi.version>
         <carbon.datasources.version>1.0.0</carbon.datasources.version>
         <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
+        <org.wso2.carbon.lcm.version>1.0.0</org.wso2.carbon.lcm.version>
 
         <!-- OSGI Test related -->
 
