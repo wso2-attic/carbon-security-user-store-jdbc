@@ -28,14 +28,14 @@
     <artifactId>org.wso2.carbon.identity.connector.jdbc.parent</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Security JDBC User Store - Parent</name>
-    <version>0.1.3</version>
+    <version>0.1.4-SNAPSHOT</version>
 
     <scm>
         <url>https://github.com/wso2-extensions/carbon-security-user-store-jdbc.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/carbon-security-user-store-jdbc.git
         </developerConnection>
         <connection>scm:git:https://github.com/wso2-extensions/carbon-security-user-store-jdbc.git</connection>
-        <tag>v0.1.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <modules>
@@ -417,7 +417,7 @@
     </dependencyManagement>
 
     <properties>
-        <carbon.security.userstore.jdbc.version>0.1.3</carbon.security.userstore.jdbc.version>
+        <carbon.security.userstore.jdbc.version>0.1.4-SNAPSHOT</carbon.security.userstore.jdbc.version>
 
         <org.wso2.carbon.identity.mgt.version>0.1.38</org.wso2.carbon.identity.mgt.version>
         <carbon.identity.commons.version>0.1.23</carbon.identity.commons.version>
