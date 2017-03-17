@@ -83,7 +83,7 @@ CREATE TABLE UM_PASSWORD_INFO
   HASH_ALGO       VARCHAR(128)                       NOT NULL,
   ITERATION_COUNT INT,
   KEY_LENGTH      INT,
-  USER_ID         VARCHAR(64)                        NOT NULL,
+  USER_ID         INT                        NOT NULL,
   FOREIGN KEY (USER_ID) REFERENCES UM_PASSWORD (ID) ON DELETE CASCADE
 );
 
