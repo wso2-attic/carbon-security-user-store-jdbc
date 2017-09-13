@@ -20,7 +20,11 @@ package org.wso2.carbon.identity.mgt.store.connector.jdbc.queries;
 
 import org.wso2.carbon.identity.mgt.connector.Attribute;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.ConnectorConstants;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.NamedPreparedStatement;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.UnitOfWork;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -285,16 +289,16 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
 
     public String getQuerryForUserIdFromMultipleAttributes(List<Attribute> attributes, int offset, int length) {
         StringBuilder getUniqueUserQuerry = new StringBuilder();
-         getUniqueUserQuerry.append("SELECT UM_USER.USER_UNIQUE_ID FROM UM_USER WHERE UM_USER.ID IN");
+        getUniqueUserQuerry.append("SELECT UM_USER.USER_UNIQUE_ID FROM UM_USER WHERE UM_USER.ID IN");
         int count = 1;
-        for (Attribute attribute : attributes) {
+        while (count <= attributes.size()) {
             getUniqueUserQuerry
                     .append(" (SELECT UM_USER_ATTRIBUTES.USER_ID FROM UM_USER_ATTRIBUTES" +
-                            " WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = '")
-                    .append(attribute.getAttributeName())
-                    .append("' ) AND ATTR_VALUE = '")
-                    .append(attribute.getAttributeValue())
-                    .append("')");
+                            " WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = ")
+                    .append(":attri").append((count * 2) - 1)
+                    .append("; ) AND ATTR_VALUE = ")
+                    .append(":attri").append(count * 2)
+                    .append("; )");
             if (count < attributes.size()) {
                 getUniqueUserQuerry.append(" AND ");
             }
@@ -305,5 +309,43 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         getUniqueUserQuerry.append(";");
 
         return getUniqueUserQuerry.toString();
+    }
+
+    public PreparedStatement getPreparedStatementFromMultipleAttributes(
+            List<Attribute> attributes, int offset, int length, UnitOfWork unitOfWork) throws SQLException {
+        StringBuilder getUniqueUserQuerry = new StringBuilder();
+        getUniqueUserQuerry.append("SELECT UM_USER.USER_UNIQUE_ID FROM UM_USER WHERE UM_USER.ID IN");
+        int count = 1;
+        while (count <= attributes.size()) {
+            getUniqueUserQuerry
+                    .append(" (SELECT UM_USER_ATTRIBUTES.USER_ID FROM UM_USER_ATTRIBUTES" +
+                            " WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = ")
+                    .append(":").append(ConnectorConstants.SQLPlaceholders.ATTRIBUTE)
+                    .append((count * 2) - 1).append("; ) AND ATTR_VALUE = ")
+                    .append(":").append(ConnectorConstants.SQLPlaceholders.ATTRIBUTE).append(count * 2)
+                    .append("; )");
+            if (count < attributes.size()) {
+                getUniqueUserQuerry.append(" AND ");
+            }
+            ++count;
+        }
+        getUniqueUserQuerry.append(" GROUP BY USER_UNIQUE_ID LIMIT ");
+        getUniqueUserQuerry.append(length);
+        getUniqueUserQuerry.append(";");
+
+
+        NamedPreparedStatement getUsersNamedPreparedStatement = new NamedPreparedStatement(
+                unitOfWork.getConnection(), getUniqueUserQuerry.toString());
+        count = 1;
+        for (Attribute attribute : attributes) {
+            if (count <= attributes.size()) {
+                getUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE
+                        .concat(Integer.toString((count * 2) - 1)), attribute.getAttributeName());
+                getUsersNamedPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.ATTRIBUTE
+                        .concat(Integer.toString(count * 2)), attribute.getAttributeValue());
+                ++count;
+            }
+        }
+        return getUsersNamedPreparedStatement.getPreparedStatement();
     }
 }

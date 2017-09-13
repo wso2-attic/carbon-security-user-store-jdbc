@@ -41,6 +41,7 @@ public class ConnectorConstants {
         public static final String ATTRIBUTE_NAME = "attr_name";
         public static final String ATTRIBUTE_VALUE = "attr_value";
         public static final String ATTRIBUTE_VALUES = "attr_values";
+        public static final String ATTRIBUTE = "attri";
         public static final String USER_ID = "user_id";
         public static final String GROUP_ID = "group_id";
         public static final String LENGTH = "length";

@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.mgt.connector.IdentityStoreConnector;
 import org.wso2.carbon.identity.mgt.connector.config.IdentityStoreConnectorConfig;
 import org.wso2.carbon.identity.mgt.exception.GroupNotFoundException;
 import org.wso2.carbon.identity.mgt.exception.IdentityStoreConnectorException;
-import org.wso2.carbon.identity.mgt.exception.StoreException;
 import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
 import org.wso2.carbon.identity.mgt.impl.util.IdentityUserMgtUtil;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.constant.ConnectorConstants;
@@ -36,6 +35,7 @@ import org.wso2.carbon.identity.mgt.store.connector.jdbc.queries.MySQLFamilySQLQ
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.NamedPreparedStatement;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.UnitOfWork;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -525,24 +525,26 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
         String databaseType =  properties.get(ConnectorConstants.DATABASE_TYPE);
         String sqlQuerryForUserAttributes;
 
-        if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") ||
-                databaseType.equalsIgnoreCase("H2"))) {
-
-            sqlQuerryForUserAttributes = new MySQLFamilySQLQueryFactory()
-                    .getQuerryForUserIdFromMultipleAttributes(attributes, offset, length);
-
-            if (log.isDebugEnabled()) {
-                log.debug("{} sql queries loaded for database type: {}.", sqlQueries.size(), databaseType);
-            }
-        } else {
-            throw new StoreException("Invalid or unsupported database type specified in the configuration.");
-        }
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
+            PreparedStatement getUsersPreparedStatement;
 
-            NamedPreparedStatement getUsersNamedPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(), sqlQuerryForUserAttributes);
+            if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") ||
+                    databaseType.equalsIgnoreCase("H2"))) {
+                if (attributes.size() > 0) {
+                    getUsersPreparedStatement = new MySQLFamilySQLQueryFactory()
+                            .getPreparedStatementFromMultipleAttributes(attributes, offset, length, unitOfWork);
+                } else {
+                    throw new IdentityStoreConnectorException("There are no attributes to find users.");
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("{} sql queries loaded for database type: {}.", sqlQueries.size(), databaseType);
+                }
+            } else {
+                throw new IdentityStoreConnectorException("Invalid or unsupported database type specified in the" +
+                        " configuration.");
+            }
 
-            try (ResultSet resultSet = getUsersNamedPreparedStatement.getPreparedStatement().executeQuery()) {
+            try (ResultSet resultSet = getUsersPreparedStatement.executeQuery()) {
 
                 while (resultSet.next()) {
                     String userUniqueId = resultSet.getString(DatabaseColumnNames.User.USER_UNIQUE_ID);
