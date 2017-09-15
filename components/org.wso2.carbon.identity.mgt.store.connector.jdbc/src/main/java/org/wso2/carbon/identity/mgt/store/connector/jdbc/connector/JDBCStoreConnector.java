@@ -48,7 +48,7 @@ public abstract class JDBCStoreConnector {
                 log.debug("{} sql queries loaded for database type: {}.", sqlQueries.size(), databaseType);
             }
         } else {
-            throw new StoreException("Invalid or unsupported database type specified in the configuration.");
+            throw new StoreException("Invalid or unsupported database type specified in the configuration. Database type : " + databaseType);
         }
 
         // If there are matching queries in the properties, we have to override the default and replace with them.

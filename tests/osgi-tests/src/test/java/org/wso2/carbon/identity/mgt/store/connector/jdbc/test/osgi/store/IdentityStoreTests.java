@@ -34,11 +34,11 @@ import org.wso2.carbon.identity.mgt.exception.UserNotFoundException;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.JDBCConnectorTests;
 import org.wso2.carbon.identity.mgt.store.connector.jdbc.test.osgi.TestConstants;
 
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.PasswordCallback;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.PasswordCallback;
 
 /**
  * JDBC Identity store connector related tests.
@@ -255,8 +255,8 @@ public class IdentityStoreTests extends JDBCConnectorTests {
         List<User> users = realmService.getIdentityStore().listUsers(claims, 1, 1);
 
         Assert.assertNotNull(users, "Failed to list the users.");
-        Assert.assertTrue(!users.isEmpty() && users.size() == 1 , "Number of users received in the response " +
-                "is invalid.");
+        Assert.assertTrue(!users.isEmpty(), "At least one user should exist.");
+        Assert.assertEquals(users.size(), 1, "Can have only one user");
     }
 
     @Test(dependsOnGroups = {"addUsers"})

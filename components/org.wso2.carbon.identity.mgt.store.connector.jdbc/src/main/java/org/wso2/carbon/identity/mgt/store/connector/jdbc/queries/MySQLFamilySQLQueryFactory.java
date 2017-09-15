@@ -287,32 +287,11 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         sqlQueries.put(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_CREDENTIAL, DELETE_CREDENTIAL);
     }
 
-    public String getQuerryForUserIdFromMultipleAttributes(List<Attribute> attributes, int offset, int length) {
-        StringBuilder getUniqueUserQuerry = new StringBuilder();
-        getUniqueUserQuerry.append("SELECT UM_USER.USER_UNIQUE_ID FROM UM_USER WHERE UM_USER.ID IN");
-        int count = 1;
-        while (count <= attributes.size()) {
-            getUniqueUserQuerry
-                    .append(" (SELECT UM_USER_ATTRIBUTES.USER_ID FROM UM_USER_ATTRIBUTES" +
-                            " WHERE ATTR_ID = (SELECT ID FROM UM_ATTRIBUTES WHERE ATTR_NAME = ")
-                    .append(":attri").append((count * 2) - 1)
-                    .append("; ) AND ATTR_VALUE = ")
-                    .append(":attri").append(count * 2)
-                    .append("; )");
-            if (count < attributes.size()) {
-                getUniqueUserQuerry.append(" AND ");
-            }
-            ++count;
-        }
-        getUniqueUserQuerry.append(" GROUP BY USER_UNIQUE_ID LIMIT ");
-        getUniqueUserQuerry.append(length);
-        getUniqueUserQuerry.append(";");
-
-        return getUniqueUserQuerry.toString();
-    }
-
     public PreparedStatement getPreparedStatementFromMultipleAttributes(
             List<Attribute> attributes, int offset, int length, UnitOfWork unitOfWork) throws SQLException {
+        if (attributes  == null || attributes.isEmpty()) {
+            throw new SQLException("There are no attributes to match and get the users.");
+        }
         StringBuilder getUniqueUserQuerry = new StringBuilder();
         getUniqueUserQuerry.append("SELECT UM_USER.USER_UNIQUE_ID FROM UM_USER WHERE UM_USER.ID IN");
         int count = 1;
@@ -331,8 +310,6 @@ public class MySQLFamilySQLQueryFactory extends SQLQueryFactory {
         }
         getUniqueUserQuerry.append(" GROUP BY USER_UNIQUE_ID LIMIT ");
         getUniqueUserQuerry.append(length);
-        getUniqueUserQuerry.append(";");
-
 
         NamedPreparedStatement getUsersNamedPreparedStatement = new NamedPreparedStatement(
                 unitOfWork.getConnection(), getUniqueUserQuerry.toString());

@@ -19,7 +19,10 @@
 package org.wso2.carbon.identity.mgt.store.connector.jdbc.queries;
 
 import org.wso2.carbon.identity.mgt.connector.Attribute;
+import org.wso2.carbon.identity.mgt.store.connector.jdbc.util.UnitOfWork;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +55,17 @@ public abstract class SQLQueryFactory {
         return sqlQueries;
     }
 
-    public abstract String getQuerryForUserIdFromMultipleAttributes(List<Attribute> attributes, int offset, int length);
+    /***
+     * Get users which match all attributes.
+     *
+     * @param attributes Set of claim values.
+     * @param offset Limit of the users to retrieve.
+     * @param length
+     * @param unitOfWork
+     * @return
+     * @throws SQLException
+     */
+    public abstract PreparedStatement getPreparedStatementFromMultipleAttributes(
+            List<Attribute> attributes, int offset, int length, UnitOfWork unitOfWork) throws SQLException;
 
 }

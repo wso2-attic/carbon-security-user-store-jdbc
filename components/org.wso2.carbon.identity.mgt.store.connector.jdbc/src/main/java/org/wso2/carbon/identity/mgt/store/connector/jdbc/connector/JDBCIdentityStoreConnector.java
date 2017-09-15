@@ -53,6 +53,9 @@ import javax.sql.DataSource;
 public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements IdentityStoreConnector {
 
     private static Logger log = LoggerFactory.getLogger(JDBCIdentityStoreConnector.class);
+    private static final String MYSQL = "MySQL";
+    private static final String H2 = "H2";
+
     protected DataSource dataSource;
     protected IdentityStoreConnectorConfig identityStoreConfig;
     protected String identityStoreId;
@@ -522,14 +525,14 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
         List<String> userIdsToReturn = new ArrayList<>();
         Map<String, String> properties = identityStoreConfig.getProperties();
-        String databaseType =  properties.get(ConnectorConstants.DATABASE_TYPE);
-        String sqlQuerryForUserAttributes;
-
+        if (properties.isEmpty()) {
+            throw new IdentityStoreConnectorException("IdentityStoreConfig is not initialized properly.");
+        }
+        String databaseType = properties.get(ConnectorConstants.DATABASE_TYPE);
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection())) {
             PreparedStatement getUsersPreparedStatement;
-
-            if (databaseType != null && (databaseType.equalsIgnoreCase("MySQL") ||
-                    databaseType.equalsIgnoreCase("H2"))) {
+            if (databaseType != null && (databaseType.equalsIgnoreCase(MYSQL) ||
+                    databaseType.equalsIgnoreCase(H2))) {
                 if (attributes.size() > 0) {
                     getUsersPreparedStatement = new MySQLFamilySQLQueryFactory()
                             .getPreparedStatementFromMultipleAttributes(attributes, offset, length, unitOfWork);
@@ -537,7 +540,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
                     throw new IdentityStoreConnectorException("There are no attributes to find users.");
                 }
                 if (log.isDebugEnabled()) {
-                    log.debug("{} sql queries loaded for database type: {}.", sqlQueries.size(), databaseType);
+                    log.debug("Total of {} sql queries loaded for database type: {}.", sqlQueries.size(), databaseType);
                 }
             } else {
                 throw new IdentityStoreConnectorException("Invalid or unsupported database type specified in the" +
