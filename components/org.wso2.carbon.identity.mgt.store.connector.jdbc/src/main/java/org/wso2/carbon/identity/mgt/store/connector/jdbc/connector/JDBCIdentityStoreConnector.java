@@ -588,11 +588,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while storing user.", e);
         }
         return connectorUniqueId;
@@ -642,11 +638,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while getting database connection.", e);
         }
 
@@ -688,11 +680,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while updating user.", e);
         }
         return userIdentifier;
@@ -766,11 +754,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while updating user.", e);
         }
         return userIdentifier;
@@ -787,11 +771,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeUpdate();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while deleting user.", e);
         }
     }
@@ -822,11 +802,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while updating groups of user.", e);
         }
     }
@@ -863,11 +839,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while updating groups of user.", e);
         }
     }
@@ -899,11 +871,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while storing group.", e);
         }
 
@@ -953,11 +921,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while getting database connection.", e);
         }
 
@@ -999,11 +963,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while updating user.", e);
         }
         return groupIdentifier;
@@ -1076,11 +1036,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
 
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while updating user.", e);
         }
         return groupIdentifier;
@@ -1097,11 +1053,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeUpdate();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while deleting user.", e);
         }
     }
@@ -1132,11 +1084,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while updating groups of user.", e);
         }
     }
@@ -1173,11 +1121,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             namedPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred while updating groups of user.", e);
         }
     }
@@ -1198,11 +1142,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             unitOfWork.endTransaction();
 
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred remove added users in failure.", e);
         }
     }
@@ -1223,11 +1163,7 @@ public class JDBCIdentityStoreConnector extends JDBCStoreConnector implements Id
             unitOfWork.endTransaction();
 
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new IdentityStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new IdentityStoreConnectorException("Error occurred remove added users in failure.", e);
         }
     }

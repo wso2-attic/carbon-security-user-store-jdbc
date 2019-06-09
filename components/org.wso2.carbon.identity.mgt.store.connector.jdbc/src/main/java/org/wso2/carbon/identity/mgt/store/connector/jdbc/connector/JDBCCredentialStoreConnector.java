@@ -271,11 +271,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             deleteCredentialPreparedStatement.getPreparedStatement().executeUpdate();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new CredentialStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new CredentialStoreConnectorException("Exception occurred while deleting the credential", e);
         }
     }
@@ -339,11 +335,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
             addPasswordInfoPreparedStatement.getPreparedStatement().executeBatch();
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new CredentialStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new CredentialStoreConnectorException("Error while storing user credential.", e);
         }
 
@@ -431,11 +423,7 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
 
             unitOfWork.endTransaction();
         } catch (SQLException e) {
-            try {
-                UnitOfWork.rollBackTransaction(dataSource.getConnection());
-            } catch (SQLException e1) {
-                throw new CredentialStoreConnectorException("Error occurred while rollback the transaction.", e1);
-            }
+            UnitOfWork.rollbackTransaction(dataSource);
             throw new CredentialStoreConnectorException("Error while updating the password.", e);
         }
     }
