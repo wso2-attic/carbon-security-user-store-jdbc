@@ -260,18 +260,22 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
     public void deleteCredential(String username) throws CredentialStoreConnectorException {
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            try {
 
-            NamedPreparedStatement deleteCredentialPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_CREDENTIAL));
+                NamedPreparedStatement deleteCredentialPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_DELETE_CREDENTIAL));
 
-            deleteCredentialPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
-                    username);
+                deleteCredentialPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                        username);
 
-            deleteCredentialPreparedStatement.getPreparedStatement().executeUpdate();
-            unitOfWork.endTransaction();
+                deleteCredentialPreparedStatement.getPreparedStatement().executeUpdate();
+                unitOfWork.endTransaction();
+            } catch (SQLException e) {
+                unitOfWork.rollbackTransaction(unitOfWork.getConnection());
+                throw new CredentialStoreConnectorException("Exception occurred while deleting the credential", e);
+            }
         } catch (SQLException e) {
-            UnitOfWork.rollbackTransaction(dataSource);
             throw new CredentialStoreConnectorException("Exception occurred while deleting the credential", e);
         }
     }
@@ -299,43 +303,47 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         passwordHandler.setKeyLength(keyLength);
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
-            NamedPreparedStatement addPasswordPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_CREDENTIAL));
-            NamedPreparedStatement addPasswordInfoPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO));
-            for (Map.Entry<String, char[]> entry : passwordMap.entrySet()) {
-                String hashedPassword;
-                try {
-                    hashedPassword = passwordHandler.hashPassword(entry.getValue(), salt, hashAlgo);
-                } catch (NoSuchAlgorithmException e) {
-                    throw new CredentialStoreConnectorException("Error while hashing the password.", e);
+            try {
+                NamedPreparedStatement addPasswordPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_CREDENTIAL));
+                NamedPreparedStatement addPasswordInfoPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_ADD_PASSWORD_INFO));
+                for (Map.Entry<String, char[]> entry : passwordMap.entrySet()) {
+                    String hashedPassword;
+                    try {
+                        hashedPassword = passwordHandler.hashPassword(entry.getValue(), salt, hashAlgo);
+                    } catch (NoSuchAlgorithmException e) {
+                        throw new CredentialStoreConnectorException("Error while hashing the password.", e);
+                    }
+
+                    //Store password.
+
+                    addPasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                            entry.getKey());
+
+                    addPasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD, hashedPassword);
+                    addPasswordPreparedStatement.getPreparedStatement().addBatch();
+
+                    //Store password info.
+                    addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD_SALT, salt);
+                    addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.HASH_ALGO, hashAlgo);
+                    addPasswordInfoPreparedStatement
+                            .setInt(ConnectorConstants.SQLPlaceholders.ITERATION_COUNT, iterationCount);
+                    addPasswordInfoPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.KEY_LENGTH, keyLength);
+                    addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID,
+                            entry.getKey());
+                    addPasswordInfoPreparedStatement.getPreparedStatement().addBatch();
                 }
-
-                //Store password.
-
-                addPasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, entry
-                        .getKey());
-
-                addPasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD, hashedPassword);
-                addPasswordPreparedStatement.getPreparedStatement().addBatch();
-
-                //Store password info.
-                addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD_SALT, salt);
-                addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.HASH_ALGO, hashAlgo);
-                addPasswordInfoPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.ITERATION_COUNT,
-                        iterationCount);
-                addPasswordInfoPreparedStatement.setInt(ConnectorConstants.SQLPlaceholders.KEY_LENGTH, keyLength);
-                addPasswordInfoPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, entry
-                        .getKey());
-                addPasswordInfoPreparedStatement.getPreparedStatement().addBatch();
+                addPasswordPreparedStatement.getPreparedStatement().executeBatch();
+                addPasswordInfoPreparedStatement.getPreparedStatement().executeBatch();
+                unitOfWork.endTransaction();
+            } catch (SQLException e) {
+                unitOfWork.rollbackTransaction(unitOfWork.getConnection());
+                throw new CredentialStoreConnectorException("Error while storing user credential.", e);
             }
-            addPasswordPreparedStatement.getPreparedStatement().executeBatch();
-            addPasswordInfoPreparedStatement.getPreparedStatement().executeBatch();
-            unitOfWork.endTransaction();
         } catch (SQLException e) {
-            UnitOfWork.rollbackTransaction(dataSource);
             throw new CredentialStoreConnectorException("Error while storing user credential.", e);
         }
 
@@ -402,28 +410,31 @@ public class JDBCCredentialStoreConnector extends JDBCStoreConnector implements 
         }
 
         try (UnitOfWork unitOfWork = UnitOfWork.beginTransaction(dataSource.getConnection(), false)) {
+            try {
 
-            // Update password.
-            NamedPreparedStatement updatePasswordPreparedStatement = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL));
-            updatePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, username);
-            updatePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD, hashedPassword);
-            updatePasswordPreparedStatement.getPreparedStatement().executeUpdate();
+                // Update password.
+                NamedPreparedStatement updatePasswordPreparedStatement = new NamedPreparedStatement(
+                        unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_CREDENTIAL));
+                updatePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, username);
+                updatePasswordPreparedStatement.setString(ConnectorConstants.SQLPlaceholders.PASSWORD, hashedPassword);
+                updatePasswordPreparedStatement.getPreparedStatement().executeUpdate();
 
-            NamedPreparedStatement updatePasswordInfo = new NamedPreparedStatement(
-                    unitOfWork.getConnection(),
-                    sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_PASSWORD_INFO));
-            updatePasswordInfo.setInt(ConnectorConstants.SQLPlaceholders.ITERATION_COUNT, iterationCount);
-            updatePasswordInfo.setInt(ConnectorConstants.SQLPlaceholders.KEY_LENGTH, keyLength);
-            updatePasswordInfo.setString(ConnectorConstants.SQLPlaceholders.HASH_ALGO, hashAlgo);
-            updatePasswordInfo.setString(ConnectorConstants.SQLPlaceholders.PASSWORD_SALT, salt);
-            updatePasswordInfo.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, username);
-            updatePasswordInfo.getPreparedStatement().executeUpdate();
+                NamedPreparedStatement updatePasswordInfo = new NamedPreparedStatement(unitOfWork.getConnection(),
+                        sqlQueries.get(ConnectorConstants.QueryTypes.SQL_QUERY_UPDATE_PASSWORD_INFO));
+                updatePasswordInfo.setInt(ConnectorConstants.SQLPlaceholders.ITERATION_COUNT, iterationCount);
+                updatePasswordInfo.setInt(ConnectorConstants.SQLPlaceholders.KEY_LENGTH, keyLength);
+                updatePasswordInfo.setString(ConnectorConstants.SQLPlaceholders.HASH_ALGO, hashAlgo);
+                updatePasswordInfo.setString(ConnectorConstants.SQLPlaceholders.PASSWORD_SALT, salt);
+                updatePasswordInfo.setString(ConnectorConstants.SQLPlaceholders.USER_UNIQUE_ID, username);
+                updatePasswordInfo.getPreparedStatement().executeUpdate();
 
-            unitOfWork.endTransaction();
+                unitOfWork.endTransaction();
+            } catch (SQLException e) {
+                unitOfWork.rollbackTransaction(unitOfWork.getConnection());
+                throw new CredentialStoreConnectorException("Error while updating the password.", e);
+            }
         } catch (SQLException e) {
-            UnitOfWork.rollbackTransaction(dataSource);
             throw new CredentialStoreConnectorException("Error while updating the password.", e);
         }
     }
