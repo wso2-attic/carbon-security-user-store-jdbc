@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,18 +90,12 @@ public class UnitOfWork implements AutoCloseable {
     /**
      * Revoke the transaction when catch then sql transaction errors.
      *
-     * @param dataSource DataSource of the connection.
+     * @param connection Database connection.
      * @throws SQLException SQL Exception.
      */
-    public static void rollbackTransaction(DataSource dataSource) {
+    public static void rollBackTransaction(Connection connection) throws SQLException {
 
-        try (Connection connection = dataSource.getConnection()) {
-            if (connection != null) {
-                connection.rollback();
-            }
-        } catch (SQLException e1) {
-            log.error("An error occurred while rolling back transactions. ", e1);
-        }
+           connection.rollback();
     }
 
     /**
